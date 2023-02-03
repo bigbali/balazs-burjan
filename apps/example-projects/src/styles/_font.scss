@@ -1,0 +1,28 @@
+$font-weight-thin: 100;
+$font-weight-extralight: 200;
+$font-weight-light: 300;
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+$font-weight-black: 900;
+
+@font-face {
+    font-family: 'Raleway';
+    src: url("./fonts/Raleway-Variable.woff2") format('woff2-variations'),
+        url("./fonts/Raleway-Variable.woff2") format('woff-variations');
+    font-weight: $font-weight-extralight $font-weight-black;
+    font-stretch: 75% 125%;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Caveat';
+    src: url("./fonts/Caveat-Regular.woff2") format('woff2'),
+        url("./fonts/Caveat-Regular.woff2") format('woff');
+    font-weight: $font-weight-regular;
+    font-style: normal;
+    font-display: swap;
+}
