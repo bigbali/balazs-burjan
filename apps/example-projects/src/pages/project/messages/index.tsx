@@ -1,25 +1,29 @@
-import type { Message } from '@prisma/client';
+import type { GetServerSideProps } from 'next';
+import type { Message, User } from '@prisma/client';
+import { createProxySSGHelpers } from '@trpc/react-query/ssg';
 import MessagesPage from '../../../components/_pages/messages';
 import { appRouter } from '../../../server/api/root';
-import { prisma } from '../../../server/db';
+import { createTRPCContext } from '../../../server/api/trpc';
 
-// eslint-disable-next-line @typescript-eslint/require-await
-export const getStaticProps = async () => {
-    // const messages = await prisma.message.findMany({ take: 20 });
-    // console.log(messages);
+export type MessagePageProps = {
+    messages?: (Message & { author: User })[]
+};
 
-    // const messages = await appRouter.message.createCaller()
+export const getServerSideProps: GetServerSideProps<MessagePageProps> = async ({ req, res }) => {
+    // @ts-ignore
+    const ctx = await createTRPCContext({ req, res });
+    // const caller = appRouter.createCaller(ctx);
+    // const messages = await caller.message.getInitial();
+
+    const messages = await createProxySSGHelpers({ ctx, router: appRouter }).message.getInitial.fetch();
 
     return {
         props: {
-            messages: []
+            messages
         }
     };
 };
 
-export type MessagePageProps = {
-    messages?: Message[]
-};
 
 const Messages = ({ messages }: MessagePageProps) => <MessagesPage messages={messages} />;
 

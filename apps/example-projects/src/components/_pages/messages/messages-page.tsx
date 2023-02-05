@@ -9,13 +9,18 @@ const MessagesPage = ({ messages }: MessagePageProps) => {
         );
     }
     return (
-        <ul>
+        <>
             {messages.map(message => (
-                <li key={message.id}>
-                    {message.content}
-                </li>
+                <article key={message.id} className='border border-red-400 mb-4'>
+                    <h1 className='text-xl font-medium'>
+                        {message.author.name}
+                    </h1>
+                    <p className='text-base'>
+                        {message.content}
+                    </p>
+                </article>
             ))}
-        </ul>
+        </>
     );
 };
 

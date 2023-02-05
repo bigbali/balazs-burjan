@@ -18,7 +18,7 @@ const config = {
             ];
 
             return importAutomatically.join('').concat(content);
-        }
+        },
     },
 
     /**
@@ -30,6 +30,9 @@ const config = {
     i18n: {
         locales: ['en'],
         defaultLocale: 'en',
+    },
+    experimental: {
+        swcPlugins: [['next-superjson-plugin', {}]],
     },
 };
 

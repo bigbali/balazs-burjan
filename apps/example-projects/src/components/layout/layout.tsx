@@ -12,7 +12,7 @@ const Layout: LayoutComponent = ({ children }, ref) => {
     return (
         <>
             <Navigation />
-            <main className='Page' ref={ref}>
+            <main className='p-64 pt-24' ref={ref}>
                 {children}
             </main>
         </>

@@ -17,7 +17,7 @@ const Navigation = () => {
 
                     return (
                         <li key={project}>
-                            <Link href={`./${project}`} className={`hover:text-red-600 ${isCurrent ? 'text-red-500' : ''}`}>
+                            <Link href={`/project/${project}`} className={`hover:text-red-600 ${isCurrent ? 'text-red-500' : ''}`}>
                                 {project}
                             </Link>
                         </li>
