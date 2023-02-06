@@ -3,14 +3,14 @@ import { type Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
 
 import { api } from '../utils/api';
+import Layout from '../components/layout';
 
 import '../styles/tailwind.css';
 import '../styles/font.css';
-import Layout from '../components/layout';
 
 const MyApp: AppType<{ session: Session | null }> = ({
     Component,
-    pageProps: { session, ...pageProps },
+    pageProps: { session, ...pageProps }
 }) => {
     return (
         <SessionProvider session={session}>

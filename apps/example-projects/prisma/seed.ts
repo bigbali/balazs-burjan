@@ -22,13 +22,13 @@ const MESSAGES = [
      Orci eu lobortis elementum nibh tellus molestie nunc. Tempor nec feugiat nisl pretium fusce id velit.
      Varius duis at consectetur lorem donec massa sapien faucibus. Purus in mollis nunc sed.
      Ligula ullamcorper malesuada proin libero nunc consequat interdum. Bibendum est ultricies integer quis.
-     Varius vel pharetra vel turpis nunc.`,
+     Varius vel pharetra vel turpis nunc.`
 ] as const;
 
 async function main() {
     const messageCreateOrUpdate = {
         create: MESSAGES.map(message => ({
-            content: message,
+            content: message
         }))
     };
 
@@ -47,11 +47,8 @@ async function main() {
 
         console.log('Seeding database: ', userSeed);
     }
-
-    const x = await prisma.message.findMany();
-    console.log('Messages', x);
-
 }
+
 main()
     .then(async () => {
         await prisma.$disconnect();

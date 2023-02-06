@@ -14,11 +14,11 @@ const config = {
             // put something in here and all .scss files will have it
             const importAutomatically = [
                 '@import "src/style/mixin.scss";',
-                '@import "src/style/function.scss";',
+                '@import "src/style/function.scss";'
             ];
 
             return importAutomatically.join('').concat(content);
-        },
+        }
     },
 
     /**
@@ -29,11 +29,11 @@ const config = {
      */
     i18n: {
         locales: ['en'],
-        defaultLocale: 'en',
+        defaultLocale: 'en'
     },
     experimental: {
-        swcPlugins: [['next-superjson-plugin', {}]],
-    },
+        swcPlugins: [['next-superjson-plugin', {}]]
+    }
 };
 
 export default config;
