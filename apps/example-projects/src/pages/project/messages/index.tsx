@@ -8,7 +8,8 @@ import { createTRPCContext } from '../../../server/api/trpc';
 export type MessageWithAuthor = Message & { author: User };
 
 export type MessagePageProps = {
-    messages?: MessageWithAuthor[]
+    data?: MessageWithAuthor[],
+    nextCursor: string | undefined
 };
 
 export const getServerSideProps: GetServerSideProps<MessagePageProps> = async ({ req, res }) => {
@@ -18,16 +19,16 @@ export const getServerSideProps: GetServerSideProps<MessagePageProps> = async ({
     // const messages = await caller.message.getInitial();
 
     // const messages = await createProxySSGHelpers({ ctx, router: appRouter }).message.getInitial.fetch();
-    const messages = await createProxySSGHelpers({ ctx, router: appRouter }).message.getAll.fetch();
+    const messages = await createProxySSGHelpers({ ctx, router: appRouter }).message.getInitial.fetch();
 
     return {
         props: {
-            messages
+            ...messages
         }
     };
 };
 
 
-const Messages = ({ messages }: MessagePageProps) => <MessagesPage messages={messages} />;
+const Messages = ({ data, nextCursor }: MessagePageProps) => <MessagesPage data={data} nextCursor={nextCursor} />;
 
 export default Messages;
