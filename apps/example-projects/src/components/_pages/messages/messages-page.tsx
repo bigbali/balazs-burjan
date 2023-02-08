@@ -1,23 +1,14 @@
-import { useSession } from 'next-auth/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { MessagePageProps, MessageWithAuthor } from '../../../pages/project/messages';
 import { api } from '../../../utils/api';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import Form from './form';
+import Message from './message';
 
 const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
     const [messages, setMessages] = useState(data);
     const sentinelRef = useRef<HTMLDivElement>(null);
     const [messagesContainerRef] = useAutoAnimate();
-    const session = useSession();
-
-    const { mutateAsync: deleteMessage } = api.message.delete.useMutation({
-        onSuccess(data, { id }) {
-            if (data.deleted) {
-                setMessages(state => state?.filter(message => message.id !== id));
-            }
-        }
-    });
 
     const { fetchNextPage, hasNextPage } = api.message.infiniteMessages.useInfiniteQuery({}, {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
@@ -81,42 +72,14 @@ const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
                 Messages
             </h1>
             <div>
-                <p className='text-xl mb-4'>
-                    Here you can leave messages.
-                </p>
                 <Form onMessageAdded={handleMessageAdded} />
-                <div className='grid grid-cols-3 gap-4' ref={messagesContainerRef}>
-                    {messages.map(message => {
-                        const createdAt = Intl.DateTimeFormat('en-GB', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: '2-digit',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                        }).format(message.created_at);
-
-                        return (
-                            <article key={message.id} className='border border-red-400 mb-4'>
-                                <h1 className='text-xl font-medium'>
-                                    {message.author.name}
-                                </h1>
-                                <p className='text-base'>
-                                    {message.content}
-                                </p>
-                                <p>
-                                    {createdAt}
-                                </p>
-                                {message.user_id === session.data?.user.id && (
-                                    <button
-                                        className='text-xl border border-blue rounded-full p-4 bg-cyan-800 text-white'
-                                        onClick={() => void deleteMessage({ id: message.id, user_id: session.data?.user.id })}
-                                    >
-                                        Delete
-                                    </button>
-                                )}
-                            </article>
-                        );
-                    })}
+                <div className='w-1/2 ml-auto mr-auto' ref={messagesContainerRef}>
+                    {messages.map(message => (
+                        <Message
+                            key={message.id}
+                            setMessages={setMessages}
+                            {...message} />
+                    ))}
                 </div>
                 <div className='sentinel' ref={sentinelRef} />
             </div>

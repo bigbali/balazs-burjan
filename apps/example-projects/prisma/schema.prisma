@@ -67,9 +67,10 @@ model VerificationToken {
 }
 
 model Message {
-    id         String   @id @default(cuid())
+    id         String    @id @default(cuid())
     content    String
-    created_at DateTime @default(now())
+    created_at DateTime  @default(now())
+    updated_at DateTime?
     user_id    String
-    author     User     @relation(fields: [user_id], references: [id])
+    author     User      @relation(fields: [user_id], references: [id])
 }

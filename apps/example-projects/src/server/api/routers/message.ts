@@ -1,9 +1,6 @@
 import { Prisma } from '@prisma/client';
-import { PrismaClientValidationError } from '@prisma/client/runtime';
-import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure, protectedProcedure } from '../trpc';
-// import {MessageWhereUniqueInput}
 
 export const messageRouter = createTRPCRouter({
     getInitial: publicProcedure.query(async ({ ctx }) => {
@@ -24,39 +21,10 @@ export const messageRouter = createTRPCRouter({
             nextCursor: cursor
         };
     }),
-    getAll: publicProcedure.query(({ ctx }) => {
-        return ctx.prisma.message.findMany({
-            include: {
-                author: true
-            },
-            orderBy: {
-                created_at: Prisma.SortOrder.desc
-            }
-        });
-    }),
-    add: protectedProcedure
-        .input(z.object({ content: z.string() }))
-        .mutation(async ({ ctx, input }) => {
-            const message = await ctx.prisma.message.create({
-                data: {
-                    content: input.content,
-                    author: {
-                        connect: {
-                            id: ctx.session.user.id
-                        }
-                    }
-                },
-                include: {
-                    author: true
-                }
-            });
-
-            return message;
-        }),
     infiniteMessages: publicProcedure
         .input(z.object({
             limit: z.number().min(1).max(100).nullish(),
-            cursor: z.string().nullish() // <-- "cursor" needs to exist, but can be any type
+            cursor: z.string().nullish()
         }))
         .query(async ({ ctx, input }) => {
             const limit = input.limit ?? 20;
@@ -83,6 +51,25 @@ export const messageRouter = createTRPCRouter({
                 nextCursor
             };
         }),
+    add: protectedProcedure
+        .input(z.object({ content: z.string() }))
+        .mutation(async ({ ctx, input }) => {
+            const message = await ctx.prisma.message.create({
+                data: {
+                    content: input.content,
+                    author: {
+                        connect: {
+                            id: ctx.session.user.id
+                        }
+                    }
+                },
+                include: {
+                    author: true
+                }
+            });
+
+            return message;
+        }),
     delete: protectedProcedure
         .input(z.object({
             id: z.string(),
@@ -103,6 +90,34 @@ export const messageRouter = createTRPCRouter({
 
             return {
                 deleted: false
+            };
+        }),
+    update: protectedProcedure
+        .input(z.object({
+            id: z.string(),
+            user_id: z.string().nullish(),
+            content: z.string()
+        }))
+        .mutation(async ({ ctx, input }) => {
+            const data = {
+                content: input.content,
+                updated_at: new Date()
+            };
+
+            if (input.user_id === ctx.session.user.id) {
+                await ctx.prisma.message.update({
+                    where: {
+                        id: input.id
+                    },
+                    data
+                });
+
+                return data;
+            }
+
+            return {
+                content: null,
+                updated_at: null
             };
         })
 });
