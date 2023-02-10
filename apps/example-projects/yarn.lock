@@ -1835,6 +1835,7 @@ __metadata:
     ts-node: ^10.9.1
     tsconfig: "*"
     typescript: ^4.9.5
+    util: ../../packages/util
     zod: ^3.20.2
   languageName: unknown
   linkType: soft
@@ -4423,6 +4424,13 @@ __metadata:
   version: 1.0.2
   resolution: "util-deprecate@npm:1.0.2"
   checksum: 474acf1146cb2701fe3b074892217553dfcf9a031280919ba1b8d651a068c9b15d863b7303cb15bd00a862b498e6cf4ad7b4a08fb134edd5a6f7641681cb54a2
+  languageName: node
+  linkType: hard
+
+"util@file:../../packages/util::locator=example-projects%40workspace%3A.":
+  version: 0.0.0
+  resolution: "util@file:../../packages/util#../../packages/util::hash=da04b0&locator=example-projects%40workspace%3A."
+  checksum: 2ac286a37aa7924fad4b5a1f0dc8a232e6b61a6bffdcf1d30c3361b2b5b7e0814bb438514ee450d932366f942d394cee919515cbe343b58fbd14f6df15a51681
   languageName: node
   linkType: hard
 

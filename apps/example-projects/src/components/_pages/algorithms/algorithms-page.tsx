@@ -3,6 +3,8 @@ import { createRef } from 'react';
 import { startTransition } from 'react';
 import { memo } from 'react';
 import React, { useMemo, useState } from 'react';
+import type { Coordinates, NodeGrid, NodeRef } from './util/graphics';
+import { beginPaint, Shape } from './util/graphics';
 
 const DEFAULT_COLUMNS = 20;
 const DEFAULT_ROWS = 20;
@@ -20,20 +22,16 @@ const MAX_ROWS = 150;
 const MAX_VELOCITY = 100;
 const MAX_RADIUS = 100;
 
-type Coordinate = {
-    x: number | null,
-    y: number | null
-};
-
 type CoordinateProps = {
     x: number,
     y: number,
     isOrigin: boolean,
     isGoal: boolean,
-    setOrigin: Dispatch<SetStateAction<Coordinate>>,
-    setGoal: Dispatch<SetStateAction<Coordinate>>,
+    setOrigin: Dispatch<SetStateAction<Coordinates>>,
+    setGoal: Dispatch<SetStateAction<Coordinates>>,
     gridRef: Ref<HTMLDivElement>
 };
+
 
 const Coordinate = memo(function Coordinate({
     x,
@@ -80,45 +78,6 @@ const Coordinate = memo(function Coordinate({
     );
 });
 
-const isOutOfBoundsYX = (x: number, y: number, grid: any[][]) => {
-    if (y >= grid.length || y < 0) return true;
-    if (x >= grid[0]!.length || x < 0) return true;
-
-    return false;
-};
-
-const circle = (x: number, y: number, depth: number, grid: any[][], cb: (a: number, b: number) => void) => {
-    for (let a = x - depth; a <= x + depth; a++) {
-        for (let b = y - depth; b <= y + depth; b++) {
-            const distance = Math.sqrt(Math.pow(x - a, 2) + Math.pow(y - b, 2));
-            if (distance <= depth) {
-                if (isOutOfBoundsYX(a, b, grid)) continue;
-                cb(a, b);
-            }
-        }
-    }
-};
-
-const diamond = (x: number, y: number, depth: number, grid: any[][], cb: (a: number, b: number) => void) => {
-    for (let a = x - depth; a <= x + depth; a++) {
-        for (let b = y - depth; b <= y + depth; b++) {
-            if (Math.abs(x - a) + Math.abs(y - b) <= depth) {
-                if (isOutOfBoundsYX(a, b, grid)) continue;
-                cb(a, b);
-            }
-        }
-    }
-};
-
-enum Shape {
-    CIRCLE = 'circle',
-    DIAMOND = 'diamond'
-};
-
-const shapeMap = {
-    [Shape.CIRCLE]: circle,
-    [Shape.DIAMOND]: diamond
-};
 
 const Algorithms = () => {
     const [columns, setColumns] = useState(() => DEFAULT_COLUMNS);
@@ -127,59 +86,54 @@ const Algorithms = () => {
     const [radius, setRadius] = useState(() => DEFAULT_RADIUS);
     const [shape, setShape] = useState(() => Shape.CIRCLE);
 
-    const [origin, setOrigin] = useState<Coordinate>({
+    const [origin, setOrigin] = useState<Coordinates>({
         x: null,
         y: null
     });
-    const [goal, setGoal] = useState<Coordinate>({
+    const [goal, setGoal] = useState<Coordinates>({
         x: null,
         y: null
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-return
-    const yx: Ref<HTMLDivElement>[][] = Array(rows).fill(null).map(() => Array(columns).fill(null));
 
-    if (global !== undefined) {
-        //@ts-ignore
-        global.xy = yx;
-    }
+    const nodes = useMemo(() => {
+        const refs: NodeGrid = [];
+        for (let y = 0; y < rows; y++) {
+            const row: NodeRef[] = [];
+            refs.push(row);
 
-    const paint = ({ x, y }: Coordinate, depth: number) => {
-        if (depth >= radius) return;
-        if (x === null || y === null) return;
-        if (isOutOfBoundsYX(x, y, yx)) return;
+            for (let x = 0; x < columns; x++) {
+                row.push(createRef() as NodeRef);
+            }
+        }
 
-        const setColor = (x: number, y: number) => {
-            //@ts-ignore
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-            (yx[y]![x] as Ref<HTMLDivElement>).current.style.backgroundColor = 'yellow';
-        };
-
-        shapeMap[shape](x, y, depth, yx, setColor);
-
-        setTimeout(() => paint({ x, y }, depth + 1), 100 / velocity * 50);
-    };
+        return refs;
+    }, [columns, rows]);
 
     const initiate = () => {
-        paint(origin, 0);
+        beginPaint({
+            grid: nodes,
+            origin,
+            radius,
+            shape,
+            velocity
+        });
     };
 
     const table = useMemo(() => {
         const elements = [];
-        for (let y = 0; y < rows; y++) {
-            for (let x = 0; x < columns; x++) {
-                const ref = createRef<HTMLDivElement>();
-
-                yx[y]![x] = ref;
+        for (let row = 0; row < rows; row++) {
+            for (let column = 0; column < columns; column++) {
+                const ref = nodes[row]![column]!;
 
                 elements.push(
                     <Coordinate
-                        key={`${x},${y}`}
-                        x={x}
-                        y={y}
-                        isOrigin={x === origin.x && y === origin.y}
+                        key={`${column},${row}`}
+                        x={column}
+                        y={row}
+                        isOrigin={column === origin.x && row === origin.y}
                         setOrigin={setOrigin}
-                        isGoal={x === goal.x && y === goal.y}
+                        isGoal={column === goal.x && row === goal.y}
                         setGoal={setGoal}
                         gridRef={ref}
                     />
@@ -188,7 +142,7 @@ const Algorithms = () => {
         }
 
         return elements;
-    }, [yx, rows, columns, origin.x, origin.y, goal.x, goal.y]);
+    }, [nodes, rows, columns, origin.x, origin.y, goal.x, goal.y]);
 
     return (
         <div>
