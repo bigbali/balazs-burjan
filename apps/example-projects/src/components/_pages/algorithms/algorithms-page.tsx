@@ -1,10 +1,14 @@
-import type { Dispatch, Ref, SetStateAction } from 'react';
+import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
+import { Ref, useRef } from 'react';
 import { createRef } from 'react';
 import { startTransition } from 'react';
 import { memo } from 'react';
 import React, { useMemo, useState } from 'react';
-import type { Coordinates, NodeGrid, NodeRef } from './util/graphics';
+import type { Coordinate } from './util/common';
+import type { NodeGrid, NodeRef } from './util/common';
+import { beginBFS } from './util/algorithm';
 import { beginPaint, Shape } from './util/graphics';
+import Node from './node';
 
 const DEFAULT_COLUMNS = 20;
 const DEFAULT_ROWS = 20;
@@ -22,62 +26,16 @@ const MAX_ROWS = 150;
 const MAX_VELOCITY = 100;
 const MAX_RADIUS = 100;
 
-type CoordinateProps = {
-    x: number,
-    y: number,
-    isOrigin: boolean,
-    isGoal: boolean,
-    setOrigin: Dispatch<SetStateAction<Coordinates>>,
-    setGoal: Dispatch<SetStateAction<Coordinates>>,
-    gridRef: Ref<HTMLDivElement>
+enum Mode {
+    DRAW = 'draw',
+    PATHFINDER = 'pathfinder',
+    SORT = 'sort'
 };
 
-
-const Coordinate = memo(function Coordinate({
-    x,
-    y,
-    gridRef,
-    isOrigin,
-    isGoal,
-    setOrigin,
-    setGoal
-}: CoordinateProps) {
-    const [isShowMenu, setIsShowMenu] = useState(false);
-
-    return (
-        <div
-            ref={gridRef}
-            onClick={() => setIsShowMenu(state => !state)}
-            className={
-                `aspect-square border bg-slate-500 relative
-                ${isOrigin ? '!bg-sky-800' : ''}
-                ${isGoal ? '!bg-green-700' : ''}`
-            }
-            style={{
-                gridColumnStart: x + 1,
-                gridRowStart: y + 1
-            }}
-        >
-            {isShowMenu && (
-                <div className='absolute bottom-full bg-yellow-500 p-4'>
-                    <button
-                        className='bg-sky-800 text-white px-4 py-2 border-none'
-                        onClick={() => startTransition(() => setOrigin({ x, y }))}
-                    >
-                        Set as Starting Point
-                    </button>
-                    <button
-                        className='bg-green-700 text-white px-4 py-2 border-none'
-                        onClick={() => startTransition(() => setGoal({ x, y }))}
-                    >
-                        Set as Goal Point
-                    </button>
-                </div>
-            )}
-        </div>
-    );
-});
-
+export type Nodes2 = {
+    setIsVisited: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
+    isObstruction: MutableRefObject<boolean>,
+};
 
 const Algorithms = () => {
     const [columns, setColumns] = useState(() => DEFAULT_COLUMNS);
@@ -85,16 +43,18 @@ const Algorithms = () => {
     const [velocity, setVelocity] = useState(() => DEFAULT_VELOCITY);
     const [radius, setRadius] = useState(() => DEFAULT_RADIUS);
     const [shape, setShape] = useState(() => Shape.CIRCLE);
+    const [mode, setMode] = useState(() => Shape.CIRCLE);
 
-    const [origin, setOrigin] = useState<Coordinates>({
-        x: null,
-        y: null
-    });
-    const [goal, setGoal] = useState<Coordinates>({
-        x: null,
-        y: null
-    });
+    const velocityRef = useRef(velocity);
 
+    const [origin, setOrigin] = useState<Coordinate>({
+        x: 0,
+        y: 0
+    });
+    const [goal, setGoal] = useState<Coordinate>({
+        x: columns - 1,
+        y: rows - 1
+    });
 
     const nodes = useMemo(() => {
         const refs: NodeGrid = [];
@@ -110,15 +70,38 @@ const Algorithms = () => {
         return refs;
     }, [columns, rows]);
 
+    const nodes2 = useMemo(() => {
+        const refs: Nodes2[][] = [];
+        for (let y = 0; y < rows; y++) {
+            const row: Nodes2[] = [];
+            refs.push(row);
+
+            for (let x = 0; x < columns; x++) {
+                row.push({
+                    setIsVisited: createRef() as MutableRefObject<Dispatch<SetStateAction<boolean>>>,
+                    isObstruction: createRef() as MutableRefObject<boolean>
+                });
+            }
+        }
+
+        return refs;
+    }, [columns, rows]);
+
     const initiate = () => {
-        beginPaint({
-            grid: nodes,
-            origin,
-            radius,
-            shape,
-            velocity
-        });
+        // beginPaint({
+        //     grid: nodes,
+        //     origin,
+        //     radius,
+        //     shape,
+        //     velocity
+        // });
+
+        // beginBFS(origin, goal, nodes, velocityRef);
+        beginBFS(origin, goal, nodes2, velocityRef);
     };
+
+    // @ts-ignore
+    global.nodes2 = nodes2;
 
     const table = useMemo(() => {
         const elements = [];
@@ -127,7 +110,7 @@ const Algorithms = () => {
                 const ref = nodes[row]![column]!;
 
                 elements.push(
-                    <Coordinate
+                    <Node
                         key={`${column},${row}`}
                         x={column}
                         y={row}
@@ -136,6 +119,8 @@ const Algorithms = () => {
                         isGoal={column === goal.x && row === goal.y}
                         setGoal={setGoal}
                         gridRef={ref}
+                        setVisitedRef={nodes2[row]![column]!.setIsVisited}
+                        isObstructionRef={nodes2[row]![column]!.isObstruction}
                     />
                 );
             }
@@ -183,7 +168,11 @@ const Algorithms = () => {
                 min={MIN_VELOCITY}
                 step={1}
                 value={velocity}
-                onChange={(e) => startTransition(() => setVelocity(Number.parseInt(e.currentTarget.value)))}
+                onChange={(e) => startTransition(() => {
+                    const value = Number.parseInt(e.currentTarget.value);
+                    velocityRef.current = value;
+                    setVelocity(value);
+                })}
             />
             <label htmlFor='radius'>
                 Radius {radius}
