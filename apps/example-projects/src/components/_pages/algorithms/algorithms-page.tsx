@@ -1,13 +1,11 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { Ref, useRef } from 'react';
+import { useRef } from 'react';
 import { createRef } from 'react';
 import { startTransition } from 'react';
-import { memo } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { Coordinate } from './util/common';
-import type { NodeGrid, NodeRef } from './util/common';
 import { beginBFS } from './util/algorithm';
-import { beginPaint, Shape } from './util/graphics';
+import { Shape } from './util/graphics';
 import Node from './node';
 
 const DEFAULT_COLUMNS = 20;
@@ -32,6 +30,11 @@ enum Mode {
     SORT = 'sort'
 };
 
+enum Algorithm {
+    BREADTH_FIRST = 'breadth first',
+    DIJKSTRA = 'dijkstra'
+};
+
 export type Nodes2 = {
     setIsVisited: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
     isObstruction: MutableRefObject<boolean>,
@@ -43,7 +46,8 @@ const Algorithms = () => {
     const [velocity, setVelocity] = useState(() => DEFAULT_VELOCITY);
     const [radius, setRadius] = useState(() => DEFAULT_RADIUS);
     const [shape, setShape] = useState(() => Shape.CIRCLE);
-    const [mode, setMode] = useState(() => Shape.CIRCLE);
+    const [algorithm, setAlgorithm] = useState(() => Algorithm.BREADTH_FIRST);
+    const [mode, setMode] = useState(() => Mode.PATHFINDER);
 
     const velocityRef = useRef(velocity);
 
@@ -56,21 +60,21 @@ const Algorithms = () => {
         y: rows - 1
     });
 
+    // const nodes = useMemo(() => {
+    //     const refs: NodeGrid = [];
+    //     for (let y = 0; y < rows; y++) {
+    //         const row: NodeRef[] = [];
+    //         refs.push(row);
+
+    //         for (let x = 0; x < columns; x++) {
+    //             row.push(createRef() as NodeRef);
+    //         }
+    //     }
+
+    //     return refs;
+    // }, [columns, rows]);
+
     const nodes = useMemo(() => {
-        const refs: NodeGrid = [];
-        for (let y = 0; y < rows; y++) {
-            const row: NodeRef[] = [];
-            refs.push(row);
-
-            for (let x = 0; x < columns; x++) {
-                row.push(createRef() as NodeRef);
-            }
-        }
-
-        return refs;
-    }, [columns, rows]);
-
-    const nodes2 = useMemo(() => {
         const refs: Nodes2[][] = [];
         for (let y = 0; y < rows; y++) {
             const row: Nodes2[] = [];
@@ -88,26 +92,27 @@ const Algorithms = () => {
     }, [columns, rows]);
 
     const initiate = () => {
-        // beginPaint({
-        //     grid: nodes,
-        //     origin,
-        //     radius,
-        //     shape,
-        //     velocity
-        // });
+        if (mode === Mode.DRAW) {
+            //      beginPaint({
+            //     grid: nodes,
+            //     origin,
+            //     radius,
+            //     shape,
+            //     velocity
+            // });
+            console.log('i would now start drawing a shape, but it\'s late and the dev is tired, haha');
+        }
 
-        // beginBFS(origin, goal, nodes, velocityRef);
-        beginBFS(origin, goal, nodes2, velocityRef);
+        if (mode === Mode.PATHFINDER) {
+            beginBFS(origin, goal, nodes, velocityRef);
+        }
     };
-
-    // @ts-ignore
-    global.nodes2 = nodes2;
 
     const table = useMemo(() => {
         const elements = [];
         for (let row = 0; row < rows; row++) {
             for (let column = 0; column < columns; column++) {
-                const ref = nodes[row]![column]!;
+                // const ref = nodes[row]![column]!;
 
                 elements.push(
                     <Node
@@ -118,9 +123,9 @@ const Algorithms = () => {
                         setOrigin={setOrigin}
                         isGoal={column === goal.x && row === goal.y}
                         setGoal={setGoal}
-                        gridRef={ref}
-                        setVisitedRef={nodes2[row]![column]!.setIsVisited}
-                        isObstructionRef={nodes2[row]![column]!.isObstruction}
+                        // gridRef={ref}
+                        setVisitedRef={nodes[row]![column]!.setIsVisited}
+                        isObstructionRef={nodes[row]![column]!.isObstruction}
                     />
                 );
             }
@@ -186,6 +191,23 @@ const Algorithms = () => {
                 value={radius}
                 onChange={(e) => startTransition(() => setRadius(Number.parseInt(e.currentTarget.value)))}
             />
+            <label htmlFor='mode'>
+                Mode {mode}
+            </label>
+            <select
+                id='mode'
+                className='capitalize border border-black'
+                value={mode}
+                onChange={(e) => startTransition(() => setMode(e.currentTarget.value as Mode))}
+            >
+                {Object.values(Mode).map((value) => {
+                    return (
+                        <option key={value} value={value} className='capitalize'>
+                            {value}
+                        </option>
+                    );
+                })}
+            </select>
             <label htmlFor='shape'>
                 Shape {shape}
             </label>
@@ -196,6 +218,23 @@ const Algorithms = () => {
                 onChange={(e) => startTransition(() => setShape(e.currentTarget.value as Shape))}
             >
                 {Object.values(Shape).map((value) => {
+                    return (
+                        <option key={value} value={value} className='capitalize'>
+                            {value}
+                        </option>
+                    );
+                })}
+            </select>
+            <label htmlFor='algorithm' className='capitalize'>
+                Algorithm {algorithm}
+            </label>
+            <select
+                id='algorithm'
+                className='capitalize border border-black'
+                value={algorithm}
+                onChange={(e) => startTransition(() => setAlgorithm(e.currentTarget.value as Algorithm))}
+            >
+                {Object.values(Algorithm).map((value) => {
                     return (
                         <option key={value} value={value} className='capitalize'>
                             {value}

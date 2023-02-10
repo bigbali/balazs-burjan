@@ -9,7 +9,7 @@ export type NodeProps = {
     isGoal: boolean,
     setOrigin: Dispatch<SetStateAction<Coordinate>>,
     setGoal: Dispatch<SetStateAction<Coordinate>>,
-    gridRef: MutableRefObject<HTMLDivElement>,
+    // gridRef: MutableRefObject<HTMLDivElement>,
     setVisitedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
     isObstructionRef: MutableRefObject<boolean>
 };
@@ -17,7 +17,7 @@ export type NodeProps = {
 const Node = ({
     x,
     y,
-    gridRef,
+    // gridRef,
     setVisitedRef,
     isObstructionRef,
     isOrigin,
@@ -33,7 +33,7 @@ const Node = ({
 
     return (
         <div
-            ref={gridRef}
+            // ref={gridRef}
             onClick={() => setIsShowMenu(state => !state)}
             className={
                 `aspect-square border bg-slate-500 relative
