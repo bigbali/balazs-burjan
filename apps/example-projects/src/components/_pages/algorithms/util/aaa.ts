@@ -46,8 +46,6 @@ function BFS(queue: Queue, distance: number[][], goal: Coordinate, grid: Nodes2[
     const current = queue.shift()!;
     if (!current) return;
 
-    let isGoalReached = false;
-
     for (const [dx, dy] of Object.values(Directions)) {
         const x = current.x + dx;
         const y = current.y + dy;
@@ -68,37 +66,23 @@ function BFS(queue: Queue, distance: number[][], goal: Coordinate, grid: Nodes2[
 
             setIsVisited(true);
 
-            queue.push({ x, y, parent: current });
 
-            // FIXME remove when ready
+            queue.push({ x, y, parent: current });
             distance[y]![x] = distance[current.y]![current.x]! + 1;
 
             if (x === goal.x && y === goal.y) {
-                isGoalReached = true;
-                break;
+                console.log('found goal at', current);
+
+                let xxx = current.parent;
+                while (xxx) {
+                    console.log('xxx', xxx.y, xxx.x);
+                    grid[xxx.y]![xxx.x]?.setIsVisited.current(false);
+                    xxx = xxx.parent;
+                }
+                return;
             }
         }
     }
-
-    if (isGoalReached) {
-        let node = queue.at(-1);
-        let shortestDistance = 1;
-
-        while (node && node.parent) {
-            if (shortestDistance !== 1) { // don't highlight goal
-                grid[node.y]![node.x]?.setIsHighlighted.current(true);
-            };
-            shortestDistance++;
-            node = node.parent;
-        }
-
-        console.log(shortestDistance);
-
-        // FIXME pointless to return, wasted in settimeout
-        return shortestDistance;
-    }
-
-    if (current.y === grid.length - 1 && current.x === grid[0]!.length - 1) return null;
 
     setTimeout(() => BFS(queue, distance, goal, grid, velocity), velocity.current!);
 }

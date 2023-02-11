@@ -4,6 +4,7 @@ import { createRef } from 'react';
 import { startTransition } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { Coordinate } from './util/common';
+import { forEachNode } from './util/common';
 import { beginBFS } from './util/algorithm';
 import { Shape } from './util/graphics';
 import Node from './node';
@@ -37,7 +38,8 @@ enum Algorithm {
 
 export type Nodes2 = {
     setIsVisited: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
-    isObstruction: MutableRefObject<boolean>,
+    setIsHighlighted: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
+    isObstruction: MutableRefObject<boolean>
 };
 
 const Algorithms = () => {
@@ -74,6 +76,7 @@ const Algorithms = () => {
     //     return refs;
     // }, [columns, rows]);
 
+    // TODO why not combine this and table ([{ element: <Node ... />, x, y, ... }])
     const nodes = useMemo(() => {
         const refs: Nodes2[][] = [];
         for (let y = 0; y < rows; y++) {
@@ -83,6 +86,7 @@ const Algorithms = () => {
             for (let x = 0; x < columns; x++) {
                 row.push({
                     setIsVisited: createRef() as MutableRefObject<Dispatch<SetStateAction<boolean>>>,
+                    setIsHighlighted: createRef() as MutableRefObject<Dispatch<SetStateAction<boolean>>>,
                     isObstruction: createRef() as MutableRefObject<boolean>
                 });
             }
@@ -108,8 +112,13 @@ const Algorithms = () => {
         }
     };
 
+    const resetGrid = () => {
+        forEachNode(nodes, (node) => node.setIsVisited.current(false));
+    };
+
     const table = useMemo(() => {
         const elements = [];
+        console.log('fing');
         for (let row = 0; row < rows; row++) {
             for (let column = 0; column < columns; column++) {
                 // const ref = nodes[row]![column]!;
@@ -124,7 +133,8 @@ const Algorithms = () => {
                         isGoal={column === goal.x && row === goal.y}
                         setGoal={setGoal}
                         // gridRef={ref}
-                        setVisitedRef={nodes[row]![column]!.setIsVisited}
+                        setIsVisitedRef={nodes[row]![column]!.setIsVisited}
+                        setIsHighlightedRef={nodes[row]![column]!.setIsHighlighted}
                         isObstructionRef={nodes[row]![column]!.isObstruction}
                     />
                 );
@@ -244,6 +254,9 @@ const Algorithms = () => {
             </select>
             <button onClick={initiate}>
                 Initiate
+            </button>
+            <button onClick={resetGrid}>
+                Reset Grid
             </button>
             <div
                 className='px-64 py-32'

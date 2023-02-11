@@ -10,15 +10,17 @@ export type NodeProps = {
     setOrigin: Dispatch<SetStateAction<Coordinate>>,
     setGoal: Dispatch<SetStateAction<Coordinate>>,
     // gridRef: MutableRefObject<HTMLDivElement>,
-    setVisitedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
-    isObstructionRef: MutableRefObject<boolean>
+    setIsVisitedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
+    setIsHighlightedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
+    isObstructionRef: MutableRefObject<boolean>,
 };
 
 const Node = ({
     x,
     y,
     // gridRef,
-    setVisitedRef,
+    setIsVisitedRef,
+    setIsHighlightedRef,
     isObstructionRef,
     isOrigin,
     isGoal,
@@ -27,8 +29,10 @@ const Node = ({
 }: NodeProps) => {
     const [isShowMenu, setIsShowMenu] = useState(false);
     const [isVisited, setIsVisited] = useState(false);
+    const [isHighlighted, setIsHighlighted] = useState(false);
     const [isObstruction, setIsObstruction] = useState(false);
-    setVisitedRef.current = setIsVisited;
+    setIsVisitedRef.current = setIsVisited;
+    setIsHighlightedRef.current = setIsHighlighted;
     isObstructionRef.current = isObstruction;
 
     return (
@@ -40,7 +44,9 @@ const Node = ({
                 ${isOrigin ? '!bg-sky-800' : ''}
                 ${isGoal ? '!bg-green-700' : ''}
                 ${isObstruction ? '!bg-black' : ''}
-                ${isVisited ? '!bg-purple-700' : ''}`
+                ${isVisited ? '!bg-purple-700' : ''}
+                ${isHighlighted ? '!bg-yellow-500' : ''}
+                ${isGoal && isVisited ? '!bg-pink-700' : ''}`
             }
             style={{
                 gridColumnStart: x + 1,
