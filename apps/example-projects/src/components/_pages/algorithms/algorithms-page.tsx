@@ -8,6 +8,7 @@ import { forEachNode } from './util/common';
 import { beginBFS } from './util/algorithm';
 import { Shape } from './util/graphics';
 import Node from './node';
+import { BFSDirection, BFSOptions } from './algorithm/bfs';
 
 const DEFAULT_COLUMNS = 20;
 const DEFAULT_ROWS = 20;
@@ -18,7 +19,6 @@ const MIN_COLUMNS = 5;
 const MIN_ROWS = 5;
 const MIN_VELOCITY = 1;
 const MIN_RADIUS = 1;
-
 
 const MAX_COLUMNS = 150;
 const MAX_ROWS = 150;
@@ -33,7 +33,27 @@ enum Mode {
 
 enum Algorithm {
     BREADTH_FIRST = 'breadth first',
-    DIJKSTRA = 'dijkstra'
+    DEPTH_FIRST = 'depth first',
+    DIJKSTRA = 'dijkstra',
+    BIDIRECTIONAL = 'bidirectional'
+};
+
+const ALGORITHM_OPTIONS_MAP = {
+    [Algorithm.BREADTH_FIRST]: BFSOptions,
+    [Algorithm.DEPTH_FIRST]: () => <span />,
+    [Algorithm.DIJKSTRA]: () => <span />,
+    [Algorithm.BIDIRECTIONAL]: () => <span />
+} as const;
+
+const useOptions = (algorithm: Algorithm) => {
+    const [options, setOptions] = useState(BFSDirection.ORTHOGONAL);
+
+    const Element = ALGORITHM_OPTIONS_MAP[algorithm];
+
+    return [
+        options,
+        () => <Element option={options} setOption={setOptions} />
+    ] as const;
 };
 
 export type Nodes2 = {
@@ -51,6 +71,8 @@ const Algorithms = () => {
     const [algorithm, setAlgorithm] = useState(() => Algorithm.BREADTH_FIRST);
     const [mode, setMode] = useState(() => Mode.PATHFINDER);
 
+    const [options, OptionsElement] = useOptions(algorithm);
+
     const velocityRef = useRef(velocity);
 
     const [origin, setOrigin] = useState<Coordinate>({
@@ -62,21 +84,8 @@ const Algorithms = () => {
         y: rows - 1
     });
 
-    // const nodes = useMemo(() => {
-    //     const refs: NodeGrid = [];
-    //     for (let y = 0; y < rows; y++) {
-    //         const row: NodeRef[] = [];
-    //         refs.push(row);
-
-    //         for (let x = 0; x < columns; x++) {
-    //             row.push(createRef() as NodeRef);
-    //         }
-    //     }
-
-    //     return refs;
-    // }, [columns, rows]);
-
     // TODO why not combine this and table ([{ element: <Node ... />, x, y, ... }])
+    // if not possible, another solution surely exists
     const nodes = useMemo(() => {
         const refs: Nodes2[][] = [];
         for (let y = 0; y < rows; y++) {
@@ -96,6 +105,7 @@ const Algorithms = () => {
     }, [columns, rows]);
 
     const initiate = () => {
+        // TODO use map!
         if (mode === Mode.DRAW) {
             //      beginPaint({
             //     grid: nodes,
@@ -108,7 +118,7 @@ const Algorithms = () => {
         }
 
         if (mode === Mode.PATHFINDER) {
-            beginBFS(origin, goal, nodes, velocityRef);
+            beginBFS(origin, goal, nodes, velocityRef, options);
         }
     };
 
@@ -118,11 +128,8 @@ const Algorithms = () => {
 
     const table = useMemo(() => {
         const elements = [];
-        console.log('fing');
         for (let row = 0; row < rows; row++) {
             for (let column = 0; column < columns; column++) {
-                // const ref = nodes[row]![column]!;
-
                 elements.push(
                     <Node
                         key={`${column},${row}`}
@@ -132,7 +139,6 @@ const Algorithms = () => {
                         setOrigin={setOrigin}
                         isGoal={column === goal.x && row === goal.y}
                         setGoal={setGoal}
-                        // gridRef={ref}
                         setIsVisitedRef={nodes[row]![column]!.setIsVisited}
                         setIsHighlightedRef={nodes[row]![column]!.setIsHighlighted}
                         isObstructionRef={nodes[row]![column]!.isObstruction}
@@ -149,6 +155,7 @@ const Algorithms = () => {
             <h1>
                 Algorithms
             </h1>
+            <OptionsElement />
             <label htmlFor='columns'>
                 Columns {columns}
             </label>

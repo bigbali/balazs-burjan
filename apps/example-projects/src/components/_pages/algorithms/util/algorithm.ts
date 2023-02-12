@@ -1,14 +1,51 @@
 import type { RefObject } from 'react';
 import type { Nodes2 } from '../algorithms-page';
+import { BFSDirection } from '../algorithm/bfs';
 import type { Coordinate } from './common';
 import { isOutOfBounds } from './common';
 
+type Direction = [number, number];
+
+const BFSOrthogonalDirections = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1]
+]satisfies Direction[];
+
+const BFSDiagonalDirections = [
+    [-1, -1],
+    [1, 1],
+    [1, -1],
+    [-1, 1]
+]satisfies Direction[];
+
+const BFSHybridDirections = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+
+    [-1, -1],
+    [1, 1],
+    [1, -1],
+    [-1, 1]
+]satisfies Direction[];
+
 const Directions = {
-    LEFT: [-1, 0],
-    RIGHT: [1, 0],
-    UP: [0, -1],
-    DOWN: [0, 1]
-} as const;
+    [BFSDirection.ORTHOGONAL]: BFSOrthogonalDirections,
+    [BFSDirection.DIAGONAL]: BFSDiagonalDirections,
+    [BFSDirection.HYBRID]: BFSHybridDirections
+};
+
+let directions: Direction[] = [];
+
+// const Directions = {
+//     LEFT: [-1, 0],
+//     RIGHT: [1, 0],
+//     UP: [0, -1],
+//     DOWN: [0, 1]
+// } as const;
 
 type QueueEntry = Coordinate & {
     parent: null | QueueEntry
@@ -16,7 +53,16 @@ type QueueEntry = Coordinate & {
 
 type Queue = QueueEntry[];
 
-export function beginBFS(origin: Coordinate, goal: Coordinate, grid: Nodes2[][], velocity: RefObject<number>) {
+type BeginBreadthFirstSearch = (
+    origin: Coordinate,
+    goal: Coordinate,
+    grid: Nodes2[][],
+    velocity: RefObject<number>,
+    direction: BFSDirection
+) => void;
+
+export const beginBFS: BeginBreadthFirstSearch = (origin, goal, grid, velocity, direction) => {
+    directions = Directions[direction];
     const queue: Queue = [{
         x: origin.x,
         y: origin.y,
@@ -37,7 +83,7 @@ export function beginBFS(origin: Coordinate, goal: Coordinate, grid: Nodes2[][],
     distance[origin.y]![origin.x] = 0;
 
     BFS(queue, distance, goal, grid, velocity);
-}
+};
 
 /**
  * Breadth-First Search implemented with recursion in order to be able to use with timeout
@@ -48,7 +94,7 @@ function BFS(queue: Queue, distance: number[][], goal: Coordinate, grid: Nodes2[
 
     let isGoalReached = false;
 
-    for (const [dx, dy] of Object.values(Directions)) {
+    for (const [dx, dy] of directions) {
         const x = current.x + dx;
         const y = current.y + dy;
 
@@ -75,6 +121,7 @@ function BFS(queue: Queue, distance: number[][], goal: Coordinate, grid: Nodes2[
 
             if (x === goal.x && y === goal.y) {
                 isGoalReached = true;
+                console.log('distance between origin and goal', distance[y]![x]! - 1);
                 break;
             }
         }
@@ -98,7 +145,9 @@ function BFS(queue: Queue, distance: number[][], goal: Coordinate, grid: Nodes2[
         return shortestDistance;
     }
 
-    if (current.y === grid.length - 1 && current.x === grid[0]!.length - 1) return null;
+    // having reached the end of the grid does not mean there is no way to find the goal
+    // if (current.y === grid.length - 1 && current.x === grid[0]!.length - 1) return null;
 
-    setTimeout(() => BFS(queue, distance, goal, grid, velocity), velocity.current!);
+    console.log(1 / velocity.current! * 100);
+    setTimeout(() => BFS(queue, distance, goal, grid, velocity), 1 / velocity.current! * 100);
 }
