@@ -3,73 +3,82 @@ import type { Nodes2 } from '../algorithms-page';
 import type { Coordinate } from '../util/common';
 import { isOutOfBounds } from '../util/common';
 
-export enum BFSDirection {
-    ORTHOGONAL = 'orthogonal',
-    DIAGONAL = 'diagonal',
-    HYBRID = 'hybrid'
+export enum DFSDirection {
+    TBLR = 'top to bottom, left to right',
+    TBRL = 'top to bottom, right to left',
+    BTLR = 'bottom to top, left to right',
+    BTRL = 'bottom to top, right to left'
 };
 
-export type BFSOptionsProps = {
-    option: BFSDirection,
-    setOption: Dispatch<SetStateAction<BFSDirection>>
+export type DFSOptionsProps = {
+    option: DFSDirection,
+    setOption: Dispatch<SetStateAction<DFSDirection>>
 };
 
 type Direction = [number, number];
 
-const BFSOrthogonalDirections = [
+// TODO this needs to be looked at
+
+const DFSTopToBottomLeftToRight = [
     [-1, 0],
     [1, 0],
     [0, -1],
     [0, 1]
 ]satisfies Direction[];
 
-const BFSDiagonalDirections = [
-    [-1, -1],
-    [1, 1],
+const DFSTopToBottomRightToLeft = [
+    [-1, 0],
+    [0, 1],
     [1, -1],
     [-1, 1]
 ]satisfies Direction[];
 
-const BFSHybridDirections = [
+const DFSBottomToTopLeftToRight = [
     [-1, 0],
     [1, 0],
     [0, -1],
+    [0, 1]
+]satisfies Direction[];
+
+const DFSBottomToTopRightToLeft = [
+    [-1, 0],
     [0, 1],
-    [-1, -1],
-    [1, 1],
-    [1, -1],
-    [-1, 1]
+    [1, 0],
+    [0, -1]
 ]satisfies Direction[];
 
 const Directions = {
-    [BFSDirection.ORTHOGONAL]: BFSOrthogonalDirections,
-    [BFSDirection.DIAGONAL]: BFSDiagonalDirections,
-    [BFSDirection.HYBRID]: BFSHybridDirections
+    [DFSDirection.TBLR]: DFSTopToBottomLeftToRight,
+    [DFSDirection.TBRL]: DFSTopToBottomRightToLeft,
+    [DFSDirection.BTLR]: DFSBottomToTopLeftToRight,
+    [DFSDirection.BTRL]: DFSBottomToTopRightToLeft
 };
 
 let directions: Direction[] = [];
 
-type QueueEntry = Coordinate & {
-    parent: null | QueueEntry
+type StackEntry = Coordinate & {
+    parent: null | StackEntry,
+    distance: number
 };
 
-type Queue = QueueEntry[];
+type Stack = StackEntry[];
 
-export type BeginBreadthFirstSearch = (
+export type BeginDepthFirstSearch = (
     origin: Coordinate,
     goal: Coordinate,
     grid: Nodes2[][],
     velocity: RefObject<number>,
-    direction: BFSDirection
+    direction: DFSDirection
 ) => void;
 
-export const beginBFS: BeginBreadthFirstSearch = (origin, goal, grid, velocity, direction) => {
+export const beginDFS: BeginDepthFirstSearch = (origin, goal, grid, velocity, direction) => {
     directions = Directions[direction];
 
-    const queue: Queue = [{
+    const stack: Stack = [{
         x: origin.x,
         y: origin.y,
-        parent: null
+        parent: null,
+        distance: 0
     }];
 
     const distance: number[][] = [];
@@ -85,14 +94,14 @@ export const beginBFS: BeginBreadthFirstSearch = (origin, goal, grid, velocity, 
 
     distance[origin.y]![origin.x] = 0;
 
-    BFS(queue, distance, goal, grid, velocity);
+    DFS(stack, distance, goal, grid, velocity);
 };
 
 /**
- * Breadth-First Search implemented with recursion in order to be able to use with timeout
+ * Depth-First Search implemented with recursion in order to be able to use with timeout
  */
-function BFS(queue: Queue, distance: number[][], goal: Coordinate, grid: Nodes2[][], velocity: RefObject<number>) {
-    const current = queue.shift()!;
+function DFS(stack: Stack, distance: number[][], goal: Coordinate, grid: Nodes2[][], velocity: RefObject<number>) {
+    const current = stack.pop()!;
     if (!current) return;
 
     let isGoalReached = false;
@@ -117,7 +126,7 @@ function BFS(queue: Queue, distance: number[][], goal: Coordinate, grid: Nodes2[
 
             setIsVisited(true);
 
-            queue.push({ x, y, parent: current });
+            stack.push({ x, y, parent: current, distance: current.distance + 1 });
 
             // FIXME remove when ready
             distance[y]![x] = distance[current.y]![current.x]! + 1;
@@ -131,7 +140,7 @@ function BFS(queue: Queue, distance: number[][], goal: Coordinate, grid: Nodes2[
     }
 
     if (isGoalReached) {
-        let node = queue.at(-1);
+        let node = stack.pop();
         let shortestDistance = 1;
 
         while (node && node.parent) {
@@ -148,28 +157,24 @@ function BFS(queue: Queue, distance: number[][], goal: Coordinate, grid: Nodes2[
         return shortestDistance;
     }
 
-    // having reached the end of the grid does not mean there is no way to find the goal
-    // if (current.y === grid.length - 1 && current.x === grid[0]!.length - 1) return null;
-
-    console.log(1 / velocity.current! * 100);
-    setTimeout(() => BFS(queue, distance, goal, grid, velocity), 1 / velocity.current! * 100);
+    setTimeout(() => DFS(stack, distance, goal, grid, velocity), 1 / velocity.current! * 100);
 }
 
 
-export const BFSOptions = ({ option, setOption }: BFSOptionsProps) => {
+export const DFSOptions = ({ option, setOption }: DFSOptionsProps) => {
     return (
         <div>
-            <label htmlFor='bfsdirection'>
-                Breadth-First Search directions:
+            <label htmlFor='dfsdirection'>
+                Depth-First Search directions:
             </label>
             <select
-                id='bfsdirection'
+                id='dfsdirection'
                 className='capitalize'
                 value={option}
                 onChange={(e) => {
-                    setOption(e.currentTarget.value as BFSDirection);
+                    setOption(e.currentTarget.value as DFSDirection);
                 }}>
-                {Object.values(BFSDirection).map((value) => (
+                {Object.values(DFSDirection).map((value) => (
                     <option key={value} value={value}>
                         {value}
                     </option>

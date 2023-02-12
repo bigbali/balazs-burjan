@@ -1,14 +1,20 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
+import { useEffect } from 'react';
 import { useRef } from 'react';
 import { createRef } from 'react';
 import { startTransition } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { Coordinate } from './util/common';
 import { forEachNode } from './util/common';
-import { beginBFS } from './util/algorithm';
+import type { BeginBreadthFirstSearch } from './algorithm/bfs';
+import { beginBFS } from './algorithm/bfs';
 import { Shape } from './util/graphics';
 import Node from './node';
 import { BFSDirection, BFSOptions } from './algorithm/bfs';
+import type { BeginDepthFirstSearch } from './algorithm/dfs';
+import { DFSOptions } from './algorithm/dfs';
+import { DFSDirection } from './algorithm/dfs';
+import { beginDFS } from './algorithm/dfs';
 
 const DEFAULT_COLUMNS = 20;
 const DEFAULT_ROWS = 20;
@@ -38,20 +44,31 @@ enum Algorithm {
     BIDIRECTIONAL = 'bidirectional'
 };
 
+const DefaultOption = {
+    [Algorithm.BREADTH_FIRST]: BFSDirection.ORTHOGONAL,
+    [Algorithm.DEPTH_FIRST]: DFSDirection.TBLR,
+    [Algorithm.DIJKSTRA]: null,
+    [Algorithm.BIDIRECTIONAL]: null
+} as const;
+
 const ALGORITHM_OPTIONS_MAP = {
     [Algorithm.BREADTH_FIRST]: BFSOptions,
-    [Algorithm.DEPTH_FIRST]: () => <span />,
-    [Algorithm.DIJKSTRA]: () => <span />,
-    [Algorithm.BIDIRECTIONAL]: () => <span />
+    [Algorithm.DEPTH_FIRST]: DFSOptions,
+    [Algorithm.DIJKSTRA]: <span />,
+    [Algorithm.BIDIRECTIONAL]: <span />
 } as const;
 
 const useOptions = (algorithm: Algorithm) => {
-    const [options, setOptions] = useState(BFSDirection.ORTHOGONAL);
+    const [options, setOptions] = useState(DefaultOption[algorithm]);
+
+    useEffect(() => {
+        setOptions(DefaultOption[algorithm]);
+    }, [algorithm]);
 
     const Element = ALGORITHM_OPTIONS_MAP[algorithm];
 
     return [
-        options,
+        options, //@ts-ignore
         () => <Element option={options} setOption={setOptions} />
     ] as const;
 };
@@ -61,6 +78,21 @@ export type Nodes2 = {
     setIsHighlighted: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
     isObstruction: MutableRefObject<boolean>
 };
+
+interface PathFinderMap {
+    [Algorithm.BREADTH_FIRST]: BeginBreadthFirstSearch,
+    [Algorithm.DEPTH_FIRST]: BeginDepthFirstSearch,
+    [Algorithm.DIJKSTRA]: () => void,
+    [Algorithm.BIDIRECTIONAL]: () => void,
+}
+
+const PATHFINDER_MAP: PathFinderMap = {
+    [Algorithm.BREADTH_FIRST]: (...args) => beginBFS(...args),
+    [Algorithm.DEPTH_FIRST]: (...args) => beginDFS(...args),
+    [Algorithm.DIJKSTRA]: () => { },
+    [Algorithm.BIDIRECTIONAL]: () => { }
+
+} as const;
 
 const Algorithms = () => {
     const [columns, setColumns] = useState(() => DEFAULT_COLUMNS);
@@ -118,7 +150,8 @@ const Algorithms = () => {
         }
 
         if (mode === Mode.PATHFINDER) {
-            beginBFS(origin, goal, nodes, velocityRef, options);
+            // @ts-ignore
+            PATHFINDER_MAP[algorithm](origin, goal, nodes, velocityRef, options);
         }
     };
 
