@@ -17,8 +17,6 @@ export type DFSOptionsProps = {
 
 type Direction = [number, number];
 
-// TODO this needs to be looked at
-
 const DFSTopToBottomLeftToRight = [
     [-1, 0],
     [1, 0],
@@ -28,23 +26,23 @@ const DFSTopToBottomLeftToRight = [
 
 const DFSTopToBottomRightToLeft = [
     [-1, 0],
+    [1, 0],
     [0, 1],
-    [1, -1],
-    [-1, 1]
+    [0, -1]
 ]satisfies Direction[];
 
 const DFSBottomToTopLeftToRight = [
-    [-1, 0],
     [1, 0],
+    [-1, 0],
     [0, -1],
     [0, 1]
 ]satisfies Direction[];
 
 const DFSBottomToTopRightToLeft = [
-    [-1, 0],
-    [0, 1],
     [1, 0],
-    [0, -1]
+    [0, -1],
+    [-1, 0],
+    [0, 1]
 ]satisfies Direction[];
 
 const Directions = {
@@ -151,7 +149,8 @@ function DFS(stack: Stack, distance: number[][], goal: Coordinate, grid: Nodes2[
             node = node.parent;
         }
 
-        console.log(shortestDistance);
+        console.log('sd', shortestDistance);
+        console.log('d', distance);
 
         // FIXME pointless to return, wasted in settimeout
         return shortestDistance;

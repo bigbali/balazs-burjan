@@ -142,8 +142,6 @@ function BFS(queue: Queue, distance: number[][], goal: Coordinate, grid: Nodes2[
             node = node.parent;
         }
 
-        console.log(shortestDistance);
-
         // FIXME pointless to return, wasted in settimeout
         return shortestDistance;
     }
@@ -151,7 +149,6 @@ function BFS(queue: Queue, distance: number[][], goal: Coordinate, grid: Nodes2[
     // having reached the end of the grid does not mean there is no way to find the goal
     // if (current.y === grid.length - 1 && current.x === grid[0]!.length - 1) return null;
 
-    console.log(1 / velocity.current! * 100);
     setTimeout(() => BFS(queue, distance, goal, grid, velocity), 1 / velocity.current! * 100);
 }
 

@@ -8,7 +8,7 @@
 
 /** @type {import("next").NextConfig} */
 const config = {
-    reactStrictMode: true,
+    reactStrictMode: false,
     sassOptions: {
         additionalData: (/** @type {string} */ content) => {
             // put something in here and all .scss files will have it
