@@ -11,7 +11,6 @@ type LayoutComponent = ForwardRefRenderFunction<HTMLElement, PropsWithChildren>;
 
 const Layout: LayoutComponent = ({ children }, ref) => {
     const isLoading = useLoading(state => state.isLoading);
-    console.log(isLoading);
     return (
         <>
             <Navigation />

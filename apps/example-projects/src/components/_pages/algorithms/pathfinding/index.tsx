@@ -1,7 +1,8 @@
 import type {
     Dispatch,
     MutableRefObject,
-    SetStateAction
+    SetStateAction,
+    ChangeEvent
 } from 'react';
 import { useEffect } from 'react';
 import { useRef } from 'react';
@@ -17,19 +18,19 @@ import type { BeginDepthFirstSearch } from './algorithm/dfs';
 import { DFSOptions } from './algorithm/dfs';
 import { DFSDirection } from './algorithm/dfs';
 import { beginDFS } from './algorithm/dfs';
-import Grid from './grid/grid';
+import Grid, { setGridDimensions } from './grid/grid';
 
-const DEFAULT_COLUMNS = 20;
-const DEFAULT_ROWS = 20;
-const DEFAULT_VELOCITY = 5;
+export const enum Dimensions {
+    MIN = 5,
+    DEFAULT = 20,
+    MAX = 150
+};
 
-const MIN_COLUMNS = 5;
-const MIN_ROWS = 5;
-const MIN_VELOCITY = 1;
-
-const MAX_COLUMNS = 150;
-const MAX_ROWS = 150;
-const MAX_VELOCITY = 100;
+export const enum Velocity {
+    MIN = 1,
+    DEFAULT = 5,
+    MAX = 100
+};
 
 enum PathfindingAlgorithm {
     BREADTH_FIRST = 'breadth first',
@@ -96,20 +97,20 @@ const usePathfindingOptions = (algorithm: PathfindingAlgorithm) => {
 };
 
 const PathfindingAlgorithms = () => {
-    const [columns, setColumns] = useState(() => DEFAULT_COLUMNS);
-    const [rows, setRows] = useState(() => DEFAULT_ROWS);
-    const [velocity, setVelocity] = useState(() => DEFAULT_VELOCITY);
+    const [rows, setRows] = useState(() => Dimensions.DEFAULT);
+    const [columns, setColumns] = useState(() => Dimensions.DEFAULT);
+    const [velocity, setVelocity] = useState(() => Velocity.DEFAULT);
     const [algorithm, setAlgorithm] = useState(() => PathfindingAlgorithm.BREADTH_FIRST);
 
     const [options, OptionsElement] = usePathfindingOptions(algorithm);
 
     const velocityRef = useRef(velocity);
-    const shouldDebounceGrid = useRef(false);
 
     const [origin, setOrigin] = useState<Coordinate>({
         x: 0,
         y: 0
     });
+
     const [goal, setGoal] = useState<Coordinate>({
         x: columns - 1,
         y: rows - 1
@@ -168,36 +169,34 @@ const PathfindingAlgorithms = () => {
                     Grid Options
                 </legend>
                 <div className='flex gap-4'>
-                    <div>
-                        <div className='flex gap-2'>
-                            <label htmlFor='rows'>
-                                Rows
-                            </label>
-                            <input
-                                type='number'
-                                id='rows'
-                                max={MAX_ROWS}
-                                min={MIN_ROWS}
-                                step={1}
-                                value={rows}
-                                onChange={(e) => {
-                                    shouldDebounceGrid.current = false;
-                                    startTransition(() => setRows(Number.parseInt(e.currentTarget.value)));
-                                }}
-                                className='border border-slate-300 rounded-md text-center'
-                            />
-                            <input
-                                type='range'
-                                max={MAX_ROWS}
-                                min={MIN_ROWS}
-                                step={1}
-                                value={rows}
-                                onChange={(e) => {
-                                    shouldDebounceGrid.current = true;
-                                    startTransition(() => setRows(Number.parseInt(e.currentTarget.value)));
-                                }}
-                            />
-                        </div>
+                    <div className='flex gap-2'>
+                        <label htmlFor='rows'>
+                            Rows
+                        </label>
+                        <input
+                            type='number'
+                            id='rows'
+                            max={Dimensions.MAX}
+                            min={Dimensions.MIN}
+                            step={1}
+                            defaultValue={rows}
+                            onChange={(e) => setGridDimensions(e, {
+                                debounce: false,
+                                setter: setRows
+                            })}
+                            className='border border-slate-300 rounded-md text-center'
+                        />
+                        <input
+                            type='range'
+                            max={Dimensions.MAX}
+                            min={Dimensions.MIN}
+                            step={1}
+                            defaultValue={rows}
+                            onChange={(e) => setGridDimensions(e, {
+                                debounce: true,
+                                setter: setRows
+                            })}
+                        />
                     </div>
                     <div className='flex gap-2'>
                         <label htmlFor='columns'>
@@ -206,26 +205,26 @@ const PathfindingAlgorithms = () => {
                         <input
                             type='number'
                             id='columns'
-                            max={MAX_COLUMNS}
-                            min={MIN_COLUMNS}
+                            max={Dimensions.MAX}
+                            min={Dimensions.MIN}
                             step={1}
-                            value={columns}
-                            onChange={(e) => {
-                                shouldDebounceGrid.current = false;
-                                startTransition(() => setColumns(Number.parseInt(e.currentTarget.value)));
-                            }}
+                            defaultValue={columns}
+                            onChange={(e) => setGridDimensions(e, {
+                                debounce: false,
+                                setter: setColumns
+                            })}
                             className='border border-slate-300 rounded-md text-center'
                         />
                         <input
                             type='range'
-                            max={MAX_COLUMNS}
-                            min={MIN_COLUMNS}
+                            max={Dimensions.MAX}
+                            min={Dimensions.MIN}
                             step={1}
-                            value={columns}
-                            onChange={(e) => {
-                                shouldDebounceGrid.current = true;
-                                startTransition(() => setColumns(Number.parseInt(e.currentTarget.value)));
-                            }}
+                            defaultValue={columns}
+                            onChange={(e) => setGridDimensions(e, {
+                                debounce: true,
+                                setter: setColumns
+                            })}
                         />
                     </div>
                 </div>
@@ -234,7 +233,7 @@ const PathfindingAlgorithms = () => {
                 <legend className='text-center px-4'>
                     Algorithm Options
                 </legend>
-                <div className='flex'>
+                <div className='flex gap-4'>
                     <div>
                         <div className='flex gap-2'>
                             <label htmlFor='algorithm' className='capitalize'>
@@ -270,8 +269,8 @@ const PathfindingAlgorithms = () => {
                         <input
                             type='range'
                             id='velocity'
-                            max={MAX_VELOCITY}
-                            min={MIN_VELOCITY}
+                            max={Velocity.MAX}
+                            min={Velocity.MIN}
                             step={1}
                             value={velocity}
                             onChange={(e) => {
@@ -287,7 +286,7 @@ const PathfindingAlgorithms = () => {
             </fieldset>
             <Grid
                 data={gridOptions}
-                shouldDebounce={shouldDebounceGrid}
+            // shouldDebounce={shouldDebounceGridRef}
             />
         </div>
     );
