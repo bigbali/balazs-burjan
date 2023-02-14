@@ -1,5 +1,5 @@
 import type { RefObject } from 'react';
-import type { Nodes2 } from '../algorithms-page';
+import type { Nodes2 } from '../pathfinding';
 import type { Coordinate } from './common';
 import { isOutOfBounds } from './common';
 

@@ -87,7 +87,6 @@ const Grid = ({ data, shouldDebounce }: GridProps) => {
 
         const gridContainer = (
             <div
-                className='px-64 py-32'
                 style={{
                     display: 'grid',
                     gridTemplateColumns: `repeat(${columns}, 1fr)`,

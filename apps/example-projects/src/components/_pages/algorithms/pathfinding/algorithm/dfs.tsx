@@ -1,5 +1,5 @@
 import type { Dispatch, RefObject, SetStateAction } from 'react';
-import type { Nodes2 } from '../../algorithms-page';
+import type { Nodes2 } from '../index';
 import type { Coordinate } from '../../util/common';
 import { isOutOfBounds } from '../../util/common';
 

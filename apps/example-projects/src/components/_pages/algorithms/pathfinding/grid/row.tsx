@@ -1,6 +1,6 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Fragment, memo } from 'react';
-import type { Nodes2 } from '../../algorithms-page';
+import type { Nodes2 } from '../index';
 import type { Coordinate } from '../../util/common';
 import Node from './node';
 
@@ -13,8 +13,7 @@ type RowProps = {
         goal: Coordinate,
         setOrigin: Dispatch<SetStateAction<Coordinate>>,
         setGoal: Dispatch<SetStateAction<Coordinate>>
-    },
-
+    }
 };
 
 const Row = ({ data }: RowProps) => {
@@ -45,6 +44,7 @@ const Row = ({ data }: RowProps) => {
             />
         );
     }
+
     return (
         <Fragment key={rowIndex}>
             {elements}

@@ -1,5 +1,4 @@
 import type { MutableRefObject } from 'react';
-import { Nodes2 } from '../algorithms-page';
 
 export type Coordinate = {
     x: number,

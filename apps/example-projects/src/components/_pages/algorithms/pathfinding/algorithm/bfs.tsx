@@ -1,5 +1,5 @@
 import type { Dispatch, RefObject, SetStateAction } from 'react';
-import type { Nodes2 } from '../../pathfinding';
+import type { Nodes2 } from '../index';
 import type { Coordinate } from '../../util/common';
 import { isOutOfBounds } from '../../util/common';
 
@@ -155,9 +155,9 @@ function BFS(queue: Queue, distance: number[][], goal: Coordinate, grid: Nodes2[
 
 export const BFSOptions = ({ option, setOption }: BFSOptionsProps) => {
     return (
-        <div>
+        <div className='flex gap-2'>
             <label htmlFor='bfsdirection'>
-                Breadth-First Search directions:
+                Directions:
             </label>
             <select
                 id='bfsdirection'

@@ -46,10 +46,10 @@ const DefaultOption = {
 } as const;
 
 type PlaceholderElementProps = any;
-const PlaceholderElement = ({ ...props }: PlaceholderElementProps) => (
-    <div>
+const PlaceholderElement = ({ }: PlaceholderElementProps) => (
+    <h1 className='text-5xl'>
         Placeholder!
-    </div>
+    </h1>
 );
 
 const ALGORITHM_OPTIONS_MAP = {
@@ -58,21 +58,6 @@ const ALGORITHM_OPTIONS_MAP = {
     [PathfindingAlgorithm.DIJKSTRA]: PlaceholderElement,
     [PathfindingAlgorithm.BIDIRECTIONAL]: PlaceholderElement
 } as const;
-
-const useOptions = (algorithm: PathfindingAlgorithm) => {
-    const [options, setOptions] = useState(DefaultOption[algorithm]);
-
-    useEffect(() => {
-        setOptions(DefaultOption[algorithm]);
-    }, [algorithm]);
-
-    const Element = ALGORITHM_OPTIONS_MAP[algorithm];
-
-    return [
-        options,
-        () => <Element option={options} setOption={setOptions} />
-    ] as const;
-};
 
 export type Nodes2 = {
     setIsVisited: MutableRefObject<Dispatch<SetStateAction<boolean>>>;
@@ -95,13 +80,28 @@ const PATHFINDER_MAP: PathFinderMap = {
     [PathfindingAlgorithm.BIDIRECTIONAL]: () => { }
 } as const;
 
+const usePathfindingOptions = (algorithm: PathfindingAlgorithm) => {
+    const [options, setOptions] = useState(DefaultOption[algorithm]);
+
+    useEffect(() => {
+        setOptions(DefaultOption[algorithm]);
+    }, [algorithm]);
+
+    const Element = ALGORITHM_OPTIONS_MAP[algorithm];
+
+    return [
+        options,
+        () => <Element option={options} setOption={setOptions} />
+    ] as const;
+};
+
 const PathfindingAlgorithms = () => {
     const [columns, setColumns] = useState(() => DEFAULT_COLUMNS);
     const [rows, setRows] = useState(() => DEFAULT_ROWS);
     const [velocity, setVelocity] = useState(() => DEFAULT_VELOCITY);
     const [algorithm, setAlgorithm] = useState(() => PathfindingAlgorithm.BREADTH_FIRST);
 
-    const [options, OptionsElement] = useOptions(algorithm);
+    const [options, OptionsElement] = usePathfindingOptions(algorithm);
 
     const velocityRef = useRef(velocity);
     const shouldDebounceGrid = useRef(false);
@@ -162,92 +162,129 @@ const PathfindingAlgorithms = () => {
     }), [columns, goal, nodes, origin, rows]);
 
     return (
-        <div>
-            <h1>Algorithms</h1>
-            <OptionsElement />
-            <div>
-                <label htmlFor='columns'>Columns</label>
-                <input
-                    type='range'
-                    max={MAX_COLUMNS}
-                    min={MIN_COLUMNS}
-                    step={1}
-                    value={columns}
-                    onChange={(e) => {
-                        shouldDebounceGrid.current = true;
-                        startTransition(() => setColumns(Number.parseInt(e.currentTarget.value)));
-                    }}
-                />
-                <input
-                    type='number'
-                    id='columns'
-                    max={MAX_COLUMNS}
-                    min={MIN_COLUMNS}
-                    step={1}
-                    value={columns}
-                    onChange={(e) => {
-                        shouldDebounceGrid.current = false;
-                        startTransition(() => setColumns(Number.parseInt(e.currentTarget.value)));
-                    }}
-                />
-            </div>
-            <label htmlFor='rows'>Rows {rows}</label>
-            <input
-                type='range'
-                id='rows'
-                max={MAX_ROWS}
-                min={MIN_ROWS}
-                step={1}
-                value={rows}
-                onChange={(e) =>
-                    startTransition(() =>
-                        setRows(Number.parseInt(e.currentTarget.value))
-                    )
-                }
-            />
-            <label htmlFor='velocity'>Velocity {velocity}</label>
-            <input
-                type='range'
-                id='velocity'
-                max={MAX_VELOCITY}
-                min={MIN_VELOCITY}
-                step={1}
-                value={velocity}
-                onChange={(e) =>
-                    startTransition(() => {
-                        const value = Number.parseInt(e.currentTarget.value);
-                        velocityRef.current = value;
-                        setVelocity(value);
-                    })
-                }
-            />
-            <label htmlFor='algorithm' className='capitalize'>
-                Algorithm {algorithm}
-            </label>
-            <select
-                id='algorithm'
-                className='border border-black capitalize'
-                value={algorithm}
-                onChange={(e) =>
-                    startTransition(() =>
-                        setAlgorithm(e.currentTarget.value as PathfindingAlgorithm)
-                    )
-                }
-            >
-                {Object.values(PathfindingAlgorithm).map((value) => {
-                    return (
-                        <option
-                            key={value}
-                            value={value}
-                            className='capitalize'
-                        >
-                            {value}
-                        </option>
-                    );
-                })}
-            </select>
-            <button onClick={initiate}>Initiate</button>
-            <button onClick={resetGrid}>Reset Grid</button>
+        <div className='flex gap-4 flex-col'>
+            <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4'>
+                <legend className='text-center px-4'>
+                    Grid Options
+                </legend>
+                <div className='flex gap-4'>
+                    <div>
+                        <div className='flex gap-2'>
+                            <label htmlFor='rows'>
+                                Rows
+                            </label>
+                            <input
+                                type='number'
+                                id='rows'
+                                max={MAX_ROWS}
+                                min={MIN_ROWS}
+                                step={1}
+                                value={rows}
+                                onChange={(e) => {
+                                    shouldDebounceGrid.current = false;
+                                    startTransition(() => setRows(Number.parseInt(e.currentTarget.value)));
+                                }}
+                                className='border border-slate-300 rounded-md text-center'
+                            />
+                            <input
+                                type='range'
+                                max={MAX_ROWS}
+                                min={MIN_ROWS}
+                                step={1}
+                                value={rows}
+                                onChange={(e) => {
+                                    shouldDebounceGrid.current = true;
+                                    startTransition(() => setRows(Number.parseInt(e.currentTarget.value)));
+                                }}
+                            />
+                        </div>
+                    </div>
+                    <div className='flex gap-2'>
+                        <label htmlFor='columns'>
+                            Columns
+                        </label>
+                        <input
+                            type='number'
+                            id='columns'
+                            max={MAX_COLUMNS}
+                            min={MIN_COLUMNS}
+                            step={1}
+                            value={columns}
+                            onChange={(e) => {
+                                shouldDebounceGrid.current = false;
+                                startTransition(() => setColumns(Number.parseInt(e.currentTarget.value)));
+                            }}
+                            className='border border-slate-300 rounded-md text-center'
+                        />
+                        <input
+                            type='range'
+                            max={MAX_COLUMNS}
+                            min={MIN_COLUMNS}
+                            step={1}
+                            value={columns}
+                            onChange={(e) => {
+                                shouldDebounceGrid.current = true;
+                                startTransition(() => setColumns(Number.parseInt(e.currentTarget.value)));
+                            }}
+                        />
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4 mb-3'>
+                <legend className='text-center px-4'>
+                    Algorithm Options
+                </legend>
+                <div className='flex'>
+                    <div>
+                        <div className='flex gap-2'>
+                            <label htmlFor='algorithm' className='capitalize'>
+                                Algorithm
+                            </label>
+                            <select
+                                id='algorithm'
+                                className='border border-slate-3 rounded-md capitalize'
+                                value={algorithm}
+                                onChange={(e) =>
+                                    startTransition(() =>
+                                        setAlgorithm(e.currentTarget.value as PathfindingAlgorithm)
+                                    )
+                                }
+                            >
+                                {Object.values(PathfindingAlgorithm).map((value) => {
+                                    return (
+                                        <option
+                                            key={value}
+                                            value={value}
+                                            className='capitalize'
+                                        >
+                                            {value}
+                                        </option>
+                                    );
+                                })}
+                            </select>
+                        </div>
+                        <OptionsElement />
+                    </div>
+                    <div>
+                        <label htmlFor='velocity'>Velocity {velocity}</label>
+                        <input
+                            type='range'
+                            id='velocity'
+                            max={MAX_VELOCITY}
+                            min={MIN_VELOCITY}
+                            step={1}
+                            value={velocity}
+                            onChange={(e) => {
+                                const value = Number.parseInt(e.currentTarget.value);
+                                velocityRef.current = value;
+                                setVelocity(value);
+                            }}
+                        />
+                    </div>
+                </div>
+                <button onClick={initiate}>Initiate</button>
+                <button onClick={resetGrid}>Reset Grid</button>
+            </fieldset>
             <Grid
                 data={gridOptions}
                 shouldDebounce={shouldDebounceGrid}
