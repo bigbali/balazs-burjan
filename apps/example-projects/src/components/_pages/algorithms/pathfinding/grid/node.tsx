@@ -1,6 +1,6 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { memo, startTransition, useState } from 'react';
-import type { Coordinate } from './util/common';
+import type { Coordinate } from '../../util/common';
 
 export type NodeProps = {
     x: number,
@@ -9,16 +9,14 @@ export type NodeProps = {
     isGoal: boolean,
     setOrigin: Dispatch<SetStateAction<Coordinate>>,
     setGoal: Dispatch<SetStateAction<Coordinate>>,
-    // gridRef: MutableRefObject<HTMLDivElement>,
     setIsVisitedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
     setIsHighlightedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
-    isObstructionRef: MutableRefObject<boolean>,
+    isObstructionRef: MutableRefObject<boolean>
 };
 
 const Node = ({
     x,
     y,
-    // gridRef,
     setIsVisitedRef,
     setIsHighlightedRef,
     isObstructionRef,
@@ -37,7 +35,6 @@ const Node = ({
 
     return (
         <div
-            // ref={gridRef}
             onClick={() => setIsShowMenu(state => !state)}
             className={
                 `aspect-square border bg-slate-500 relative

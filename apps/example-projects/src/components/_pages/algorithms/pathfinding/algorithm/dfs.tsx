@@ -1,7 +1,7 @@
 import type { Dispatch, RefObject, SetStateAction } from 'react';
-import type { Nodes2 } from '../algorithms-page';
-import type { Coordinate } from '../util/common';
-import { isOutOfBounds } from '../util/common';
+import type { Nodes2 } from '../../algorithms-page';
+import type { Coordinate } from '../../util/common';
+import { isOutOfBounds } from '../../util/common';
 
 export enum DFSDirection {
     TBLR = 'top to bottom, left to right',
