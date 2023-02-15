@@ -3,10 +3,16 @@ import type {
     MutableRefObject,
     SetStateAction
 } from 'react';
+import {
+    useCallback
+} from 'react';
+import {
+    useTransition
+} from 'react';
 import { useEffect } from 'react';
 import { useRef } from 'react';
 import { createRef } from 'react';
-import { startTransition } from 'react';
+// import { startTransition } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { Coordinate } from '../util/common';
 import { forEachNode } from '../util/common';
@@ -20,6 +26,7 @@ import { beginDFS } from './algorithm/dfs';
 import Grid from './grid/grid';
 
 import FieldRangeInput from 'ui/FieldRangeInput';
+import { useLoading } from '../../../../store/loading';
 
 export const enum Dimensions {
     MIN = 5,
@@ -103,6 +110,15 @@ const PathfindingAlgorithms = () => {
     const [velocity, setVelocity] = useState(() => Velocity.DEFAULT);
     const [algorithm, setAlgorithm] = useState(() => PathfindingAlgorithm.BREADTH_FIRST);
 
+    const [isPending, startTransition] = useTransition();
+    const setGlobalLoading = useLoading(state => state.setIsLoading);
+
+    const setRowsTransition = useCallback((value: number) => startTransition(() => setRows(value)), []);
+    const setColumnsTransition = useCallback((value: number) => startTransition(() => setColumns(value)), []);
+
+
+    useEffect(() => setGlobalLoading(isPending), [isPending, setGlobalLoading]);
+
     const [options, OptionsElement] = usePathfindingOptions(algorithm);
 
     const velocityRef = useRef(velocity);
@@ -159,10 +175,6 @@ const PathfindingAlgorithms = () => {
         forEachNode(nodes, (node) => node.setIsVisited.current(false));
     };
 
-    const gridOptions = useMemo(() => ({
-        columns, rows, nodes, origin, goal, setOrigin, setGoal
-    }), [columns, goal, nodes, origin, rows]);
-
     return (
         <div className='flex gap-4 flex-col'>
             <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4'>
@@ -176,8 +188,7 @@ const PathfindingAlgorithms = () => {
                         min={Dimensions.MIN}
                         max={Dimensions.MAX}
                         step={1}
-                        onFieldChange={(value) => setRows(value)}
-                        onRangeChange={(value) => setRows(value)}
+                        onChange={setRowsTransition}
                     />
                     <FieldRangeInput
                         label='Columns'
@@ -185,8 +196,7 @@ const PathfindingAlgorithms = () => {
                         min={Dimensions.MIN}
                         max={Dimensions.MAX}
                         step={1}
-                        onFieldChange={(value) => setColumns(value)}
-                        onRangeChange={(value) => setColumns(value)}
+                        onChange={setColumnsTransition}
                     />
                 </div>
             </fieldset>
@@ -245,7 +255,7 @@ const PathfindingAlgorithms = () => {
                 <button onClick={initiate}>Initiate</button>
                 <button onClick={resetGrid}>Reset Grid</button>
             </fieldset>
-            <Grid data={gridOptions} />
+            <Grid data={{ columns, rows, nodes, origin, goal, setOrigin, setGoal }} />
         </div>
     );
 };
