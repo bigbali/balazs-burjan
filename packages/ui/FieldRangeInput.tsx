@@ -20,6 +20,11 @@ type SpecializedOnChange = {
     onRangeChange: (value: number) => void
 };
 
+/**
+ * If `onFieldChange` and `onRangeChange` are both provided, `onChange` is disallowed, and vice versa.\
+ * If `onChange` is provided, it will be used. Even if you go around the type checker and provide all three
+ * methods, `onChange` will override the other two.
+ */
 type FieldRangeInputProps = BaseFieldRangeInputProps & Either<GeneralOnChange, SpecializedOnChange>;
 
 type FieldRangeInputHandlerOptions = {
@@ -29,7 +34,7 @@ type FieldRangeInputHandlerOptions = {
     defaultValue: number,
     debounce: boolean,
     callback: (value: number) => void,
-    setter: Dispatch<SetStateAction<number>>
+    setter: Dispatch<SetStateAction<number | null>>
 };
 
 /**
@@ -51,15 +56,22 @@ export const handleFieldRangeInputChange = ({
 }: FieldRangeInputHandlerOptions) => {
     // cancel pending state updates
     waitForPossibleFieldInput.cancel();
+    waitForPossibleRangeInput.cancel();
 
     const parsedValue = Number.parseInt(event.target.value);
 
     if (Number.isNaN(parsedValue)) {
+        setter(null);
         waitForPossibleFieldInput(() => {
             setter(defaultValue);
             callback(defaultValue);
         });
+
+        return;
     }
+
+    // set the state early, and if it's incorrect, it will be corrected after with `waitForPossibleFieldInput`
+    setter(parsedValue);
 
     if (parsedValue < min) {
         waitForPossibleFieldInput(() => {
@@ -79,19 +91,16 @@ export const handleFieldRangeInputChange = ({
         return;
     }
 
-    if (parsedValue >= min && parsedValue <= max) {
-        if (debounce) {
-            waitForPossibleRangeInput(() => {
-                setter(parsedValue);
-                callback(parsedValue);
-            });
+    if (debounce) {
+        waitForPossibleRangeInput(() => {
+            setter(parsedValue);
+            callback(parsedValue);
+        });
 
-            return;
-        }
-
-        setter(parsedValue);
-        callback(parsedValue);
+        return;
     }
+
+    callback(parsedValue);
 };
 
 const FieldRangeInput = ({
@@ -104,7 +113,7 @@ const FieldRangeInput = ({
     onRangeChange,
     onChange
 }: FieldRangeInputProps) => {
-    const [value, setValue] = useState(defaultValue);
+    const [value, setValue] = useState<number | null>(defaultValue);
 
     const fieldCallback = !!onChange
         ? onChange
@@ -121,12 +130,13 @@ const FieldRangeInput = ({
                 </label>
             )}
             <input
+                className='border border-slate-300 rounded-md text-center'
                 type='number'
                 id='columns'
                 max={max}
                 min={min}
                 step={step}
-                value={value}
+                value={value || ''}
                 onChange={(e) => handleFieldRangeInputChange({
                     event: e,
                     min: min,
@@ -136,15 +146,22 @@ const FieldRangeInput = ({
                     setter: setValue,
                     callback: fieldCallback
                 })}
-                className='border border-slate-300 rounded-md text-center'
             />
             <input
                 type='range'
                 max={max}
                 min={min}
                 step={step}
-                value={value}
-                onChange={() => { }}
+                value={value || min}
+                onChange={(e) => handleFieldRangeInputChange({
+                    event: e,
+                    min: min,
+                    max: max,
+                    defaultValue: defaultValue,
+                    debounce: true,
+                    setter: setValue,
+                    callback: rangeCallback
+                })}
             />
         </div>
     );

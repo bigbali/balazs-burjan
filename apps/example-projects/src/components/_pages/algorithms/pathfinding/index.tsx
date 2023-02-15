@@ -176,14 +176,8 @@ const PathfindingAlgorithms = () => {
                     min={Dimensions.MIN}
                     max={Dimensions.MAX}
                     step={1}
-                    onFieldChange={(e) => setGridDimensions(e, {
-                        debounce: false,
-                        setter: setRows
-                    })}
-                    onRangeChange={(e) => setGridDimensions(e, {
-                        debounce: true,
-                        setter: setRows
-                    })}
+                    onFieldChange={(value) => setRows(value)}
+                    onRangeChange={(value) => setRows(value)}
                 />
                 <div className='flex gap-4'>
                     <div className='flex gap-2'>
