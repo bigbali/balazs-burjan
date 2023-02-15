@@ -107,31 +107,20 @@ const usePathfindingOptions = (algorithm: PathfindingAlgorithm) => {
 const PathfindingAlgorithms = () => {
     const [rows, setRows] = useState(() => Dimensions.DEFAULT);
     const [columns, setColumns] = useState(() => Dimensions.DEFAULT);
-    const [velocity, setVelocity] = useState(() => Velocity.DEFAULT);
     const [algorithm, setAlgorithm] = useState(() => PathfindingAlgorithm.BREADTH_FIRST);
 
+    const [origin, setOrigin] = useState<Coordinate>(() => ({ x: 0, y: 0 }));
+    const [goal, setGoal] = useState<Coordinate>(() => ({ x: columns - 1, y: rows - 1 }));
+
+    const [options, OptionsElement] = usePathfindingOptions(algorithm);
     const [isPending, startTransition] = useTransition();
-    const setGlobalLoading = useLoading(state => state.setIsLoading);
+    const velocityRef = useRef(Velocity.DEFAULT);
 
     const setRowsTransition = useCallback((value: number) => startTransition(() => setRows(value)), []);
     const setColumnsTransition = useCallback((value: number) => startTransition(() => setColumns(value)), []);
 
-
+    const setGlobalLoading = useLoading(state => state.setIsLoading);
     useEffect(() => setGlobalLoading(isPending), [isPending, setGlobalLoading]);
-
-    const [options, OptionsElement] = usePathfindingOptions(algorithm);
-
-    const velocityRef = useRef(velocity);
-
-    const [origin, setOrigin] = useState<Coordinate>({
-        x: 0,
-        y: 0
-    });
-
-    const [goal, setGoal] = useState<Coordinate>({
-        x: columns - 1,
-        y: rows - 1
-    });
 
     // TODO why not combine this and table ([{ element: <Node ... />, x, y, ... }])
     // if not possible, another solution surely exists
@@ -158,7 +147,6 @@ const PathfindingAlgorithms = () => {
     }, [columns, rows]);
 
     const initiate = () => {
-
         if (algorithm) {
             PATHFINDER_MAP[algorithm](
                 origin,
@@ -235,22 +223,15 @@ const PathfindingAlgorithms = () => {
                         </div>
                         <OptionsElement />
                     </div>
-                    <div>
-                        <label htmlFor='velocity'>Velocity {velocity}</label>
-                        <input
-                            type='range'
-                            id='velocity'
-                            max={Velocity.MAX}
-                            min={Velocity.MIN}
-                            step={1}
-                            value={velocity}
-                            onChange={(e) => {
-                                const value = Number.parseInt(e.currentTarget.value);
-                                velocityRef.current = value;
-                                setVelocity(value);
-                            }}
-                        />
-                    </div>
+                    <FieldRangeInput
+                        label='Velocity'
+                        defaultValue={Velocity.DEFAULT}
+                        min={Velocity.MIN}
+                        max={Velocity.MAX}
+                        step={1}
+                        onChange={(velocity) => (velocityRef.current = velocity)}
+                        debounceRange={false}
+                    />
                 </div>
                 <button onClick={initiate}>Initiate</button>
                 <button onClick={resetGrid}>Reset Grid</button>

@@ -8,6 +8,7 @@ type BaseFieldRangeInputProps = {
     max: number,
     step: number,
     defaultValue: number,
+    debounceRange?: boolean,
     label: string
 };
 
@@ -32,7 +33,7 @@ type FieldRangeInputHandlerOptions = {
     min: number,
     max: number,
     defaultValue: number,
-    debounce: boolean,
+    debounce?: boolean,
     callback: (value: number) => void,
     setter: Dispatch<SetStateAction<number | null>>
 };
@@ -96,11 +97,10 @@ export const handleFieldRangeInputChange = ({
             setter(parsedValue);
             callback(parsedValue);
         });
-
-        return;
     }
-
-    callback(parsedValue);
+    else {
+        callback(parsedValue);
+    }
 };
 
 const FieldRangeInput = ({
@@ -108,6 +108,7 @@ const FieldRangeInput = ({
     max = 100,
     step = 1,
     defaultValue = 50,
+    debounceRange = true,
     label,
     onFieldChange,
     onRangeChange,
@@ -158,7 +159,7 @@ const FieldRangeInput = ({
                     min: min,
                     max: max,
                     defaultValue: defaultValue,
-                    debounce: true,
+                    debounce: debounceRange,
                     setter: setValue,
                     callback: rangeCallback
                 })}
