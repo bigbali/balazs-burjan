@@ -20,6 +20,8 @@ import { DFSDirection } from './algorithm/dfs';
 import { beginDFS } from './algorithm/dfs';
 import Grid, { setGridDimensions } from './grid/grid';
 
+import FieldRangeInput from 'ui/FieldRangeInput';
+
 export const enum Dimensions {
     MIN = 5,
     DEFAULT = 20,
@@ -168,6 +170,21 @@ const PathfindingAlgorithms = () => {
                 <legend className='text-center px-4'>
                     Grid Options
                 </legend>
+                <FieldRangeInput
+                    label='TEST ROWS'
+                    defaultValue={rows}
+                    min={Dimensions.MIN}
+                    max={Dimensions.MAX}
+                    step={1}
+                    onFieldChange={(e) => setGridDimensions(e, {
+                        debounce: false,
+                        setter: setRows
+                    })}
+                    onRangeChange={(e) => setGridDimensions(e, {
+                        debounce: true,
+                        setter: setRows
+                    })}
+                />
                 <div className='flex gap-4'>
                     <div className='flex gap-2'>
                         <label htmlFor='rows'>

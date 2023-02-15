@@ -33,7 +33,8 @@ const config = {
     },
     experimental: {
         swcPlugins: [['next-superjson-plugin', {}]]
-    }
+    },
+    transpilePackages: ['ui']
 };
 
 export default config;
