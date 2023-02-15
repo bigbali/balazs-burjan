@@ -1,71 +1,10 @@
-import { debounce } from 'lodash';
-import type { Dispatch, SetStateAction, ChangeEvent } from 'react';
-import { startTransition } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import { memo } from 'react';
 import { useEffect, useMemo, useRef, useState, useTransition } from 'react';
 import { useLoading } from '../../../../../store/loading';
 import type { Nodes2 } from './../index';
-import { Dimensions } from './../index';
 import type { Coordinate } from '../../util/common';
 import Row from './row';
-
-type SetDimensionsOptions = {
-    debounce: boolean,
-    setter: Dispatch<SetStateAction<number>>
-};
-
-/**
- * When user is typing a digit that is smaller than the minimum, we do not know if he is going to type another number or not.\
- * This could mean that the user is intending to type `12`, but our minimum is set to `1`. In usual input validation implementations,
- * this would cause `1` to be replaced by `min`. We are using debouncing like so to prevent this from happening.
- */
-const waitForPossibleFieldInput = debounce((callback: () => void) => callback(), 500);
-const waitForPossibleRangeInput = debounce((callback: () => void) => callback(), 200);
-
-export const setGridDimensions = (e: ChangeEvent<HTMLInputElement>, { debounce, setter }: SetDimensionsOptions) => {
-    // cancel pending state updates
-    waitForPossibleFieldInput.cancel();
-
-    const parsedValue = Number.parseInt(e.currentTarget.value);
-
-    if (Number.isNaN(parsedValue)) {
-        waitForPossibleFieldInput(() => {
-            e.target.value = Dimensions.DEFAULT.toString();
-            startTransition(() => setter(Dimensions.DEFAULT));
-        });
-    }
-
-    if (parsedValue < Dimensions.MIN) {
-        waitForPossibleFieldInput(() => {
-            e.target.value = Dimensions.MIN.toString();
-            startTransition(() => setter(Dimensions.MIN));
-        });
-
-        return;
-    }
-
-    if (parsedValue > Dimensions.MAX) {
-        waitForPossibleFieldInput(() => {
-            e.target.value = Dimensions.MAX.toString();
-            startTransition(() => setter(Dimensions.MAX));
-        });
-
-        return;
-    }
-
-    if (parsedValue >= Dimensions.MIN && parsedValue <= Dimensions.MAX) {
-        if (debounce) {
-            waitForPossibleRangeInput(() => {
-                e.target.value = parsedValue.toString();
-                startTransition(() => setter(parsedValue));
-            });
-
-            return;
-        }
-
-        startTransition(() => setter(parsedValue));
-    }
-};
 
 type GridProps = {
     data: {

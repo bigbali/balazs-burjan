@@ -1,8 +1,7 @@
 import type {
     Dispatch,
     MutableRefObject,
-    SetStateAction,
-    ChangeEvent
+    SetStateAction
 } from 'react';
 import { useEffect } from 'react';
 import { useRef } from 'react';
@@ -18,7 +17,7 @@ import type { BeginDepthFirstSearch } from './algorithm/dfs';
 import { DFSOptions } from './algorithm/dfs';
 import { DFSDirection } from './algorithm/dfs';
 import { beginDFS } from './algorithm/dfs';
-import Grid, { setGridDimensions } from './grid/grid';
+import Grid from './grid/grid';
 
 import FieldRangeInput from 'ui/FieldRangeInput';
 
@@ -170,74 +169,25 @@ const PathfindingAlgorithms = () => {
                 <legend className='text-center px-4'>
                     Grid Options
                 </legend>
-                <FieldRangeInput
-                    label='TEST ROWS'
-                    defaultValue={rows}
-                    min={Dimensions.MIN}
-                    max={Dimensions.MAX}
-                    step={1}
-                    onFieldChange={(value) => setRows(value)}
-                    onRangeChange={(value) => setRows(value)}
-                />
                 <div className='flex gap-4'>
-                    <div className='flex gap-2'>
-                        <label htmlFor='rows'>
-                            Rows
-                        </label>
-                        <input
-                            type='number'
-                            id='rows'
-                            max={Dimensions.MAX}
-                            min={Dimensions.MIN}
-                            step={1}
-                            defaultValue={rows}
-                            onChange={(e) => setGridDimensions(e, {
-                                debounce: false,
-                                setter: setRows
-                            })}
-                            className='border border-slate-300 rounded-md text-center'
-                        />
-                        <input
-                            type='range'
-                            max={Dimensions.MAX}
-                            min={Dimensions.MIN}
-                            step={1}
-                            defaultValue={rows}
-                            onChange={(e) => setGridDimensions(e, {
-                                debounce: true,
-                                setter: setRows
-                            })}
-                        />
-                    </div>
-                    <div className='flex gap-2'>
-                        <label htmlFor='columns'>
-                            Columns
-                        </label>
-                        <input
-                            type='number'
-                            id='columns'
-                            max={Dimensions.MAX}
-                            min={Dimensions.MIN}
-                            step={1}
-                            defaultValue={columns}
-                            onChange={(e) => setGridDimensions(e, {
-                                debounce: false,
-                                setter: setColumns
-                            })}
-                            className='border border-slate-300 rounded-md text-center'
-                        />
-                        <input
-                            type='range'
-                            max={Dimensions.MAX}
-                            min={Dimensions.MIN}
-                            step={1}
-                            defaultValue={columns}
-                            onChange={(e) => setGridDimensions(e, {
-                                debounce: true,
-                                setter: setColumns
-                            })}
-                        />
-                    </div>
+                    <FieldRangeInput
+                        label='Rows'
+                        defaultValue={rows}
+                        min={Dimensions.MIN}
+                        max={Dimensions.MAX}
+                        step={1}
+                        onFieldChange={(value) => setRows(value)}
+                        onRangeChange={(value) => setRows(value)}
+                    />
+                    <FieldRangeInput
+                        label='Columns'
+                        defaultValue={columns}
+                        min={Dimensions.MIN}
+                        max={Dimensions.MAX}
+                        step={1}
+                        onFieldChange={(value) => setColumns(value)}
+                        onRangeChange={(value) => setColumns(value)}
+                    />
                 </div>
             </fieldset>
             <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4 mb-3'>
