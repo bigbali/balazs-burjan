@@ -245,10 +245,7 @@ const PathfindingAlgorithms = () => {
                 <button onClick={initiate}>Initiate</button>
                 <button onClick={resetGrid}>Reset Grid</button>
             </fieldset>
-            <Grid
-                data={gridOptions}
-            // shouldDebounce={shouldDebounceGridRef}
-            />
+            <Grid data={gridOptions} />
         </div>
     );
 };
