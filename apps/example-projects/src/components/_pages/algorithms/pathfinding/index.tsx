@@ -16,9 +16,12 @@ import { createRef } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { Coordinate } from '../util/common';
 import { forEachNode } from '../util/common';
-import type { BeginBreadthFirstSearch } from './algorithm/bfs';
-import { beginBFS } from './algorithm/bfs';
-import { BFSDirection, BFSOptions } from './algorithm/bfs';
+import type { BeginBreadthFirstSearch } from './algorithm/bfs-generator';
+import { beginBFS } from './algorithm/bfs-generator';
+import { BFSDirection, BFSOptions } from './algorithm/bfs-generator';
+// import type { BeginBreadthFirstSearch } from './algorithm/bfs';
+// import { beginBFS } from './algorithm/bfs';
+// import { BFSDirection, BFSOptions } from './algorithm/bfs';
 import type { BeginDepthFirstSearch } from './algorithm/dfs';
 import { DFSOptions } from './algorithm/dfs';
 import { DFSDirection } from './algorithm/dfs';
@@ -27,6 +30,8 @@ import Grid from './grid/grid';
 
 import FieldRangeInput from 'ui/FieldRangeInput';
 import { useLoading } from '../../../../store/loading';
+import { StateButton } from './state-button';
+import { PathfindingAlgorithmsState } from './state';
 
 export const enum Dimensions {
     MIN = 5,
@@ -105,22 +110,26 @@ const usePathfindingOptions = (algorithm: PathfindingAlgorithm) => {
 };
 
 const PathfindingAlgorithms = () => {
-    const [rows, setRows] = useState(() => Dimensions.DEFAULT);
-    const [columns, setColumns] = useState(() => Dimensions.DEFAULT);
-    const [algorithm, setAlgorithm] = useState(() => PathfindingAlgorithm.BREADTH_FIRST);
+    const [rows, setRows] = useState(Dimensions.DEFAULT);
+    const [columns, setColumns] = useState(Dimensions.DEFAULT);
+    const [algorithm, setAlgorithm] = useState(PathfindingAlgorithm.BREADTH_FIRST);
+    const [state, setState] = useState(PathfindingAlgorithmsState.STOPPED);
 
-    const [origin, setOrigin] = useState<Coordinate>(() => ({ x: 0, y: 0 }));
-    const [goal, setGoal] = useState<Coordinate>(() => ({ x: columns - 1, y: rows - 1 }));
+    const [origin, setOrigin] = useState<Coordinate>(({ x: 0, y: 0 }));
+    const [goal, setGoal] = useState<Coordinate>(({ x: columns - 1, y: rows - 1 }));
 
     const [options, OptionsElement] = usePathfindingOptions(algorithm);
     const [isPending, startTransition] = useTransition();
+
     const velocityRef = useRef(Velocity.DEFAULT);
+    const stateRef = useRef(state);
 
     const setRowsTransition = useCallback((value: number) => startTransition(() => setRows(value)), []);
     const setColumnsTransition = useCallback((value: number) => startTransition(() => setColumns(value)), []);
 
     const setGlobalLoading = useLoading(state => state.setIsLoading);
     useEffect(() => setGlobalLoading(isPending), [isPending, setGlobalLoading]);
+    useEffect(() => { stateRef.current = state; }, [state]);
 
     // TODO why not combine this and table ([{ element: <Node ... />, x, y, ... }])
     // if not possible, another solution surely exists
@@ -146,21 +155,53 @@ const PathfindingAlgorithms = () => {
         return refs;
     }, [columns, rows]);
 
-    const initiate = () => {
-        if (algorithm) {
+    const gridData = useMemo(() => ({
+        columns, rows, nodes, origin, goal, setOrigin, setGoal
+    }), [columns, goal, nodes, origin, rows]);
+
+    const resetGrid = () => {
+        forEachNode(nodes, (node) => node.setIsVisited.current(false));
+    };
+
+    const handleClearGrid = () => { };
+    const handleStart = () => {
+        if (state === PathfindingAlgorithmsState.STOPPED) {
+            stateRef.current = PathfindingAlgorithmsState.RUNNING;
+
+            if (state === PathfindingAlgorithmsState.STOPPED) {
+                PATHFINDER_MAP[algorithm](
+                    origin,
+                    goal,
+                    nodes,
+                    velocityRef,
+                    stateRef,
+                    { direction: options }
+                );
+            }
+
+            setState(PathfindingAlgorithmsState.RUNNING);
+        }
+        if (state === PathfindingAlgorithmsState.RUNNING) {
+            stateRef.current = PathfindingAlgorithmsState.PAUSED;
+            setState(PathfindingAlgorithmsState.PAUSED);
+        }
+        if (state === PathfindingAlgorithmsState.PAUSED) {
+            stateRef.current = PathfindingAlgorithmsState.RUNNING;
             PATHFINDER_MAP[algorithm](
                 origin,
                 goal,
                 nodes,
                 velocityRef,
-                // @ts-ignore
-                options
+                stateRef,
+                { direction: options }
             );
+            setState(PathfindingAlgorithmsState.RUNNING);
         }
     };
 
-    const resetGrid = () => {
-        forEachNode(nodes, (node) => node.setIsVisited.current(false));
+    console.log('state', state);
+    const handleReset = () => {
+        setState(PathfindingAlgorithmsState.STOPPED);
     };
 
     return (
@@ -202,11 +243,7 @@ const PathfindingAlgorithms = () => {
                                 id='algorithm'
                                 className='border border-slate-3 rounded-md capitalize'
                                 value={algorithm}
-                                onChange={(e) =>
-                                    startTransition(() =>
-                                        setAlgorithm(e.currentTarget.value as PathfindingAlgorithm)
-                                    )
-                                }
+                                onChange={(e) => setAlgorithm(e.currentTarget.value as PathfindingAlgorithm)}
                             >
                                 {Object.values(PathfindingAlgorithm).map((value) => {
                                     return (
@@ -221,7 +258,6 @@ const PathfindingAlgorithms = () => {
                                 })}
                             </select>
                         </div>
-                        <OptionsElement />
                     </div>
                     <FieldRangeInput
                         label='Velocity'
@@ -233,10 +269,15 @@ const PathfindingAlgorithms = () => {
                         debounceRange={false}
                     />
                 </div>
-                <button onClick={initiate}>Initiate</button>
-                <button onClick={resetGrid}>Reset Grid</button>
+                <OptionsElement />
+                <div className='flex gap-2'>
+                    <StateButton state={state} onClick={handleStart} />
+                    <button className='bg-red-700 text-white font-medium px-4 py-2 rounded-lg' onClick={handleReset}>
+                        Reset
+                    </button>
+                </div>
             </fieldset>
-            <Grid data={{ columns, rows, nodes, origin, goal, setOrigin, setGoal }} />
+            <Grid data={gridData} />
         </div>
     );
 };

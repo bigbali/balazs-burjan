@@ -67,7 +67,11 @@ export type BeginBreadthFirstSearch = (
     }
 ) => void;
 
-export const beginBFS: BeginBreadthFirstSearch = (origin, goal, grid, velocity, state, { direction }) => {
+let savedqueue: Queue | undefined;
+
+export const beginBFS: BeginBreadthFirstSearch = (origin, goal, grid, velocity, state, options) => {
+    const { direction } = options;
+
     directions = Directions[direction];
 
     const queue: Queue = [{
@@ -76,109 +80,116 @@ export const beginBFS: BeginBreadthFirstSearch = (origin, goal, grid, velocity, 
         parent: null
     }];
 
-    const distance: number[][] = [];
+    // TODO i rly dislike this solution, find better
+    const visited: boolean[][] = [];
 
     for (let y = 0; y < grid.length; y++) {
-        const row: number[] = [];
-        distance.push(row);
+        const row: boolean[] = [];
+        visited.push(row);
 
         for (let x = 0; x < grid[0]!.length; x++) {
-            row.push(-1);
+            row.push(false);
         }
     }
 
-    distance[origin.y]![origin.x] = 0;
+    visited[origin.y]![origin.x] = true;
 
-    void BFS(queue, distance, goal, grid, velocity, state);
+    if (savedqueue) console.log('using saved queue');
+
+    const generator = BFSStep(savedqueue || queue, goal, grid, visited, state);
+    BFS(generator, velocity);
+};
+
+type BFSRunner = (
+    bfs: Generator<undefined, void, unknown>,
+    velocity: MutableRefObject<number>
+) => void;
+
+const BFS: BFSRunner = (bfs, velocity) => {
+    bfs.next();
+
+    setTimeout(() => BFS(bfs, velocity), 1 / velocity.current * 100);
 };
 
 /**
  * Breadth-First Search implemented with recursion in order to be able to use with timeout
  */
-async function BFS(
+function* BFSStep(
     queue: Queue,
-    distance: number[][],
     goal: Coordinate,
     grid: Nodes2[][],
-    velocity: MutableRefObject<number>,
+    visited: boolean[][],
     state: MutableRefObject<PathfindingAlgorithmsState>
 ) {
-    if (state.current === PathfindingAlgorithmsState.STOPPED) {
-        return;
-    }
-    if (state.current === PathfindingAlgorithmsState.PAUSED) {
-        // // this is what I need
-        // return;
-
-        await new Promise<void>((resolve) => {
-            const intervalId = setInterval(() => {
-                if (state.current === PathfindingAlgorithmsState.RUNNING) {
-                    clearInterval(intervalId);
-                    resolve();
-                }
-            }, 50);
-        });
-    }
-    const current = queue.shift()!;
-    if (!current) return;
-
     let isGoalReached = false;
 
-    for (const [dx, dy] of directions) {
-        const x = current.x + dx;
-        const y = current.y + dy;
+    while (!isGoalReached) {
+        console.log('while', state.current);
+        if (state.current === PathfindingAlgorithmsState.STOPPED) {
+            // clear grid
+            return;
+        }
+        if (state.current === PathfindingAlgorithmsState.PAUSED) {
+            savedqueue = queue;
+            return;
+        } else {
+            savedqueue = undefined;
+        }
 
-        if (!isOutOfBounds(x, y, grid) && distance[y]![x] === -1) {
-            const {
-                isObstruction: {
-                    current: isObstruction
-                },
-                setIsVisited: {
-                    current: setIsVisited
+        const current = queue.shift()!;
+        if (!current) return;
+
+        for (const [dx, dy] of directions) {
+            const x = current.x + dx;
+            const y = current.y + dy;
+
+            if (!isOutOfBounds(x, y, grid) && !visited[y]![x]) {
+                const {
+                    isObstruction: {
+                        current: isObstruction
+                    },
+                    setIsVisited: {
+                        current: setIsVisited
+                    }
+                } = grid[y]![x]!;
+
+                if (isObstruction) {
+                    continue;
                 }
-            } = grid[y]![x]!;
 
-            if (isObstruction) {
-                continue;
-            }
+                setIsVisited(true);
 
-            setIsVisited(true);
+                queue.push({
+                    x,
+                    y,
+                    parent: current
+                });
 
-            queue.push({ x, y, parent: current });
+                visited[y]![x] = true;
 
-            // FIXME remove when ready
-            distance[y]![x] = distance[current.y]![current.x]! + 1;
-
-            if (x === goal.x && y === goal.y) {
-                isGoalReached = true;
-                console.log('distance between origin and goal', distance[y]![x]! - 1);
-                break;
+                if (x === goal.x && y === goal.y) {
+                    isGoalReached = true;
+                    break;
+                }
             }
         }
-    }
 
-    if (isGoalReached) {
-        let node = queue.at(-1);
-        let shortestDistance = 1;
+        if (isGoalReached) {
+            let node = queue.at(-1);
 
-        while (node && node.parent) {
-            if (shortestDistance !== 1) { // don't highlight goal
-                grid[node.y]![node.x]?.setIsHighlighted.current(true);
-            };
-            shortestDistance++;
-            node = node.parent;
+            while (node && node.parent) {
+                if (!(node.x === goal.x && node.y === goal.y)) { // don't highlight goal
+                    grid[node.y]![node.x]?.setIsHighlighted.current(true);
+                };
+                node = node.parent;
+            }
+
+            return;
         }
 
-        // FIXME pointless to return, wasted in settimeout
-        return shortestDistance;
+        yield;
     }
-
-    // having reached the end of the grid does not mean there is no way to find the goal
-    // if (current.y === grid.length - 1 && current.x === grid[0]!.length - 1) return null;
-
-    setTimeout(() => void BFS(queue, distance, goal, grid, velocity, state), 1 / velocity.current * 100);
 }
-
 
 export const BFSOptions = ({ option, setOption }: BFSOptionsProps) => {
     return (
