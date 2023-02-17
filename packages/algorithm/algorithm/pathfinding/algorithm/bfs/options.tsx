@@ -14,7 +14,7 @@ export const BFSOptions = ({ option, setOption }: BFSOptionsProps) => {
             </label>
             <select
                 id='bfsdirection'
-                className='capitalize'
+                className='border border-slate-3 rounded-md capitalize px-4'
                 value={option}
                 onChange={(e) => {
                     setOption(e.currentTarget.value as BFSDirection);

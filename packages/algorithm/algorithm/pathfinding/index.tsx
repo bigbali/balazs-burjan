@@ -37,10 +37,10 @@ export const enum Dimensions {
     MAX = 150
 };
 
-export const enum Velocity {
+export const enum Delay {
     MIN = 1,
-    DEFAULT = 5,
-    MAX = 100
+    DEFAULT = 10,
+    MAX = 200
 };
 
 export enum PathfindingAlgorithm {
@@ -134,7 +134,7 @@ const PathfindingAlgorithms = () => {
     const [options, OptionsElement] = usePathfindingOptions(algorithm);
     const [isPending, startTransition] = useTransition();
 
-    const velocityRef = useRef(Velocity.DEFAULT);
+    const velocityRef = useRef(Delay.DEFAULT);
     const stateRef = useRef(state);
 
     const setRowsTransition = useCallback((value: number) => startTransition(() => setRows(value)), []);
@@ -170,43 +170,40 @@ const PathfindingAlgorithms = () => {
         columns, rows, nodes, origin, goal, setOrigin, setGoal
     }), [columns, goal, nodes, origin, rows]);
 
+    const updateState = (state: PathfinderState) => {
+        stateRef.current = state;
+        setState(state);
+    };
+
+    const runPathfinder = async () => {
+        return await PATHFINDER_MAP[algorithm](
+            origin,
+            goal,
+            nodes,
+            velocityRef,
+            stateRef,
+            { direction: options }
+        );
+    };
+
     const handleStart = async () => {
-        console.log('start');
         if (state === PathfinderState.STOPPED) {
-            stateRef.current = PathfinderState.RUNNING;
-            setState(PathfinderState.RUNNING);
+            updateState(PathfinderState.RUNNING);
 
-            const result = await PATHFINDER_MAP[algorithm](
-                origin,
-                goal,
-                nodes,
-                velocityRef,
-                stateRef,
-                { direction: options }
-            );
+            await runPathfinder();
 
-            console.log('result', result);
-
+            updateState(PathfinderState.STOPPED);
         }
         if (state === PathfinderState.RUNNING) {
-            stateRef.current = PathfinderState.PAUSED;
-            setState(PathfinderState.PAUSED);
+            updateState(PathfinderState.PAUSED);
         }
         if (state === PathfinderState.PAUSED) {
-            stateRef.current = PathfinderState.RUNNING;
-            void PATHFINDER_MAP[algorithm](
-                origin,
-                goal,
-                nodes,
-                velocityRef,
-                stateRef,
-                { direction: options }
-            );
-            setState(PathfinderState.RUNNING);
+            updateState(PathfinderState.RUNNING);
+
+            void runPathfinder();
         }
     };
 
-    console.log('state', state);
     const handleReset = () => {
         stateRef.current = PathfinderState.STOPPED;
         setState(PathfinderState.STOPPED);
@@ -241,7 +238,7 @@ const PathfindingAlgorithms = () => {
                     />
                 </div>
             </fieldset>
-            <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4 mb-3'>
+            <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4 mb-3 grid gap-2'>
                 <legend className='text-center px-4'>
                     Algorithm Options
                 </legend>
@@ -272,10 +269,10 @@ const PathfindingAlgorithms = () => {
                         </div>
                     </div>
                     <FieldRangeInput
-                        label='Velocity'
-                        defaultValue={Velocity.DEFAULT}
-                        min={Velocity.MIN}
-                        max={Velocity.MAX}
+                        label='Delay (ms)'
+                        defaultValue={Delay.DEFAULT}
+                        min={Delay.MIN}
+                        max={Delay.MAX}
                         step={1}
                         onChange={(velocity) => (velocityRef.current = velocity)}
                         debounceRange={false}

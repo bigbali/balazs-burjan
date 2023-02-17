@@ -28,16 +28,13 @@ const Algorithms = () => {
                 </div>
             )}
             <div className='pl-24 pr-24 pt-12 pb-12'>
-                <h1 className='text-center text-2xl'>
-                    Algorithms
-                </h1>
                 <div className='flex gap-4'>
                     <label htmlFor='mode'>
                         Mode
                     </label>
                     <select
                         id='mode'
-                        className='border border-black capitalize'
+                        className='border border-slate-3 rounded-md capitalize px-4'
                         value={mode}
                         onChange={(e) =>
                             startTransition(() =>

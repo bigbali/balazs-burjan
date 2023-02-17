@@ -31,7 +31,7 @@ export const resetBFS = (callback: () => void) => {
     callback();
 };
 
-export const beginBFS: BeginBFS = async (origin, goal, grid, velocity, state, options) => {
+export const beginBFS: BeginBFS = async (origin, goal, grid, delay, state, options) => {
     const { direction } = options;
 
     directions = Directions[direction];
@@ -54,15 +54,15 @@ export const beginBFS: BeginBFS = async (origin, goal, grid, velocity, state, op
     }
 
     const generator = BFSStep(goal, grid, visited, state);
-    return await BFS(generator, velocity);
+    return await BFS(generator, delay);
 };
 
 type BFSRunner = (
     bfs: Generator<undefined, QueueEntry | undefined, unknown>,
-    velocity: MutableRefObject<number>
+    delay: MutableRefObject<number>
 ) => Promise<QueueEntry | undefined>;
 
-const BFS: BFSRunner = async (bfs, velocity) => {
+const BFS: BFSRunner = async (bfs, delay) => {
     const result = bfs.next();
 
     if (result.done) {
@@ -71,10 +71,10 @@ const BFS: BFSRunner = async (bfs, velocity) => {
 
     // dark magic, don't touch
     await new Promise<void>((resolve) => {
-        setTimeout(() => resolve(), 1 / velocity.current * 100);
+        setTimeout(() => resolve(), delay.current);
     });
 
-    return await BFS(bfs, velocity);
+    return await BFS(bfs, delay);
 };
 
 function* BFSStep(
