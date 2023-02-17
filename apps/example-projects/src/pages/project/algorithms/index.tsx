@@ -1,1 +1,1 @@
-export { default } from '../../../components/_pages/algorithms';
+export { default } from 'algorithms';
