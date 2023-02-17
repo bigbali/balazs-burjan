@@ -1,20 +1,20 @@
-import { PathfindingAlgorithmsState } from '../state';
+import { PathfinderState } from '../state';
 
 type StateButtonProps = {
-    state: PathfindingAlgorithmsState,
+    state: PathfinderState,
     onClick: () => void
 };
 
 const START_BUTTON_CONTENT_MAP = {
-    [PathfindingAlgorithmsState.STOPPED]: 'Start',
-    [PathfindingAlgorithmsState.RUNNING]: 'Pause',
-    [PathfindingAlgorithmsState.PAUSED]: 'Continue'
+    [PathfinderState.STOPPED]: 'Start',
+    [PathfinderState.RUNNING]: 'Pause',
+    [PathfinderState.PAUSED]: 'Continue'
 } as const;
 
 const START_BUTTON_CLASS_MAP = {
-    [PathfindingAlgorithmsState.STOPPED]: 'bg-sky-700',
-    [PathfindingAlgorithmsState.RUNNING]: 'bg-orange-500',
-    [PathfindingAlgorithmsState.PAUSED]: 'bg-green-500'
+    [PathfinderState.STOPPED]: 'bg-sky-700',
+    [PathfinderState.RUNNING]: 'bg-orange-500',
+    [PathfinderState.PAUSED]: 'bg-green-500'
 } as const;
 
 export const StateButton = ({ state, onClick }: StateButtonProps) => {

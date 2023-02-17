@@ -2,7 +2,7 @@ import type { Dispatch, MutableRefObject, RefObject, SetStateAction } from 'reac
 import type { Nodes2 } from '../index';
 import type { Coordinate } from '../../util/common';
 import { isOutOfBounds } from '../../util/common';
-import { PathfindingAlgorithmsState } from '../state';
+import { PathfinderState } from '../state';
 
 export enum BFSDirection {
     ORTHOGONAL = 'orthogonal',
@@ -61,24 +61,36 @@ export type BeginBreadthFirstSearch = (
     goal: Coordinate,
     grid: Nodes2[][],
     velocity: MutableRefObject<number>,
-    state: MutableRefObject<PathfindingAlgorithmsState>,
+    state: MutableRefObject<PathfinderState>,
     options: {
         direction: BFSDirection
     }
 ) => void;
 
-let savedqueue: Queue | undefined;
+// we are storing queue as a top level variable because it's much easier
+let queue: Queue = [];
+
+export const resetBFS = (callback: () => void) => {
+    queue = [];
+    callback();
+};
 
 export const beginBFS: BeginBreadthFirstSearch = (origin, goal, grid, velocity, state, options) => {
     const { direction } = options;
 
     directions = Directions[direction];
 
-    const queue: Queue = [{
+    queue.push({
         x: origin.x,
         y: origin.y,
         parent: null
-    }];
+    });
+
+    // const queue: Queue = [{
+    //     x: origin.x,
+    //     y: origin.y,
+    //     parent: null
+    // }];
 
     // TODO i rly dislike this solution, find better
     const visited: boolean[][] = [];
@@ -94,9 +106,9 @@ export const beginBFS: BeginBreadthFirstSearch = (origin, goal, grid, velocity, 
 
     visited[origin.y]![origin.x] = true;
 
-    if (savedqueue) console.log('using saved queue');
+    // if (savedqueue) console.log('using saved queue');
 
-    const generator = BFSStep(savedqueue || queue, goal, grid, visited, state);
+    const generator = BFSStep(goal, grid, visited, state);
     BFS(generator, velocity);
 };
 
@@ -111,29 +123,23 @@ const BFS: BFSRunner = (bfs, velocity) => {
     setTimeout(() => BFS(bfs, velocity), 1 / velocity.current * 100);
 };
 
-/**
- * Breadth-First Search implemented with recursion in order to be able to use with timeout
- */
 function* BFSStep(
-    queue: Queue,
     goal: Coordinate,
     grid: Nodes2[][],
     visited: boolean[][],
-    state: MutableRefObject<PathfindingAlgorithmsState>
+    state: MutableRefObject<PathfinderState>
 ) {
     let isGoalReached = false;
 
     while (!isGoalReached) {
         console.log('while', state.current);
-        if (state.current === PathfindingAlgorithmsState.STOPPED) {
+        if (state.current === PathfinderState.STOPPED) {
             // clear grid
+            queue = [];
             return;
         }
-        if (state.current === PathfindingAlgorithmsState.PAUSED) {
-            savedqueue = queue;
+        if (state.current === PathfinderState.PAUSED) {
             return;
-        } else {
-            savedqueue = undefined;
         }
 
         const current = queue.shift()!;

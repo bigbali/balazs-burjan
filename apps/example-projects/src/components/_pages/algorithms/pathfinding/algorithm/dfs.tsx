@@ -2,7 +2,7 @@ import type { Dispatch, RefObject, SetStateAction } from 'react';
 import type { Nodes2 } from '../index';
 import type { Coordinate } from '../../util/common';
 import { isOutOfBounds } from '../../util/common';
-import type { PathfindingAlgorithmsState } from '../state';
+import type { PathfinderState } from '../state';
 
 export enum DFSDirection {
     TBLR = 'top to bottom, left to right',
@@ -67,7 +67,7 @@ export type BeginDepthFirstSearch = (
     goal: Coordinate,
     grid: Nodes2[][],
     velocity: RefObject<number>,
-    state: PathfindingAlgorithmsState,
+    state: PathfinderState,
     options: {
         direction: DFSDirection
     }

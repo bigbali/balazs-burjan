@@ -2,7 +2,7 @@ import type { Dispatch, MutableRefObject, RefObject, SetStateAction } from 'reac
 import type { Nodes2 } from '../index';
 import type { Coordinate } from '../../util/common';
 import { isOutOfBounds } from '../../util/common';
-import { PathfindingAlgorithmsState } from '../state';
+import { PathfinderState } from '../state';
 
 export enum BFSDirection {
     ORTHOGONAL = 'orthogonal',
@@ -61,7 +61,7 @@ export type BeginBreadthFirstSearch = (
     goal: Coordinate,
     grid: Nodes2[][],
     velocity: MutableRefObject<number>,
-    state: MutableRefObject<PathfindingAlgorithmsState>,
+    state: MutableRefObject<PathfinderState>,
     options: {
         direction: BFSDirection
     }
@@ -101,18 +101,18 @@ async function BFS(
     goal: Coordinate,
     grid: Nodes2[][],
     velocity: MutableRefObject<number>,
-    state: MutableRefObject<PathfindingAlgorithmsState>
+    state: MutableRefObject<PathfinderState>
 ) {
-    if (state.current === PathfindingAlgorithmsState.STOPPED) {
+    if (state.current === PathfinderState.STOPPED) {
         return;
     }
-    if (state.current === PathfindingAlgorithmsState.PAUSED) {
+    if (state.current === PathfinderState.PAUSED) {
         // // this is what I need
         // return;
 
         await new Promise<void>((resolve) => {
             const intervalId = setInterval(() => {
-                if (state.current === PathfindingAlgorithmsState.RUNNING) {
+                if (state.current === PathfinderState.RUNNING) {
                     clearInterval(intervalId);
                     resolve();
                 }

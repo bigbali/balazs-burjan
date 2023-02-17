@@ -16,9 +16,10 @@ import { createRef } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { Coordinate } from '../util/common';
 import { forEachNode } from '../util/common';
-import type { BeginBreadthFirstSearch } from './algorithm/bfs-generator';
-import { beginBFS } from './algorithm/bfs-generator';
-import { BFSDirection, BFSOptions } from './algorithm/bfs-generator';
+// import type { BeginBreadthFirstSearch } from './algorithm/bfs-generator';
+// import { resetBFS } from './algorithm/bfs-generator';
+// import { beginBFS } from './algorithm/bfs-generator';
+// import { BFSDirection, BFSOptions } from './algorithm/bfs-generator';
 // import type { BeginBreadthFirstSearch } from './algorithm/bfs';
 // import { beginBFS } from './algorithm/bfs';
 // import { BFSDirection, BFSOptions } from './algorithm/bfs';
@@ -31,7 +32,12 @@ import Grid from './grid/grid';
 import FieldRangeInput from 'ui/FieldRangeInput';
 import { useLoading } from '../../../../store/loading';
 import { StateButton } from './state-button';
-import { PathfindingAlgorithmsState } from './state';
+import { PathfinderState } from './state';
+import { BFSDirection } from './algorithm/bfs/direction';
+import { BFSOptions } from './algorithm/bfs/options';
+import type { BeginBreadthFirstSearch } from './algorithm/bfs';
+import { beginBFS } from './algorithm/bfs';
+import { resetBFS } from './algorithm/bfs/';
 
 export const enum Dimensions {
     MIN = 5,
@@ -45,7 +51,7 @@ export const enum Velocity {
     MAX = 100
 };
 
-enum PathfindingAlgorithm {
+export enum PathfindingAlgorithm {
     BREADTH_FIRST = 'breadth first',
     DEPTH_FIRST = 'depth first',
     DIJKSTRA = 'dijkstra',
@@ -94,6 +100,18 @@ const PATHFINDER_MAP: PathFinderMap = {
     [PathfindingAlgorithm.BIDIRECTIONAL]: () => { }
 } as const;
 
+const resetDFS = () => null;
+const resetBidirectional = () => null;
+const resetDijkstra = () => null;
+
+export const RESET_MAP = {
+    [PathfindingAlgorithm.BREADTH_FIRST]: resetBFS,
+    [PathfindingAlgorithm.DEPTH_FIRST]: resetDFS,
+    [PathfindingAlgorithm.BIDIRECTIONAL]: resetBidirectional,
+    [PathfindingAlgorithm.DIJKSTRA]: resetDijkstra
+} as const;
+
+
 const usePathfindingOptions = (algorithm: PathfindingAlgorithm) => {
     const [options, setOptions] = useState(DefaultOption[algorithm]);
 
@@ -113,7 +131,7 @@ const PathfindingAlgorithms = () => {
     const [rows, setRows] = useState(Dimensions.DEFAULT);
     const [columns, setColumns] = useState(Dimensions.DEFAULT);
     const [algorithm, setAlgorithm] = useState(PathfindingAlgorithm.BREADTH_FIRST);
-    const [state, setState] = useState(PathfindingAlgorithmsState.STOPPED);
+    const [state, setState] = useState(PathfinderState.STOPPED);
 
     const [origin, setOrigin] = useState<Coordinate>(({ x: 0, y: 0 }));
     const [goal, setGoal] = useState<Coordinate>(({ x: columns - 1, y: rows - 1 }));
@@ -131,8 +149,6 @@ const PathfindingAlgorithms = () => {
     useEffect(() => setGlobalLoading(isPending), [isPending, setGlobalLoading]);
     useEffect(() => { stateRef.current = state; }, [state]);
 
-    // TODO why not combine this and table ([{ element: <Node ... />, x, y, ... }])
-    // if not possible, another solution surely exists
     const nodes = useMemo(() => {
         const refs: Nodes2[][] = [];
         for (let y = 0; y < rows; y++) {
@@ -159,34 +175,10 @@ const PathfindingAlgorithms = () => {
         columns, rows, nodes, origin, goal, setOrigin, setGoal
     }), [columns, goal, nodes, origin, rows]);
 
-    const resetGrid = () => {
-        forEachNode(nodes, (node) => node.setIsVisited.current(false));
-    };
-
-    const handleClearGrid = () => { };
     const handleStart = () => {
-        if (state === PathfindingAlgorithmsState.STOPPED) {
-            stateRef.current = PathfindingAlgorithmsState.RUNNING;
+        if (state === PathfinderState.STOPPED) {
+            stateRef.current = PathfinderState.RUNNING;
 
-            if (state === PathfindingAlgorithmsState.STOPPED) {
-                PATHFINDER_MAP[algorithm](
-                    origin,
-                    goal,
-                    nodes,
-                    velocityRef,
-                    stateRef,
-                    { direction: options }
-                );
-            }
-
-            setState(PathfindingAlgorithmsState.RUNNING);
-        }
-        if (state === PathfindingAlgorithmsState.RUNNING) {
-            stateRef.current = PathfindingAlgorithmsState.PAUSED;
-            setState(PathfindingAlgorithmsState.PAUSED);
-        }
-        if (state === PathfindingAlgorithmsState.PAUSED) {
-            stateRef.current = PathfindingAlgorithmsState.RUNNING;
             PATHFINDER_MAP[algorithm](
                 origin,
                 goal,
@@ -195,13 +187,35 @@ const PathfindingAlgorithms = () => {
                 stateRef,
                 { direction: options }
             );
-            setState(PathfindingAlgorithmsState.RUNNING);
+
+            setState(PathfinderState.RUNNING);
+        }
+        if (state === PathfinderState.RUNNING) {
+            stateRef.current = PathfinderState.PAUSED;
+            setState(PathfinderState.PAUSED);
+        }
+        if (state === PathfinderState.PAUSED) {
+            stateRef.current = PathfinderState.RUNNING;
+            PATHFINDER_MAP[algorithm](
+                origin,
+                goal,
+                nodes,
+                velocityRef,
+                stateRef,
+                { direction: options }
+            );
+            setState(PathfinderState.RUNNING);
         }
     };
 
     console.log('state', state);
     const handleReset = () => {
-        setState(PathfindingAlgorithmsState.STOPPED);
+        stateRef.current = PathfinderState.STOPPED;
+        setState(PathfinderState.STOPPED);
+
+        RESET_MAP[algorithm](() => {
+            forEachNode(nodes, (node) => node.setIsVisited.current(false));
+        });
     };
 
     return (
