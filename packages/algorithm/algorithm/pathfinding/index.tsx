@@ -13,7 +13,7 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { createRef } from 'react';
 import React, { useMemo, useState } from 'react';
-import type { BeginDepthFirstSearch } from './algorithm/dfs';
+import type { BeginDFS } from './algorithm/dfs';
 import { DFSOptions } from './algorithm/dfs';
 import { DFSDirection } from './algorithm/dfs';
 import { beginDFS } from './algorithm/dfs';
@@ -80,7 +80,7 @@ export type Nodes2 = {
 type PathfinderPlaceholder = (...args: any[]) => void;
 type PathFinderMap = {
     [PathfindingAlgorithm.BREADTH_FIRST]: BeginBFS,
-    [PathfindingAlgorithm.DEPTH_FIRST]: BeginDepthFirstSearch,
+    [PathfindingAlgorithm.DEPTH_FIRST]: BeginDFS,
     [PathfindingAlgorithm.DIJKSTRA]: PathfinderPlaceholder,
     [PathfindingAlgorithm.BIDIRECTIONAL]: PathfinderPlaceholder
 };
@@ -127,6 +127,7 @@ const PathfindingAlgorithms = () => {
     const [columns, setColumns] = useState(Dimensions.DEFAULT);
     const [algorithm, setAlgorithm] = useState(PathfindingAlgorithm.BREADTH_FIRST);
     const [state, setState] = useState(PathfinderState.STOPPED);
+    const [result, setResult] = useState<unknown>(null);
 
     const [origin, setOrigin] = useState<Coordinate>(({ x: 0, y: 0 }));
     const [goal, setGoal] = useState<Coordinate>(({ x: columns - 1, y: rows - 1 }));
@@ -175,32 +176,40 @@ const PathfindingAlgorithms = () => {
         setState(state);
     };
 
-    const runPathfinder = async () => {
-        return await PATHFINDER_MAP[algorithm](
+    const runPathfinder = async (resume: boolean) => {
+        return await PATHFINDER_MAP[algorithm]({
             origin,
             goal,
-            nodes,
-            velocityRef,
-            stateRef,
-            { direction: options }
-        );
+            grid: nodes,
+            delay: velocityRef,
+            state: stateRef,
+            resume,
+            options: { direction: options }
+        });
     };
 
     const handleStart = async () => {
         if (state === PathfinderState.STOPPED) {
             updateState(PathfinderState.RUNNING);
 
-            await runPathfinder();
+            const shortestPath = await runPathfinder(false);
 
-            updateState(PathfinderState.STOPPED);
+            if (stateRef.current !== PathfinderState.PAUSED) {
+                setResult(shortestPath);
+                updateState(PathfinderState.STOPPED);
+            }
         }
+
         if (state === PathfinderState.RUNNING) {
             updateState(PathfinderState.PAUSED);
         }
+
         if (state === PathfinderState.PAUSED) {
             updateState(PathfinderState.RUNNING);
 
-            void runPathfinder();
+            const shortestPath = await runPathfinder(true);
+            setResult(shortestPath);
+            updateState(PathfinderState.STOPPED);
         }
     };
 

@@ -1,4 +1,4 @@
-import type { Dispatch, RefObject, SetStateAction } from 'react';
+import type { Dispatch, MutableRefObject, RefObject, SetStateAction } from 'react';
 import type { Coordinate } from '../../../util/common';
 import { isOutOfBounds } from '../../../util/common';
 import type { Nodes2 } from '../index';
@@ -62,18 +62,23 @@ type StackEntry = Coordinate & {
 
 type Stack = StackEntry[];
 
-export type BeginDepthFirstSearch = (
+type BeginDFSParams = {
     origin: Coordinate,
     goal: Coordinate,
     grid: Nodes2[][],
-    velocity: RefObject<number>,
-    state: PathfinderState,
+    delay: MutableRefObject<number>,
+    state: MutableRefObject<PathfinderState>,
+    resume: boolean,
     options: {
         direction: DFSDirection
     }
-) => void;
+};
 
-export const beginDFS: BeginDepthFirstSearch = (origin, goal, grid, velocity, state, { direction }) => {
+export type BeginDFS = (params: BeginDFSParams) => void;
+
+export const beginDFS: BeginDFS = ({ origin, goal, grid, delay, state, resume, options }) => {
+    const { direction } = options;
+
     directions = Directions[direction];
 
     const stack: Stack = [{
@@ -96,13 +101,13 @@ export const beginDFS: BeginDepthFirstSearch = (origin, goal, grid, velocity, st
 
     distance[origin.y]![origin.x] = 0;
 
-    DFS(stack, distance, goal, grid, velocity);
+    DFS(stack, distance, goal, grid, delay);
 };
 
 /**
  * Depth-First Search implemented with recursion in order to be able to use with timeout
  */
-function DFS(stack: Stack, distance: number[][], goal: Coordinate, grid: Nodes2[][], velocity: RefObject<number>) {
+function DFS(stack: Stack, distance: number[][], goal: Coordinate, grid: Nodes2[][], delay: RefObject<number>) {
     const current = stack.pop()!;
     if (!current) return;
 
@@ -153,14 +158,12 @@ function DFS(stack: Stack, distance: number[][], goal: Coordinate, grid: Nodes2[
             node = node.parent;
         }
 
-        console.log('sd', shortestDistance);
-        console.log('d', distance);
 
         // FIXME pointless to return, wasted in settimeout
         return shortestDistance;
     }
 
-    setTimeout(() => DFS(stack, distance, goal, grid, velocity), 1 / velocity.current! * 100);
+    setTimeout(() => DFS(stack, distance, goal, grid, delay), 1 / delay.current! * 100);
 }
 
 
