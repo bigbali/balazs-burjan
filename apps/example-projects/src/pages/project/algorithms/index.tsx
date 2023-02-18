@@ -1,1 +1,1 @@
-export { default } from 'algorithms';
+export { default } from 'algorithm-visualizers';

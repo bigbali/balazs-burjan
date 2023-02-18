@@ -5,7 +5,7 @@ import { SessionProvider } from 'next-auth/react';
 import { api } from '../utils/api';
 import Layout from '../components/layout';
 
-import '../styles/tailwind.css';
+import 'config/tailwind/tailwind.css';
 import '../styles/font.css';
 
 const MyApp: AppType<{ session: Session | null }> = ({

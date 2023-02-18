@@ -694,6 +694,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"algorithms@file:../../packages/algorithms::locator=example-projects%40workspace%3A.":
+  version: 0.0.0
+  resolution: "algorithms@file:../../packages/algorithms#../../packages/algorithms::hash=6e3949&locator=example-projects%40workspace%3A."
+  dependencies:
+    lodash: ^4.17.21
+    react: 18.2.0
+    react-dom: 18.2.0
+    ts-node: ^10.9.1
+    ui: "*"
+  checksum: 705f5563f24c632023d94aa750d4e509c58b6613662538faaa9cb077612dc8c06d69ae1526458b769b8ba71ee7499e471dd4df2be008316dc546e032fd906c39
+  languageName: node
+  linkType: hard
+
 "ansi-regex@npm:^5.0.1":
   version: 5.0.1
   resolution: "ansi-regex@npm:5.0.1"
@@ -1064,6 +1077,15 @@ __metadata:
   version: 0.0.1
   resolution: "concat-map@npm:0.0.1"
   checksum: 902a9f5d8967a3e2faf138d5cb784b9979bad2e6db5357c5b21c568df4ebe62bcb15108af1b2253744844eb964fc023fbd9afbbbb6ddd0bcc204c6fb5b7bf3af
+  languageName: node
+  linkType: hard
+
+"config@npm:*":
+  version: 3.3.9
+  resolution: "config@npm:3.3.9"
+  dependencies:
+    json5: ^2.2.3
+  checksum: 2c29e40be22274462769670a4b69fcbcad2d3049eb15030073e410d32c892ef29e0c879a3d68ef92ddd572c516e4f65a11bb6458f680a44ceb0f051bcd3d97ff
   languageName: node
   linkType: hard
 
@@ -1734,7 +1756,9 @@ __metadata:
     "@types/react": ^18.0.26
     "@types/react-dom": ^18.0.10
     "@types/ws": ^8.5.4
+    algorithms: ../../packages/algorithms
     autoprefixer: ^10.4.7
+    config: "*"
     eslint: ^8.30.0
     eslint-config-next: 13.1.6
     lodash: ^4.17.21
@@ -1748,12 +1772,12 @@ __metadata:
     react: 18.2.0
     react-dom: 18.2.0
     superjson: 1.9.1
-    tailwindcss: ^3.2.0
+    tailwindcss: ^3.2.7
     ts-node: ^10.9.1
     tsconfig: "*"
     typescript: ^4.9.5
     ui: "*"
-    util: ../../packages/util
+    util: "*"
     zod: ^3.20.2
     zustand: ^4.3.3
   languageName: unknown
@@ -2299,7 +2323,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-arguments@npm:^1.1.1":
+"is-arguments@npm:^1.0.4, is-arguments@npm:^1.1.1":
   version: 1.1.1
   resolution: "is-arguments@npm:1.1.1"
   dependencies:
@@ -2393,6 +2417,15 @@ __metadata:
   version: 3.0.0
   resolution: "is-fullwidth-code-point@npm:3.0.0"
   checksum: 44a30c29457c7fb8f00297bce733f0a64cd22eca270f83e58c105e0d015e45c019491a4ab2faef91ab51d4738c670daff901c799f6a700e27f7314029e99e348
+  languageName: node
+  linkType: hard
+
+"is-generator-function@npm:^1.0.7":
+  version: 1.0.10
+  resolution: "is-generator-function@npm:1.0.10"
+  dependencies:
+    has-tostringtag: ^1.0.0
+  checksum: d54644e7dbaccef15ceb1e5d91d680eb5068c9ee9f9eb0a9e04173eb5542c9b51b5ab52c5537f5703e48d5fddfd376817c1ca07a84a407b7115b769d4bdde72b
   languageName: node
   linkType: hard
 
@@ -2493,7 +2526,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"is-typed-array@npm:^1.1.10, is-typed-array@npm:^1.1.9":
+"is-typed-array@npm:^1.1.10, is-typed-array@npm:^1.1.3, is-typed-array@npm:^1.1.9":
   version: 1.1.10
   resolution: "is-typed-array@npm:1.1.10"
   dependencies:
@@ -2616,6 +2649,15 @@ __metadata:
   bin:
     json5: lib/cli.js
   checksum: 866458a8c58a95a49bef3adba929c625e82532bcff1fe93f01d29cb02cac7c3fe1f4b79951b7792c2da9de0b32871a8401a6e3c5b36778ad852bf5b8a61165d7
+  languageName: node
+  linkType: hard
+
+"json5@npm:^2.2.3":
+  version: 2.2.3
+  resolution: "json5@npm:2.2.3"
+  bin:
+    json5: lib/cli.js
+  checksum: 2a7436a93393830bce797d4626275152e37e877b265e94ca69c99e3d20c2b9dab021279146a39cdb700e71b2dd32a4cebd1514cd57cee102b1af906ce5040349
   languageName: node
   linkType: hard
 
@@ -3382,7 +3424,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-selector-parser@npm:^6.0.10":
+"postcss-selector-parser@npm:^6.0.10, postcss-selector-parser@npm:^6.0.11":
   version: 6.0.11
   resolution: "postcss-selector-parser@npm:6.0.11"
   dependencies:
@@ -3410,7 +3452,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.4.14, postcss@npm:^8.4.18":
+"postcss@npm:^8.0.9, postcss@npm:^8.4.14":
   version: 8.4.21
   resolution: "postcss@npm:8.4.21"
   dependencies:
@@ -4067,9 +4109,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tailwindcss@npm:^3.2.0":
-  version: 3.2.4
-  resolution: "tailwindcss@npm:3.2.4"
+"tailwindcss@npm:^3.2.7":
+  version: 3.2.7
+  resolution: "tailwindcss@npm:3.2.7"
   dependencies:
     arg: ^5.0.2
     chokidar: ^3.5.3
@@ -4085,12 +4127,12 @@ __metadata:
     normalize-path: ^3.0.0
     object-hash: ^3.0.0
     picocolors: ^1.0.0
-    postcss: ^8.4.18
+    postcss: ^8.0.9
     postcss-import: ^14.1.0
     postcss-js: ^4.0.0
     postcss-load-config: ^3.1.4
     postcss-nested: 6.0.0
-    postcss-selector-parser: ^6.0.10
+    postcss-selector-parser: ^6.0.11
     postcss-value-parser: ^4.2.0
     quick-lru: ^5.1.1
     resolve: ^1.22.1
@@ -4099,7 +4141,7 @@ __metadata:
   bin:
     tailwind: lib/cli.js
     tailwindcss: lib/cli.js
-  checksum: ec187d180c722ec4f57537f2216c7b21269b525f12aaf353cea464d939c3e6286a1221eb3e1206e45d1f015f296171309ad4d9952899b0245cd07d9500a9401f
+  checksum: 819446bf67acea1fc738f345d80f328b7bb6e6ef4b24070249a11219307045881cf97baed6258cbdcede7fa18886e9c9c41fd0fa087b3e987cf2948560a2f164
   languageName: node
   linkType: hard
 
@@ -4362,10 +4404,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"util@file:../../packages/util::locator=example-projects%40workspace%3A.":
-  version: 0.0.0
-  resolution: "util@file:../../packages/util#../../packages/util::hash=a03990&locator=example-projects%40workspace%3A."
-  checksum: 44d3b524a5b47e38df6f66dc264619cde6c8381d34e68442157f0f5a9077e5019fa866323992a3f8404a28d3a7c3cd6e172f0937233f400b7037a75c9590f8d7
+"util@npm:*":
+  version: 0.12.5
+  resolution: "util@npm:0.12.5"
+  dependencies:
+    inherits: ^2.0.3
+    is-arguments: ^1.0.4
+    is-generator-function: ^1.0.7
+    is-typed-array: ^1.1.3
+    which-typed-array: ^1.1.2
+  checksum: 705e51f0de5b446f4edec10739752ac25856541e0254ea1e7e45e5b9f9b0cb105bc4bd415736a6210edc68245a7f903bf085ffb08dd7deb8a0e847f60538a38a
   languageName: node
   linkType: hard
 
@@ -4410,7 +4458,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"which-typed-array@npm:^1.1.9":
+"which-typed-array@npm:^1.1.2, which-typed-array@npm:^1.1.9":
   version: 1.1.9
   resolution: "which-typed-array@npm:1.1.9"
   dependencies:

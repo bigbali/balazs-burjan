@@ -1,0 +1,13 @@
+{
+    "name": "config",
+    "version": "0.0.0",
+    "license": "MIT",
+    "files": [
+        "tailwind"
+    ],
+    "devDependencies": {
+        "autoprefixer": "^10.4.13",
+        "postcss": "^8.4.21",
+        "tailwindcss": "^3.2.7"
+    }
+}

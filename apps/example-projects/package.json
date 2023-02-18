@@ -1,6 +1,6 @@
 {
     "name": "example-projects",
-    "version": "0.1.0",
+    "version": "0.0.0",
     "private": true,
     "scripts": {
         "build": "next build",
@@ -19,7 +19,8 @@
         "@trpc/react-query": "^10.9.0",
         "@trpc/server": "^10.9.0",
         "@types/ws": "^8.5.4",
-        "algorithm": "*",
+        "algorithm-visualizers": "*",
+        "config": "*",
         "lodash": "^4.17.21",
         "next": "13.1.6",
         "next-auth": "^4.19.0",
@@ -45,10 +46,10 @@
         "prettier": "^2.8.1",
         "prettier-plugin-tailwindcss": "^0.2.1",
         "prisma": "^4.9.0",
-        "tailwindcss": "^3.2.0",
+        "tailwindcss": "^3.2.7",
         "tsconfig": "*",
         "typescript": "^4.9.5",
-        "util": "../../packages/util"
+        "util": "*"
     },
     "packageManager": "yarn@3.4.1",
     "prisma": {
