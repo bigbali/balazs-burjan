@@ -4,10 +4,10 @@ import type { Coordinate } from '../../../../util/common';
 import { isObstruction, isOutOfBounds } from '../../../../util/common';
 import type { Direction } from '../../direction';
 import { PathfinderState } from '../../state';
-import type { BFSDirection } from './direction';
+import type { DFSDirection } from './direction';
 import { Directions } from './direction';
 
-type BeginBFSParams = {
+type BeginDFSParams = {
     origin: Coordinate,
     goal: Coordinate,
     grid: Nodes2[][],
@@ -15,28 +15,28 @@ type BeginBFSParams = {
     state: MutableRefObject<PathfinderState>,
     resume: boolean,
     options: {
-        direction: BFSDirection
+        direction: DFSDirection
     }
 };
 
-export type BeginBFS = (params: BeginBFSParams) => Promise<BFSQueueEntry | undefined>;
+export type BeginDFS = (params: BeginDFSParams) => Promise<DFSStackEntry | undefined>;
 
-type BFSQueueEntry = Coordinate & {
-    parent: null | BFSQueueEntry
+type DFSStackEntry = Coordinate & {
+    parent: null | DFSStackEntry
 };
 
-type BFSQueue = BFSQueueEntry[];
+type DFSStack = DFSStackEntry[];
 
-let queue: BFSQueue = [];
+let stack: DFSStack = [];
 let directions: Direction[] = [];
 let visited: boolean[][] = [];
 
-export const resetBFS = (callback: () => void) => {
-    queue = [];
+export const resetDFS = (callback: () => void) => {
+    stack = [];
     callback();
 };
 
-export const beginBFS: BeginBFS = async ({ origin, goal, grid, delay, state, resume, options }) => {
+export const beginDFS: BeginDFS = async ({ origin, goal, grid, delay, state, resume, options }) => {
     const { direction } = options;
 
     directions = Directions[direction];
@@ -44,7 +44,7 @@ export const beginBFS: BeginBFS = async ({ origin, goal, grid, delay, state, res
     // if we are resuming the algorithm, we don't want to start at the first node,
     // instead we'll start with the existing queue
     if (!resume) {
-        queue.push({
+        stack.push({
             x: origin.x,
             y: origin.y,
             parent: null
@@ -66,16 +66,16 @@ export const beginBFS: BeginBFS = async ({ origin, goal, grid, delay, state, res
         visited = newVisited;
     }
 
-    const generator = BFSStep(goal, grid, visited, state);
-    return await BFS(generator, delay);
+    const generator = DFSStep(goal, grid, state);
+    return await DFS(generator, delay);
 };
 
-type BFSRunner = (
-    bfs: Generator<undefined, BFSQueueEntry | undefined, unknown>,
+type DFSRunner = (
+    bfs: Generator<undefined, DFSStackEntry | undefined, unknown>,
     delay: MutableRefObject<number>
-) => Promise<BFSQueueEntry | undefined>;
+) => Promise<DFSStackEntry | undefined>;
 
-const BFS: BFSRunner = async (bfs, delay) => {
+const DFS: DFSRunner = async (bfs, delay) => {
     const result = bfs.next();
 
     if (result.done) {
@@ -88,23 +88,25 @@ const BFS: BFSRunner = async (bfs, delay) => {
     });
 
     // when this finally resolves, we return the nodes that make up the shortest path
-    return await BFS(bfs, delay);
+    return await DFS(bfs, delay);
 };
 
-function* BFSStep(
+function* DFSStep(
     goal: Coordinate,
     grid: Nodes2[][],
-    visited: boolean[][],
     state: MutableRefObject<PathfinderState>
 ) {
-    while (queue.length > 0) {
-        const current = queue.shift()!;
+    while (stack.length > 0) {
+        const current = stack.pop()!;
 
         if (current.x === goal.x && current.y === goal.y) {
             return current;
         }
 
         if (state.current === PathfinderState.PAUSED) {
+            // if pausing, put this node back on top of the stack
+            // so when we continue, we just pop it off
+            stack.push(current);
             return;
         }
 
@@ -134,7 +136,7 @@ function* BFSStep(
             const y = current.y + dy;
 
             if (!isOutOfBounds(x, y, grid) && !visited[y]![x] && !isObstruction(x, y, grid)) {
-                queue.push({
+                stack.push({
                     x,
                     y,
                     parent: current

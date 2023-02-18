@@ -14,8 +14,7 @@ import { useRef } from 'react';
 import { createRef } from 'react';
 import React, { useMemo, useState } from 'react';
 import type { BeginDFS } from './algorithm/dfs';
-import { DFSOptions } from './algorithm/dfs';
-import { DFSDirection } from './algorithm/dfs';
+import { resetDFS } from './algorithm/dfs';
 import { beginDFS } from './algorithm/dfs';
 import Grid from './grid/grid';
 
@@ -30,6 +29,8 @@ import { resetBFS } from './algorithm/bfs/';
 import type { Coordinate } from '../../util/common';
 import { forEachNode } from '../../util/common';
 import { useLoading } from '../../store/loading';
+import { DFSDirection } from './algorithm/dfs/direction';
+import { DFSOptions } from './algorithm/dfs/options';
 
 export const enum Dimensions {
     MIN = 5,
@@ -86,8 +87,7 @@ type PathFinderMap = {
 };
 
 const PATHFINDER_MAP: PathFinderMap = {
-    [PathfindingAlgorithm.BREADTH_FIRST]: async (...args) => await beginBFS(...args),
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises, @typescript-eslint/require-await
+    [PathfindingAlgorithm.BREADTH_FIRST]: async (...args) => beginBFS(...args),
     [PathfindingAlgorithm.DEPTH_FIRST]: async (...args) => beginDFS(...args),
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     [PathfindingAlgorithm.DIJKSTRA]: async () => { },
@@ -95,7 +95,6 @@ const PATHFINDER_MAP: PathFinderMap = {
     [PathfindingAlgorithm.BIDIRECTIONAL]: async () => { }
 } as const;
 
-const resetDFS = () => null;
 const resetBidirectional = () => null;
 const resetDijkstra = () => null;
 

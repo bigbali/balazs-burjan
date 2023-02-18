@@ -1,4 +1,4 @@
-export type Direction = [number, number];
+import type { Direction } from '../../direction';
 
 export enum BFSDirection {
     ORTHOGONAL = 'orthogonal',
