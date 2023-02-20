@@ -31,6 +31,8 @@ import { forEachNode } from '../../util/common';
 import { useLoading } from '../../store/loading';
 import { DFSDirection } from './algorithm/dfs/direction';
 import { DFSOptions } from './algorithm/dfs/options';
+import type { BeginDijkstra } from './algorithm/dijkstra';
+import { beginDijkstra } from './algorithm/dijkstra';
 
 export const enum Dimensions {
     MIN = 5,
@@ -72,25 +74,25 @@ const ALGORITHM_OPTIONS_MAP = {
     [PathfindingAlgorithm.BIDIRECTIONAL]: PlaceholderElement
 } as const;
 
-export type Nodes2 = {
-    setIsVisited: MutableRefObject<Dispatch<SetStateAction<boolean>>>;
-    setIsHighlighted: MutableRefObject<Dispatch<SetStateAction<boolean>>>;
-    isObstruction: MutableRefObject<boolean>;
+export type NodeReferences = {
+    setIsVisited: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
+    setIsHighlighted: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
+    isObstruction: MutableRefObject<boolean>,
+    weight: MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>
 };
 
 type PathfinderPlaceholder = (...args: any[]) => void;
 type PathFinderMap = {
     [PathfindingAlgorithm.BREADTH_FIRST]: BeginBFS,
     [PathfindingAlgorithm.DEPTH_FIRST]: BeginDFS,
-    [PathfindingAlgorithm.DIJKSTRA]: PathfinderPlaceholder,
+    [PathfindingAlgorithm.DIJKSTRA]: BeginDijkstra,
     [PathfindingAlgorithm.BIDIRECTIONAL]: PathfinderPlaceholder
 };
 
 const PATHFINDER_MAP: PathFinderMap = {
     [PathfindingAlgorithm.BREADTH_FIRST]: async (...args) => beginBFS(...args),
     [PathfindingAlgorithm.DEPTH_FIRST]: async (...args) => beginDFS(...args),
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    [PathfindingAlgorithm.DIJKSTRA]: async () => { },
+    [PathfindingAlgorithm.DIJKSTRA]: async (...args) => beginDijkstra(...args),
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     [PathfindingAlgorithm.BIDIRECTIONAL]: async () => { }
 } as const;
@@ -104,7 +106,6 @@ export const RESET_MAP = {
     [PathfindingAlgorithm.BIDIRECTIONAL]: resetBidirectional,
     [PathfindingAlgorithm.DIJKSTRA]: resetDijkstra
 } as const;
-
 
 const usePathfindingOptions = (algorithm: PathfindingAlgorithm) => {
     const [options, setOptions] = useState(DefaultOption[algorithm]);
@@ -145,9 +146,9 @@ const PathfindingAlgorithms = () => {
     useEffect(() => { stateRef.current = state; }, [state]);
 
     const nodes = useMemo(() => {
-        const refs: Nodes2[][] = [];
+        const refs: NodeReferences[][] = [];
         for (let y = 0; y < rows; y++) {
-            const row: Nodes2[] = [];
+            const row: NodeReferences[] = [];
             refs.push(row);
 
             for (let x = 0; x < columns; x++) {
@@ -158,13 +159,17 @@ const PathfindingAlgorithms = () => {
                     setIsHighlighted: createRef() as MutableRefObject<
                         Dispatch<SetStateAction<boolean>>
                     >,
-                    isObstruction: createRef() as MutableRefObject<boolean>
+                    isObstruction: createRef() as MutableRefObject<boolean>,
+                    weight: createRef() as MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>
                 });
             }
         }
 
         return refs;
     }, [columns, rows]);
+
+    //@ts-ignore
+    global.NODES = nodes;
 
     const gridData = useMemo(() => ({
         columns, rows, nodes, origin, goal, setOrigin, setGoal

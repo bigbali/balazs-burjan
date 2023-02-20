@@ -1,14 +1,14 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { Fragment, memo } from 'react';
 import type { Coordinate } from '../../../util/common';
-import type { Nodes2 } from '../index';
+import type { NodeReferences } from '../index';
 import Node from './node';
 
 type RowProps = {
     data: {
         columns: number,
         rowIndex: number,
-        nodes: Nodes2[][],
+        nodes: NodeReferences[][],
         origin: Coordinate,
         goal: Coordinate,
         setOrigin: Dispatch<SetStateAction<Coordinate>>,
@@ -41,6 +41,7 @@ const Row = ({ data }: RowProps) => {
                 setIsVisitedRef={nodes[rowIndex]![column]!.setIsVisited}
                 setIsHighlightedRef={nodes[rowIndex]![column]!.setIsHighlighted}
                 isObstructionRef={nodes[rowIndex]![column]!.isObstruction}
+                weightRef={nodes[rowIndex]![column]!.weight}
             />
         );
     }

@@ -1,5 +1,5 @@
 import type { MutableRefObject } from 'react';
-import type { Nodes2 } from '../algorithm/pathfinding';
+import type { NodeReferences } from '../algorithm/pathfinding';
 
 export type Coordinate = {
     x: number,
@@ -16,7 +16,7 @@ export const isOutOfBounds = (x: number, y: number, grid: any[][]) => {
     return false;
 };
 
-export const isObstruction = (x: number, y: number, grid: Nodes2[][]) => {
+export const isObstruction = (x: number, y: number, grid: NodeReferences[][]) => {
     const {
         isObstruction: {
             current: isObstruction

@@ -1,4 +1,5 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
+import { useEffect } from 'react';
 import { memo, startTransition, useState } from 'react';
 import type { Coordinate } from '../../../util/common';
 
@@ -11,7 +12,8 @@ export type NodeProps = {
     setGoal: Dispatch<SetStateAction<Coordinate>>,
     setIsVisitedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
     setIsHighlightedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
-    isObstructionRef: MutableRefObject<boolean>
+    isObstructionRef: MutableRefObject<boolean>,
+    weightRef: MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>
 };
 
 const Node = ({
@@ -20,6 +22,7 @@ const Node = ({
     setIsVisitedRef,
     setIsHighlightedRef,
     isObstructionRef,
+    weightRef,
     isOrigin,
     isGoal,
     setOrigin,
@@ -29,9 +32,14 @@ const Node = ({
     const [isVisited, setIsVisited] = useState(false);
     const [isHighlighted, setIsHighlighted] = useState(false);
     const [isObstruction, setIsObstruction] = useState(false);
+    const weight = useState<number | null>(null);
     setIsVisitedRef.current = setIsVisited;
     setIsHighlightedRef.current = setIsHighlighted;
     isObstructionRef.current = isObstruction;
+    weightRef.current = weight;
+
+    // useEffect(() => console.log(weight[0]), [weight]);
+    // console.log(weight[0]), [weight];
 
     return (
         <div
@@ -47,7 +55,10 @@ const Node = ({
             }
             style={{
                 gridColumnStart: x + 1,
-                gridRowStart: y + 1
+                gridRowStart: y + 1,
+                backgroundColor: !!weight[0]
+                    ? `rgb(128, 128, ${(255 - weight[0])})`
+                    : undefined
             }}
         >
             {isShowMenu && (

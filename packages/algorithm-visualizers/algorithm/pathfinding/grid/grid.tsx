@@ -1,14 +1,14 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { memo } from 'react';
 import type { Coordinate } from '../../../util/common';
-import type { Nodes2 } from './../index';
+import type { NodeReferences } from './../index';
 import Row from './row';
 
 type GridProps = {
     data: {
         columns: number,
         rows: number,
-        nodes: Nodes2[][],
+        nodes: NodeReferences[][],
         origin: Coordinate,
         goal: Coordinate,
         setOrigin: Dispatch<SetStateAction<Coordinate>>,

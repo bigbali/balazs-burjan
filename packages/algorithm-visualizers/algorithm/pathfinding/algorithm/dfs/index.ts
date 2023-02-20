@@ -1,5 +1,5 @@
 import type { MutableRefObject } from 'react';
-import type { Nodes2 } from '../..';
+import type { NodeReferences } from '../..';
 import type { Coordinate } from '../../../../util/common';
 import { isObstruction, isOutOfBounds } from '../../../../util/common';
 import type { Direction } from '../../direction';
@@ -10,7 +10,7 @@ import { Directions } from './direction';
 type BeginDFSParams = {
     origin: Coordinate,
     goal: Coordinate,
-    grid: Nodes2[][],
+    grid: NodeReferences[][],
     delay: MutableRefObject<number>,
     state: MutableRefObject<PathfinderState>,
     resume: boolean,
@@ -93,7 +93,7 @@ const DFS: DFSRunner = async (bfs, delay) => {
 
 function* DFSStep(
     goal: Coordinate,
-    grid: Nodes2[][],
+    grid: NodeReferences[][],
     state: MutableRefObject<PathfinderState>
 ) {
     while (stack.length > 0) {

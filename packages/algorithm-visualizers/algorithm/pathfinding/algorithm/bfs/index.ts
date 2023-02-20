@@ -1,5 +1,5 @@
 import type { MutableRefObject } from 'react';
-import type { Nodes2 } from '../..';
+import type { NodeReferences } from '../..';
 import type { Coordinate } from '../../../../util/common';
 import { isObstruction, isOutOfBounds } from '../../../../util/common';
 import type { Direction } from '../../direction';
@@ -10,7 +10,7 @@ import { Directions } from './direction';
 type BeginBFSParams = {
     origin: Coordinate,
     goal: Coordinate,
-    grid: Nodes2[][],
+    grid: NodeReferences[][],
     delay: MutableRefObject<number>,
     state: MutableRefObject<PathfinderState>,
     resume: boolean,
@@ -93,7 +93,7 @@ const BFS: BFSRunner = async (bfs, delay) => {
 
 function* BFSStep(
     goal: Coordinate,
-    grid: Nodes2[][],
+    grid: NodeReferences[][],
     visited: boolean[][],
     state: MutableRefObject<PathfinderState>
 ) {
