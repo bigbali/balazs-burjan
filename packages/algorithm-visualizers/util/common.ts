@@ -38,3 +38,57 @@ export const forEachNode: ForEachNode = (grid, callback) => {
         }
     }
 };
+
+type RecursiveAsyncGeneratorRunner = <T>(
+    generator: Generator<unknown, T, unknown>,
+    delay: MutableRefObject<number>
+) => Promise<T>;
+
+/**
+ * A generator runner that recursively calls itself.
+ * @param generator
+ * @param delay - a ref object that contains a number
+ * @returns the result of the generator
+ */
+export const recursiveAsyncGeneratorRunner: RecursiveAsyncGeneratorRunner = async (generator, delay) => {
+    const result = generator.next();
+
+    if (result.done) {
+        return result.value;
+    }
+
+    // dark magic, don't touch
+    await new Promise<void>((resolve) => {
+        setTimeout(() => resolve(), delay.current);
+    });
+
+    return await recursiveAsyncGeneratorRunner(generator, delay);
+};
+
+type MutateNode = (
+    grid: NodeReferences[][],
+    visited: boolean[][],
+    x: number,
+    y: number
+) => () => void;
+
+/**
+ * Updates the highlight state of the node at `grid[y][x]`
+ * @returns a function to that sets the state of the node and updates the visited matrix
+ */
+export const mutateNode: MutateNode = (grid, visited, x, y) => {
+    const {
+        setIsVisited: {
+            current: setIsVisited
+        },
+        setIsHighlighted
+    } = grid[y]![x]!;
+
+    setIsHighlighted.current(true);
+    setTimeout(() => setIsHighlighted.current(false), 200);
+
+    return () => {
+        setIsVisited(true);
+        visited[y]![x] = true;
+    };
+};

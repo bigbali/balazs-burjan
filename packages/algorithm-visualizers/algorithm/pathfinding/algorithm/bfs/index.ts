@@ -1,6 +1,8 @@
 import type { MutableRefObject } from 'react';
 import type { NodeReferences } from '../..';
 import type { Coordinate } from '../../../../util/common';
+import { mutateNode } from '../../../../util/common';
+import { recursiveAsyncGeneratorRunner } from '../../../../util/common';
 import { isObstruction, isOutOfBounds } from '../../../../util/common';
 import type { Direction } from '../../direction';
 import { PathfinderState } from '../../state';
@@ -66,68 +68,37 @@ export const beginBFS: BeginBFS = async ({ origin, goal, grid, delay, state, res
         visited = newVisited;
     }
 
-    const generator = BFSStep(goal, grid, visited, state);
-    return await BFS(generator, delay);
+    return await recursiveAsyncGeneratorRunner(BFSStep(goal, grid, state), delay);
 };
 
-type BFSRunner = (
-    bfs: Generator<undefined, BFSQueueEntry | undefined, unknown>,
-    delay: MutableRefObject<number>
-) => Promise<BFSQueueEntry | undefined>;
-
-const BFS: BFSRunner = async (bfs, delay) => {
-    const result = bfs.next();
-
-    if (result.done) {
-        return result.value;
-    }
-
-    // dark magic, don't touch
-    await new Promise<void>((resolve) => {
-        setTimeout(() => resolve(), delay.current);
-    });
-
-    // when this finally resolves, we return the nodes that make up the shortest path
-    return await BFS(bfs, delay);
-};
 
 function* BFSStep(
     goal: Coordinate,
     grid: NodeReferences[][],
-    visited: boolean[][],
     state: MutableRefObject<PathfinderState>
 ) {
     while (queue.length > 0) {
+        if (state.current === PathfinderState.PAUSED) {
+            return;
+        }
+
         const current = queue.shift()!;
 
         if (current.x === goal.x && current.y === goal.y) {
             return current;
         }
 
-        if (state.current === PathfinderState.PAUSED) {
-            return;
-        }
-
         if (visited[current.y]![current.x]) {
             continue;
         }
 
-        const {
-            setIsVisited: {
-                current: setIsVisited
-            },
-            setIsHighlighted
-        } = grid[current.y]![current.x]!;
-
-        setIsHighlighted.current(true);
-        setTimeout(() => setIsHighlighted.current(false), 200);
+        const setVisited = mutateNode(grid, visited, current.x, current.y);
 
         if (isObstruction(current.x, current.y, grid)) {
             continue;
         }
 
-        setIsVisited(true);
-        visited[current.y]![current.x] = true;
+        setVisited();
 
         for (const [dx, dy] of directions) {
             const x = current.x + dx;

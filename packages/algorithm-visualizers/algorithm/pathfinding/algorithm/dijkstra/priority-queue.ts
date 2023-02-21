@@ -6,18 +6,14 @@ export type DijkstraQueueEntry = Coordinate & {
 };
 
 export class PriorityQueue {
-    // constructor(initial: DijkstraQueueEntry[]) {
-    //     this.queue = initial;
-    // }
-
     private heap: [number, DijkstraQueueEntry][] = [];
 
-    push(priority: number, value: DijkstraQueueEntry): void {
+    push(priority: number, value: DijkstraQueueEntry) {
         this.heap.push([priority, value]);
         this.bubbleUp(this.heap.length - 1);
     }
 
-    pop(): [number, DijkstraQueueEntry] | undefined {
+    pop() {
         const result = this.heap[0];
         const last = this.heap.pop();
 
@@ -26,14 +22,18 @@ export class PriorityQueue {
             this.bubbleDown(0);
         }
 
-        return [result![0], result![1]];
+        return [result![0], result![1]] as const;
     }
 
-    isEmpty(): boolean {
+    isEmpty() {
         return this.heap.length === 0;
     }
 
-    private bubbleUp(index: number): void {
+    clear() {
+        this.heap = [];
+    }
+
+    private bubbleUp(index: number) {
         const [priority, value] = this.heap[index]!;
 
         while (index > 0) {
@@ -49,7 +49,7 @@ export class PriorityQueue {
         this.heap[index] = [priority, value];
     }
 
-    private bubbleDown(index: number): void {
+    private bubbleDown(index: number) {
         const [priority, value] = this.heap[index]!;
         const lastIndex = this.heap.length - 1;
 
@@ -74,8 +74,7 @@ export class PriorityQueue {
                 break;
             }
 
-            // @ts-ignore
-            this.heap[index] = this.heap[smallerChildIndex];
+            this.heap[index] = this.heap[smallerChildIndex]!;
             index = smallerChildIndex;
         }
 

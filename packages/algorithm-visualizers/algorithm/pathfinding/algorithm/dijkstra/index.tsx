@@ -1,6 +1,8 @@
 import type { MutableRefObject } from 'react';
 import type { NodeReferences } from '../..';
 import type { Coordinate } from '../../../../util/common';
+import { mutateNode } from '../../../../util/common';
+import { recursiveAsyncGeneratorRunner } from '../../../../util/common';
 import { isObstruction, isOutOfBounds } from '../../../../util/common';
 import type { Direction } from '../../direction';
 import { PathfinderState } from '../../state';
@@ -30,14 +32,15 @@ const directions = [
     [0, -1],
     [0, 1]
 ]satisfies Direction[];
+
 let visited: boolean[][] = [];
 
 export const resetDijkstra = (callback: () => void) => {
+    pq.clear();
     callback();
 };
 
-// @ts-ignore
-export const beginDijkstra: BeginDijkstra = async ({ origin, goal, grid, delay, state, resume, options }) => {
+export const beginDijkstra: BeginDijkstra = async ({ origin, goal, grid, delay, state, resume }) => {
     // if we are resuming the algorithm, we don't want to start at the first node,
     // instead we'll start with the existing queue
     if (!resume) {
@@ -48,26 +51,6 @@ export const beginDijkstra: BeginDijkstra = async ({ origin, goal, grid, delay, 
             weight: 0
         });
     }
-
-    // gravity generator
-    // for (let y = 0; y < grid.length; y++) {
-    //     for (let x = 0; x < grid[0]!.length; x++) {
-    //         const distance = Math.sqrt(Math.pow(goal.y - y, 2) + Math.pow(goal.x - x, 2));
-    //         // grid[y]![x]!.weight.current[1](Math.round((distance / grid.length * 255)));
-    //         grid[y]![x]!.weight.current[1](Math.round((distance)));
-    //     }
-    // }
-
-    // enable if gravity generator is uncommented
-    await new Promise(resolve => setTimeout(resolve, 3000));
-
-    // for (let y = 0; y < grid.length; y++) {
-    //     for (let x = 0; x < grid[0]!.length; x++) {
-    //         // setTimeout(() => console.log(grid[y]![x]!.weight.current[0]), 500);
-    //         // console.log(x, y, grid[y]![x]!.weight.current[0]);
-    //     }
-    // }
-
 
     // if we are resuming, do not reset the visited matrix
     if (!resume) {
@@ -84,60 +67,20 @@ export const beginDijkstra: BeginDijkstra = async ({ origin, goal, grid, delay, 
         visited = newVisited;
     }
 
-
-    const generator = DijkstraStep(goal, grid, visited, state);
-    return await Dijkstra(generator, delay);
+    return await recursiveAsyncGeneratorRunner(dijkstraGenerator(goal, grid, state), delay);
 };
 
-type DijkstraRunner = (
-    bfs: Generator<undefined, DijkstraQueueEntry | undefined, unknown>,
-    delay: MutableRefObject<number>
-) => Promise<DijkstraQueueEntry | undefined>;
-
-const Dijkstra: DijkstraRunner = async (dijkstra, delay) => {
-    const result = dijkstra.next();
-
-    if (result.done) {
-        return result.value;
-    }
-
-    // dark magic, don't touch
-    await new Promise<void>((resolve) => {
-        setTimeout(() => resolve(), delay.current);
-    });
-
-    // when this finally resolves, we return the nodes that make up the shortest path
-    return await Dijkstra(dijkstra, delay);
-};
-
-function* DijkstraStep(
+function* dijkstraGenerator(
     goal: Coordinate,
     grid: NodeReferences[][],
-    visited: boolean[][],
     state: MutableRefObject<PathfinderState>
 ) {
     while (!pq.isEmpty()) {
-        const [priority, current] = pq.pop() || [];
-        console.log('iter', priority);
+        const [, current] = pq.pop() || [];
 
         if (!current) continue;
 
-        // for (let i = 0; i < w; i++) {
-        //     const weightedQueue = pq.get(i);
-        //     console.log(weightedQueue);
-        //     if (weightedQueue && weightedQueue.length > 0) {
-        //         current = weightedQueue.shift();
-        //         break;
-        //     } else {
-        //         console.log('no wq');
-        //         continue;
-        //     }
-        // }
-
-        if (!current) return;
-
         if (current.x === goal.x && current.y === goal.y) {
-            console.log('goal');
             return current;
         }
 
@@ -149,22 +92,13 @@ function* DijkstraStep(
             continue;
         }
 
-        const {
-            setIsVisited: {
-                current: setIsVisited
-            },
-            setIsHighlighted
-        } = grid[current.y]![current.x]!;
-
-        setIsHighlighted.current(true);
-        setTimeout(() => setIsHighlighted.current(false), 200);
+        const setVisited = mutateNode(grid, visited, current.x, current.y);
 
         if (isObstruction(current.x, current.y, grid)) {
             continue;
         }
 
-        setIsVisited(true);
-        visited[current.y]![current.x] = true;
+        setVisited();
 
         for (const [dx, dy] of directions) {
             const x = current.x + dx;
@@ -179,28 +113,6 @@ function* DijkstraStep(
                     parent: current,
                     weight
                 });
-                // if (weight > w) {
-                //     w = weight;
-                // }
-
-                // const weightedQueue = pq.get(weight);
-                // if (!weightedQueue) {
-                //     pq.set(weight, [{
-                //         x,
-                //         y,
-                //         parent: current,
-                //         weight
-                //     }]);
-
-                //     continue;
-                // };
-
-                // weightedQueue.push({
-                //     x,
-                //     y,
-                //     parent: current,
-                //     weight
-                // });
             }
         }
 

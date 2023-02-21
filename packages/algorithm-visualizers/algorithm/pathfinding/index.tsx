@@ -168,6 +168,20 @@ const PathfindingAlgorithms = () => {
         return refs;
     }, [columns, rows]);
 
+
+    // FIXME replace with final solution
+    useEffect(() => {
+        type XXX = { x: number, y: number, parent: XXX };
+
+        if (!result) return;
+
+        let x = result as XXX;
+        while (x.parent) {
+            x = x.parent;
+            nodes[x.y]![x.x]!.setIsHighlighted.current(true);
+        }
+    }, [nodes, result]);
+
     useEffect(() => {
         if (options === dijkstraDefaultOptions) {
             options.nodeReferences = nodes;
