@@ -5,8 +5,6 @@ import { isObstruction, isOutOfBounds } from '../../../../util/common';
 import type { Direction } from '../../direction';
 import { PathfinderState } from '../../state';
 import type { BFSDirection } from '../bfs/direction';
-import type { DijkstraQueueEntry } from './priority-queue';
-import { PriorityQueue } from './priority-queue';
 
 type BeginDijkstraParams = {
     origin: Coordinate,
@@ -20,9 +18,14 @@ type BeginDijkstraParams = {
     }
 };
 
-const pq = new PriorityQueue();
+const pq = new Map<number, DijkstraQueueEntry[]>();
 
 export type BeginDijkstra = (params: BeginDijkstraParams) => Promise<DijkstraQueueEntry | undefined>;
+
+type DijkstraQueueEntry = Coordinate & {
+    weight: number,
+    parent: null | DijkstraQueueEntry
+};
 
 const directions = [
     [-1, 0],
@@ -41,26 +44,22 @@ export const beginDijkstra: BeginDijkstra = async ({ origin, goal, grid, delay, 
     // if we are resuming the algorithm, we don't want to start at the first node,
     // instead we'll start with the existing queue
     if (!resume) {
-        pq.push(0, {
+        pq.set(0, [{
             x: origin.x,
             y: origin.y,
             parent: null,
             weight: 0
-        });
+        }]);
     }
 
-    // gravity generator
-    // for (let y = 0; y < grid.length; y++) {
-    //     for (let x = 0; x < grid[0]!.length; x++) {
-    //         const distance = Math.sqrt(Math.pow(goal.y - y, 2) + Math.pow(goal.x - x, 2));
-    //         // grid[y]![x]!.weight.current[1](Math.round((distance / grid.length * 255)));
-    //         grid[y]![x]!.weight.current[1](Math.round((distance)));
-    //     }
-    // }
+    for (let y = 0; y < grid.length; y++) {
+        for (let x = 0; x < grid[0]!.length; x++) {
+            const distance = Math.sqrt(Math.pow(goal.y - y, 2) + Math.pow(goal.x - x, 2));
+            grid[y]![x]!.weight.current[1](Math.round((distance / grid.length * 255)));
+        }
+    }
 
-    // enable if gravity generator is uncommented
     await new Promise(resolve => setTimeout(resolve, 3000));
-
     // for (let y = 0; y < grid.length; y++) {
     //     for (let x = 0; x < grid[0]!.length; x++) {
     //         // setTimeout(() => console.log(grid[y]![x]!.weight.current[0]), 500);
@@ -116,23 +115,21 @@ function* DijkstraStep(
     visited: boolean[][],
     state: MutableRefObject<PathfinderState>
 ) {
-    while (!pq.isEmpty()) {
-        const [priority, current] = pq.pop() || [];
-        console.log('iter', priority);
+    let w = 400;
+    while (true) {
+        let current: DijkstraQueueEntry | undefined;
 
-        if (!current) continue;
-
-        // for (let i = 0; i < w; i++) {
-        //     const weightedQueue = pq.get(i);
-        //     console.log(weightedQueue);
-        //     if (weightedQueue && weightedQueue.length > 0) {
-        //         current = weightedQueue.shift();
-        //         break;
-        //     } else {
-        //         console.log('no wq');
-        //         continue;
-        //     }
-        // }
+        for (let i = 0; i < w; i++) {
+            const weightedQueue = pq.get(i);
+            console.log(weightedQueue);
+            if (weightedQueue && weightedQueue.length > 0) {
+                current = weightedQueue.shift();
+                break;
+            } else {
+                console.log('no wq');
+                continue;
+            }
+        }
 
         if (!current) return;
 
@@ -172,35 +169,29 @@ function* DijkstraStep(
 
             if (!isOutOfBounds(x, y, grid) && !visited[y]![x] && !isObstruction(x, y, grid)) {
                 const weight = grid[y]![x]!.weight.current[0];
+                if (!weight) continue;
+                if (weight > w) {
+                    w = weight;
+                }
 
-                pq.push(weight || 0, {
+                const weightedQueue = pq.get(weight);
+                if (!weightedQueue) {
+                    pq.set(weight, [{
+                        x,
+                        y,
+                        parent: current,
+                        weight
+                    }]);
+
+                    continue;
+                };
+
+                weightedQueue.push({
                     x,
                     y,
                     parent: current,
                     weight
                 });
-                // if (weight > w) {
-                //     w = weight;
-                // }
-
-                // const weightedQueue = pq.get(weight);
-                // if (!weightedQueue) {
-                //     pq.set(weight, [{
-                //         x,
-                //         y,
-                //         parent: current,
-                //         weight
-                //     }]);
-
-                //     continue;
-                // };
-
-                // weightedQueue.push({
-                //     x,
-                //     y,
-                //     parent: current,
-                //     weight
-                // });
             }
         }
 

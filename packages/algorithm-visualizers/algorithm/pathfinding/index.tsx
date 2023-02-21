@@ -17,7 +17,6 @@ import type { BeginDFS } from './algorithm/dfs';
 import { resetDFS } from './algorithm/dfs';
 import { beginDFS } from './algorithm/dfs';
 import Grid from './grid/grid';
-
 import FieldRangeInput from 'ui/FieldRangeInput';
 import { StateButton } from './state-button';
 import { PathfinderState } from './state';
@@ -31,8 +30,9 @@ import { forEachNode } from '../../util/common';
 import { useLoading } from '../../store/loading';
 import { DFSDirection } from './algorithm/dfs/direction';
 import { DFSOptions } from './algorithm/dfs/options';
-import type { BeginDijkstra } from './algorithm/dijkstra';
-import { beginDijkstra } from './algorithm/dijkstra';
+import type { BeginDijkstra } from './algorithm/dijkstra/index';
+import { beginDijkstra } from './algorithm/dijkstra/index';
+import { dijkstraDefaultOptions, DijkstraOptions } from './algorithm/dijkstra/options';
 
 export const enum Dimensions {
     MIN = 5,
@@ -56,7 +56,7 @@ export enum PathfindingAlgorithm {
 const DefaultOption = {
     [PathfindingAlgorithm.BREADTH_FIRST]: BFSDirection.ORTHOGONAL,
     [PathfindingAlgorithm.DEPTH_FIRST]: DFSDirection.TBLR,
-    [PathfindingAlgorithm.DIJKSTRA]: undefined,
+    [PathfindingAlgorithm.DIJKSTRA]: dijkstraDefaultOptions,
     [PathfindingAlgorithm.BIDIRECTIONAL]: undefined
 } as const;
 
@@ -70,7 +70,7 @@ const PlaceholderElement = ({ }: PlaceholderElementProps) => (
 const ALGORITHM_OPTIONS_MAP = {
     [PathfindingAlgorithm.BREADTH_FIRST]: BFSOptions,
     [PathfindingAlgorithm.DEPTH_FIRST]: DFSOptions,
-    [PathfindingAlgorithm.DIJKSTRA]: PlaceholderElement,
+    [PathfindingAlgorithm.DIJKSTRA]: DijkstraOptions,
     [PathfindingAlgorithm.BIDIRECTIONAL]: PlaceholderElement
 } as const;
 
@@ -103,8 +103,8 @@ const resetDijkstra = () => null;
 export const RESET_MAP = {
     [PathfindingAlgorithm.BREADTH_FIRST]: resetBFS,
     [PathfindingAlgorithm.DEPTH_FIRST]: resetDFS,
-    [PathfindingAlgorithm.BIDIRECTIONAL]: resetBidirectional,
-    [PathfindingAlgorithm.DIJKSTRA]: resetDijkstra
+    [PathfindingAlgorithm.DIJKSTRA]: resetDijkstra,
+    [PathfindingAlgorithm.BIDIRECTIONAL]: resetBidirectional
 } as const;
 
 const usePathfindingOptions = (algorithm: PathfindingAlgorithm) => {
@@ -118,7 +118,7 @@ const usePathfindingOptions = (algorithm: PathfindingAlgorithm) => {
 
     return [
         options,
-        () => <Element option={options} setOption={setOptions} />
+        () => <Element options={options} setOptions={setOptions} />
     ] as const;
 };
 
@@ -168,6 +168,12 @@ const PathfindingAlgorithms = () => {
         return refs;
     }, [columns, rows]);
 
+    useEffect(() => {
+        if (options === dijkstraDefaultOptions) {
+            options.nodeReferences = nodes;
+            options.goal = goal;
+        }
+    }, [options, nodes, goal]);
     //@ts-ignore
     global.NODES = nodes;
 

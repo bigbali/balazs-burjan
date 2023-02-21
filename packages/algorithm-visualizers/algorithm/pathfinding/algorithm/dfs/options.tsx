@@ -2,11 +2,11 @@ import type { Dispatch, SetStateAction } from 'react';
 import { DFSDirection } from './direction';
 
 export type DFSOptionsProps = {
-    option: DFSDirection,
-    setOption: Dispatch<SetStateAction<DFSDirection>>
+    options: DFSDirection,
+    setOptions: Dispatch<SetStateAction<DFSDirection>>
 };
 
-export const DFSOptions = ({ option, setOption }: DFSOptionsProps) => {
+export const DFSOptions = ({ options, setOptions }: DFSOptionsProps) => {
     return (
         <div className='flex gap-2'>
             <label htmlFor='dfsdirection'>
@@ -15,9 +15,9 @@ export const DFSOptions = ({ option, setOption }: DFSOptionsProps) => {
             <select
                 id='dfsdirection'
                 className='border border-slate-3 rounded-md capitalize px-4'
-                value={option}
+                value={options}
                 onChange={(e) => {
-                    setOption(e.currentTarget.value as DFSDirection);
+                    setOptions(e.currentTarget.value as DFSDirection);
                 }}>
                 {Object.values(DFSDirection).map((value) => (
                     <option key={value} value={value}>
