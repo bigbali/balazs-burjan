@@ -1,6 +1,7 @@
 import type { MutableRefObject } from 'react';
 import type { NodeReferences } from '../..';
 import type { Coordinate } from '../../../../util/common';
+import { setupPathfinder } from '../../../../util/common';
 import { mutateNode } from '../../../../util/common';
 import { recursiveAsyncGeneratorRunner } from '../../../../util/common';
 import { isObstruction, isOutOfBounds } from '../../../../util/common';
@@ -31,7 +32,7 @@ type DFSStack = DFSStackEntry[];
 
 let stack: DFSStack = [];
 let directions: Direction[] = [];
-let visited: boolean[][] = [];
+const visited: boolean[][] = [];
 
 export const resetDFS = (callback: () => void) => {
     stack = [];
@@ -43,30 +44,17 @@ export const beginDFS: BeginDFS = async ({ origin, goal, grid, delay, state, res
 
     directions = Directions[direction];
 
-    // if we are resuming the algorithm, we don't want to start at the first node,
-    // instead we'll start with the existing queue
-    if (!resume) {
-        stack.push({
+    setupPathfinder(
+        stack,
+        {
             x: origin.x,
             y: origin.y,
             parent: null
-        });
-    }
-
-    // if we are resuming, do not reset the visited matrix
-    if (!resume) {
-        const newVisited: typeof visited = [];
-        for (let y = 0; y < grid.length; y++) {
-            const row: boolean[] = [];
-            newVisited.push(row);
-
-            for (let x = 0; x < grid[0]!.length; x++) {
-                row.push(false);
-            }
-        }
-
-        visited = newVisited;
-    }
+        },
+        grid,
+        visited,
+        resume
+    );
 
     return await recursiveAsyncGeneratorRunner(dfsGenerator(goal, grid, state), delay);
 };
@@ -92,7 +80,6 @@ function* dfsGenerator(
         }
 
         const setVisited = mutateNode(grid, visited, current.x, current.y);
-
 
         if (isObstruction(current.x, current.y, grid)) {
             continue;

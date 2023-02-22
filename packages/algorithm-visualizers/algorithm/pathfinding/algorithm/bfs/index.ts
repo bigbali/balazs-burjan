@@ -1,6 +1,7 @@
 import type { MutableRefObject } from 'react';
 import type { NodeReferences } from '../..';
 import type { Coordinate } from '../../../../util/common';
+import { setupPathfinder } from '../../../../util/common';
 import { mutateNode } from '../../../../util/common';
 import { recursiveAsyncGeneratorRunner } from '../../../../util/common';
 import { isObstruction, isOutOfBounds } from '../../../../util/common';
@@ -31,7 +32,7 @@ type BFSQueue = BFSQueueEntry[];
 
 let queue: BFSQueue = [];
 let directions: Direction[] = [];
-let visited: boolean[][] = [];
+const visited: boolean[][] = [];
 
 export const resetBFS = (callback: () => void) => {
     queue = [];
@@ -43,36 +44,22 @@ export const beginBFS: BeginBFS = async ({ origin, goal, grid, delay, state, res
 
     directions = Directions[direction];
 
-    // if we are resuming the algorithm, we don't want to start at the first node,
-    // instead we'll start with the existing queue
-    if (!resume) {
-        queue.push({
+    setupPathfinder(
+        queue,
+        {
             x: origin.x,
             y: origin.y,
             parent: null
-        });
-    }
+        },
+        grid,
+        visited,
+        resume
+    );
 
-    // if we are resuming, do not reset the visited matrix
-    if (!resume) {
-        const newVisited: typeof visited = [];
-        for (let y = 0; y < grid.length; y++) {
-            const row: boolean[] = [];
-            newVisited.push(row);
-
-            for (let x = 0; x < grid[0]!.length; x++) {
-                row.push(false);
-            }
-        }
-
-        visited = newVisited;
-    }
-
-    return await recursiveAsyncGeneratorRunner(BFSStep(goal, grid, state), delay);
+    return await recursiveAsyncGeneratorRunner(bfsGenerator(goal, grid, state), delay);
 };
 
-
-function* BFSStep(
+function* bfsGenerator(
     goal: Coordinate,
     grid: NodeReferences[][],
     state: MutableRefObject<PathfinderState>

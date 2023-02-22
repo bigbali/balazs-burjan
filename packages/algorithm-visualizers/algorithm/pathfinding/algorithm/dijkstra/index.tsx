@@ -1,6 +1,7 @@
 import type { MutableRefObject } from 'react';
 import type { NodeReferences } from '../..';
 import type { Coordinate } from '../../../../util/common';
+import { setupPathfinder } from '../../../../util/common';
 import { mutateNode } from '../../../../util/common';
 import { recursiveAsyncGeneratorRunner } from '../../../../util/common';
 import { isObstruction, isOutOfBounds } from '../../../../util/common';
@@ -33,7 +34,7 @@ const directions = [
     [0, 1]
 ]satisfies Direction[];
 
-let visited: boolean[][] = [];
+const visited: boolean[][] = [];
 
 export const resetDijkstra = (callback: () => void) => {
     pq.clear();
@@ -41,31 +42,17 @@ export const resetDijkstra = (callback: () => void) => {
 };
 
 export const beginDijkstra: BeginDijkstra = async ({ origin, goal, grid, delay, state, resume }) => {
-    // if we are resuming the algorithm, we don't want to start at the first node,
-    // instead we'll start with the existing queue
-    if (!resume) {
-        pq.push(0, {
+    setupPathfinder(
+        pq,
+        [0, {
             x: origin.x,
             y: origin.y,
-            parent: null,
-            weight: 0
-        });
-    }
-
-    // if we are resuming, do not reset the visited matrix
-    if (!resume) {
-        const newVisited: typeof visited = [];
-        for (let y = 0; y < grid.length; y++) {
-            const row: boolean[] = [];
-            newVisited.push(row);
-
-            for (let x = 0; x < grid[0]!.length; x++) {
-                row.push(false);
-            }
-        }
-
-        visited = newVisited;
-    }
+            parent: null
+        }],
+        grid,
+        visited,
+        resume
+    );
 
     return await recursiveAsyncGeneratorRunner(dijkstraGenerator(goal, grid, state), delay);
 };

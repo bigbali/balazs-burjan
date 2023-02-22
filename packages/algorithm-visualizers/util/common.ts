@@ -92,3 +92,34 @@ export const mutateNode: MutateNode = (grid, visited, x, y) => {
         visited[y]![x] = true;
     };
 };
+
+type SetupPathfinder = <T>(
+    entries: {
+        push: (...args: any[]) => any
+    },
+    initialEntry: T,
+    grid: NodeReferences[][],
+    visited: boolean[][],
+    resume: boolean
+) => void;
+
+export const setupPathfinder: SetupPathfinder = (entries, initialEntry, grid, visited, resume) => {
+    if (!resume) {
+        Array.isArray(initialEntry)
+            ? entries.push(...initialEntry)
+            : entries.push(initialEntry);
+    }
+
+    // if we are resuming, do not reset the visited matrix
+    if (!resume) {
+        visited.length = 0;
+        for (let y = 0; y < grid.length; y++) {
+            const row: boolean[] = [];
+            visited.push(row);
+
+            for (let x = 0; x < grid[0]!.length; x++) {
+                row.push(false);
+            }
+        }
+    }
+};
