@@ -1,5 +1,4 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { useEffect } from 'react';
 import { memo, startTransition, useState } from 'react';
 import type { Coordinate } from '../../../util/common';
 
@@ -13,7 +12,8 @@ export type NodeProps = {
     setIsVisitedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
     setIsHighlightedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
     isObstructionRef: MutableRefObject<boolean>,
-    weightRef: MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>
+    weightRef: MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>,
+    resetRef: MutableRefObject<() => void>
 };
 
 const Node = ({
@@ -23,6 +23,7 @@ const Node = ({
     setIsHighlightedRef,
     isObstructionRef,
     weightRef,
+    resetRef,
     isOrigin,
     isGoal,
     setOrigin,
@@ -38,8 +39,14 @@ const Node = ({
     isObstructionRef.current = isObstruction;
     weightRef.current = weight;
 
-    // useEffect(() => console.log(weight[0]), [weight]);
-    // console.log(weight[0]), [weight];
+    const reset = () => {
+        setIsVisited(false);
+        setIsHighlighted(false);
+        setIsObstruction(false);
+        weight[1](null);
+    };
+
+    resetRef.current = reset;
 
     return (
         <div

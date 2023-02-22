@@ -42,6 +42,7 @@ const Row = ({ data }: RowProps) => {
                 setIsHighlightedRef={nodes[rowIndex]![column]!.setIsHighlighted}
                 isObstructionRef={nodes[rowIndex]![column]!.isObstruction}
                 weightRef={nodes[rowIndex]![column]!.weight}
+                resetRef={nodes[rowIndex]![column]!.reset}
             />
         );
     }

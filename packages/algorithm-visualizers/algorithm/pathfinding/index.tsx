@@ -30,8 +30,9 @@ import { forEachNode } from '../../util/common';
 import { useLoading } from '../../store/loading';
 import { DFSDirection } from './algorithm/dfs/direction';
 import { DFSOptions } from './algorithm/dfs/options';
-import type { BeginDijkstra } from './algorithm/dijkstra/index';
-import { beginDijkstra } from './algorithm/dijkstra/index';
+import type { BeginDijkstra } from './algorithm/dijkstra';
+import { resetDijkstra } from './algorithm/dijkstra';
+import { beginDijkstra } from './algorithm/dijkstra';
 import { dijkstraDefaultOptions, DijkstraOptions } from './algorithm/dijkstra/options';
 
 export const enum Dimensions {
@@ -78,7 +79,8 @@ export type NodeReferences = {
     setIsVisited: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
     setIsHighlighted: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
     isObstruction: MutableRefObject<boolean>,
-    weight: MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>
+    weight: MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>,
+    reset: MutableRefObject<() => void>
 };
 
 type PathfinderPlaceholder = (...args: any[]) => void;
@@ -98,7 +100,6 @@ const PATHFINDER_MAP: PathFinderMap = {
 } as const;
 
 const resetBidirectional = () => null;
-const resetDijkstra = () => null;
 
 export const RESET_MAP = {
     [PathfindingAlgorithm.BREADTH_FIRST]: resetBFS,
@@ -160,7 +161,8 @@ const PathfindingAlgorithms = () => {
                         Dispatch<SetStateAction<boolean>>
                     >,
                     isObstruction: createRef() as MutableRefObject<boolean>,
-                    weight: createRef() as MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>
+                    weight: createRef() as MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>,
+                    reset: createRef() as MutableRefObject<() => void>
                 });
             }
         }
@@ -244,10 +246,8 @@ const PathfindingAlgorithms = () => {
         stateRef.current = PathfinderState.STOPPED;
         setState(PathfinderState.STOPPED);
 
-        resetBFS(() => setResult(null));
-
         RESET_MAP[algorithm](() => {
-            forEachNode(nodes, (node) => node.setIsVisited.current(false));
+            forEachNode(nodes, (node) => node.reset.current());
         });
     };
 
