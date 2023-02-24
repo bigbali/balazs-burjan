@@ -40,7 +40,7 @@ const Row = ({ data }: RowProps) => {
                 setGoal={setGoal}
                 setIsVisitedRef={nodes[rowIndex]![column]!.setIsVisited}
                 setIsHighlightedRef={nodes[rowIndex]![column]!.setIsHighlighted}
-                isObstructionRef={nodes[rowIndex]![column]!.isObstruction}
+                obstructionRef={nodes[rowIndex]![column]!.obstruction}
                 weightRef={nodes[rowIndex]![column]!.weight}
                 resetRef={nodes[rowIndex]![column]!.reset}
             />

@@ -11,17 +11,22 @@ export type NodeProps = {
     setGoal: Dispatch<SetStateAction<Coordinate>>,
     setIsVisitedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
     setIsHighlightedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
-    isObstructionRef: MutableRefObject<boolean>,
+    obstructionRef: MutableRefObject<[boolean, Dispatch<SetStateAction<boolean>>]>,
     weightRef: MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>,
     resetRef: MutableRefObject<() => void>
 };
+
+function useForwardedState<T>(initialState: T) {
+    const state = useState(initialState);
+    return [state, state[0], state[1]] as const;
+}
 
 const Node = ({
     x,
     y,
     setIsVisitedRef,
     setIsHighlightedRef,
-    isObstructionRef,
+    obstructionRef,
     weightRef,
     resetRef,
     isOrigin,
@@ -32,18 +37,18 @@ const Node = ({
     const [isShowMenu, setIsShowMenu] = useState(false);
     const [isVisited, setIsVisited] = useState(false);
     const [isHighlighted, setIsHighlighted] = useState(false);
-    const [isObstruction, setIsObstruction] = useState(false);
-    const weight = useState<number | null>(null);
+    const [obstructionState, isObstruction, setIsObstruction] = useForwardedState(false);
+    const [weightState, weight, setWeight] = useForwardedState<number | null>(null);
     setIsVisitedRef.current = setIsVisited;
     setIsHighlightedRef.current = setIsHighlighted;
-    isObstructionRef.current = isObstruction;
-    weightRef.current = weight;
+    obstructionRef.current = obstructionState;
+    weightRef.current = weightState;
 
     const reset = () => {
         setIsVisited(false);
         setIsHighlighted(false);
         setIsObstruction(false);
-        weight[1](null);
+        setWeight(null);
     };
 
     resetRef.current = reset;
@@ -63,8 +68,8 @@ const Node = ({
             style={{
                 gridColumnStart: x + 1,
                 gridRowStart: y + 1,
-                backgroundColor: !!weight[0]
-                    ? `rgb(128, 128, ${(255 - weight[0])})`
+                backgroundColor: !!weight
+                    ? `rgb(128, 128, ${(255 - weight)})`
                     : undefined
             }}
         >

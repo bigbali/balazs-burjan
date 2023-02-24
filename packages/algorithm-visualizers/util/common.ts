@@ -18,8 +18,10 @@ export const isOutOfBounds = (x: number, y: number, grid: any[][]) => {
 
 export const isObstruction = (x: number, y: number, grid: NodeReferences[][]) => {
     const {
-        isObstruction: {
-            current: isObstruction
+        obstruction: {
+            current: [
+                isObstruction
+            ]
         }
     } = grid[y]![x]!;
 

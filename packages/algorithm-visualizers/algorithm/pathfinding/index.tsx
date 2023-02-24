@@ -4,6 +4,9 @@ import type {
     SetStateAction
 } from 'react';
 import {
+    useReducer
+} from 'react';
+import {
     useCallback
 } from 'react';
 import {
@@ -34,6 +37,8 @@ import type { BeginDijkstra } from './algorithm/dijkstra';
 import { resetDijkstra } from './algorithm/dijkstra';
 import { beginDijkstra } from './algorithm/dijkstra';
 import { dijkstraDefaultOptions, DijkstraOptions } from './algorithm/dijkstra/options';
+import { beginDFSObstructionGenerator } from './obstruction-generator/dfs';
+import { beginRandomObstructionGenerator } from './obstruction-generator/random';
 
 export const enum Dimensions {
     MIN = 5,
@@ -78,7 +83,7 @@ const ALGORITHM_OPTIONS_MAP = {
 export type NodeReferences = {
     setIsVisited: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
     setIsHighlighted: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
-    isObstruction: MutableRefObject<boolean>,
+    obstruction: MutableRefObject<[boolean, Dispatch<SetStateAction<boolean>>]>,
     weight: MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>,
     reset: MutableRefObject<() => void>
 };
@@ -124,6 +129,14 @@ const usePathfindingOptions = (algorithm: PathfindingAlgorithm) => {
 };
 
 const PathfindingAlgorithms = () => {
+    // const [gridOptions, setGridOptions] = useReducer({
+    //     rows: Dimensions.DEFAULT,
+    //     columns: Dimensions.DEFAULT,
+    //     algorithm: PathfindingAlgorithm.BREADTH_FIRST,
+    //     origin: { x: 0, y: 0 },
+    //     goal: { x: Dimensions.DEFAULT - 1, y: Dimensions.DEFAULT - 1 }
+    // }, (previous, current) => ({...previous, ...current}))
+
     const [rows, setRows] = useState(Dimensions.DEFAULT);
     const [columns, setColumns] = useState(Dimensions.DEFAULT);
     const [algorithm, setAlgorithm] = useState(PathfindingAlgorithm.BREADTH_FIRST);
@@ -160,7 +173,7 @@ const PathfindingAlgorithms = () => {
                     setIsHighlighted: createRef() as MutableRefObject<
                         Dispatch<SetStateAction<boolean>>
                     >,
-                    isObstruction: createRef() as MutableRefObject<boolean>,
+                    obstruction: createRef() as MutableRefObject<[boolean, Dispatch<SetStateAction<boolean>>]>,
                     weight: createRef() as MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>,
                     reset: createRef() as MutableRefObject<() => void>
                 });
@@ -274,6 +287,15 @@ const PathfindingAlgorithms = () => {
                         step={1}
                         onChange={setColumnsTransition}
                     />
+                    <button onClick={() => void beginDFSObstructionGenerator({
+                        origin,
+                        goal,
+                        grid: nodes,
+                        delay: velocityRef,
+                        state: stateRef
+                    })}>
+                        Generate maze
+                    </button>
                 </div>
             </fieldset>
             <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4 mb-3 grid gap-2'>
