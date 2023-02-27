@@ -6,25 +6,21 @@ import { setupPathfinder } from '../../../../util/common';
 import { recursiveAsyncGeneratorRunner } from '../../../../util/common';
 import { isObstruction, isOutOfBounds } from '../../../../util/common';
 import type { Direction } from '../../direction';
-import type { PathfinderState } from '../../state';
 
 type BeginDFSParams = {
     origin: Coordinate,
     goal: Coordinate,
     grid: NodeReferences[][],
-    delay: MutableRefObject<number>,
-    state: MutableRefObject<PathfinderState>,
+    delay: MutableRefObject<number>
 };
 
-export type BeginDFS = (params: BeginDFSParams) => Promise<void>;
+export type BeginDFSObstructionGenerator = (params: BeginDFSParams) => Promise<void>;
 
-type DFSStackEntry = Coordinate & {
-    parent: null | DFSStackEntry
-};
+type DFSStackEntry = Coordinate;
 
 type DFSStack = DFSStackEntry[];
 
-let stack: DFSStack = [];
+const stack: DFSStack = [];
 const directions: Direction[] = [
     [-2, 0],
     [2, 0],
@@ -33,13 +29,10 @@ const directions: Direction[] = [
 ];
 const visited: boolean[][] = [];
 
-export const resetDFS = (callback: () => void) => {
-    stack = [];
-    callback();
-};
-
-
-export const beginDFSObstructionGenerator: BeginDFS = async ({ origin, goal, grid, delay }) => {
+export const beginDFSObstructionGenerator: BeginDFSObstructionGenerator = async ({ origin, goal, grid, delay }) => {
+    // since React batches the state updates to the nodes, they are updated only after the following code has run,
+    // and to prevent this, we run this in an async function that we await, so we'll have the updated nodes when running
+    // the generator
     // eslint-disable-next-line @typescript-eslint/require-await
     async function setObstructions() {
         for (const row of grid) {
@@ -66,24 +59,27 @@ export const beginDFSObstructionGenerator: BeginDFS = async ({ origin, goal, gri
     grid[origin.y]![origin.x]!.obstruction.current[1](false);
     grid[goal.y]![goal.x]!.obstruction.current[1](false);
 
-    void recursiveAsyncGeneratorRunner(dfsGenerator(goal, grid), delay);
+    void recursiveAsyncGeneratorRunner(dfsObstructionGenerator(grid), delay);
 };
 
-function* dfsGenerator(
-    goal: Coordinate,
+function* dfsObstructionGenerator(
     grid: NodeReferences[][]
 ) {
     while (stack.length > 0) {
         const current = stack.pop()!;
 
-        if (visited[current.y]![current.x]) continue;
+        if (visited[current.y]![current.x]) {
+            continue;
+        }
 
         for (const [dx, dy] of shuffle(directions)) {
             const x = current.x + dx;
             const y = current.y + dy;
 
             if (!isOutOfBounds(x, y, grid) && !visited[y]![x] && isObstruction(x, y, grid)) {
-                grid[y]![x]!.obstruction.current[1](false);
+                const setObstruction = grid[y]![x]!.obstruction.current[1];
+                setObstruction(false);
+
                 const mx = current.x + (dx / 2);
                 const my = current.y + (dy / 2);
 
@@ -92,8 +88,7 @@ function* dfsGenerator(
 
                     stack.push({
                         x,
-                        y,
-                        parent: current
+                        y
                     });
 
                     visited[my]![mx] = true;

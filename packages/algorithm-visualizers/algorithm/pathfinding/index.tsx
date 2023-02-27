@@ -258,6 +258,7 @@ const PathfindingAlgorithms = () => {
     const handleReset = () => {
         stateRef.current = PathfinderState.STOPPED;
         setState(PathfinderState.STOPPED);
+        setResult(null);
 
         RESET_MAP[algorithm](() => {
             forEachNode(nodes, (node) => node.reset.current());
@@ -291,8 +292,7 @@ const PathfindingAlgorithms = () => {
                         origin,
                         goal,
                         grid: nodes,
-                        delay: velocityRef,
-                        state: stateRef
+                        delay: velocityRef
                     })}>
                         Generate maze
                     </button>
