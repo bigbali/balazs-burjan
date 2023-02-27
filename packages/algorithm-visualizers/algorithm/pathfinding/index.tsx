@@ -40,7 +40,14 @@ import { dijkstraDefaultOptions, DijkstraOptions } from './algorithm/dijkstra/op
 import { beginDFSObstructionGenerator } from './obstruction-generator/dfs';
 import { beginRandomObstructionGenerator } from './obstruction-generator/random';
 
-import { ObstructionGenerator, OBSTRUCTION_GENERATOR_MAP } from './obstruction-generator';
+import {
+    DEFAULT_OBSTRUCTION_GENERATOR,
+    ObstructionGenerator,
+    OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP,
+    OBSTRUCTION_GENERATOR_MAP,
+    OBSTRUCTION_GENERATOR_OPTIONS_MAP
+} from './obstruction-generator';
+import { Pathfinder } from './algorithm';
 
 export const enum Dimensions {
     MIN = 5,
@@ -54,22 +61,15 @@ export const enum Delay {
     MAX = 200
 };
 
-export enum Pathfinder {
-    BREADTH_FIRST = 'breadth first',
-    DEPTH_FIRST = 'depth first',
-    DIJKSTRA = 'dijkstra',
-    BIDIRECTIONAL = 'bidirectional'
-}
-
-const DefaultOption = {
+const DEFAULT_OPTION = {
     [Pathfinder.BREADTH_FIRST]: BFSDirection.ORTHOGONAL,
     [Pathfinder.DEPTH_FIRST]: DFSDirection.TBLR,
     [Pathfinder.DIJKSTRA]: dijkstraDefaultOptions,
     [Pathfinder.BIDIRECTIONAL]: undefined
 } as const;
 
-type PlaceholderElementProps = any;
-const PlaceholderElement = ({ }: PlaceholderElementProps) => (
+export type PlaceholderElementProps = any;
+export const PlaceholderElement = ({ }: PlaceholderElementProps) => (
     <h1 className='text-5xl'>
         Placeholder!
     </h1>
@@ -115,17 +115,32 @@ export const RESET_MAP = {
     [Pathfinder.BIDIRECTIONAL]: resetBidirectional
 } as const;
 
-const usePathfindingOptions = (algorithm: Pathfinder) => {
-    const [options, setOptions] = useState(DefaultOption[algorithm]);
+const usePathfinderOptions = (algorithm: Pathfinder) => {
+    const [options, setOptions] = useState(DEFAULT_OPTION[algorithm]);
 
     useEffect(() => {
-        setOptions(DefaultOption[algorithm]);
+        setOptions(DEFAULT_OPTION[algorithm]);
     }, [algorithm]);
 
     const Element = ALGORITHM_OPTIONS_MAP[algorithm];
 
     return [
         options,
+        () => <Element options={options} setOptions={setOptions} />
+    ] as const;
+};
+
+const useObstructionGeneratorOptions = (generator: ObstructionGenerator) => {
+    const [options, setOptions] = useState(OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP[generator]);
+
+    useEffect(() => {
+        setOptions(OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP[generator]);
+    }, [generator]);
+
+    const Element = OBSTRUCTION_GENERATOR_OPTIONS_MAP[generator];
+
+    return [
+        options, //@ts-ignore
         () => <Element options={options} setOptions={setOptions} />
     ] as const;
 };
@@ -142,14 +157,17 @@ const PathfindingAlgorithms = () => {
     const [rows, setRows] = useState(Dimensions.DEFAULT);
     const [columns, setColumns] = useState(Dimensions.DEFAULT);
     const [pathfinder, setPathfinder] = useState(Pathfinder.BREADTH_FIRST);
-    const [obstructionGenerator, setObstructionGenerator] = useState(ObstructionGenerator.DFS);
+    const [pathfinderOptions, PathfinderOptions] = usePathfinderOptions(pathfinder);
+
+    const [obstructionGenerator, setObstructionGenerator] = useState(DEFAULT_OBSTRUCTION_GENERATOR);
+    const [obstructionGeneratorOptions, ObstructionGeneratorOptions] = useObstructionGeneratorOptions(obstructionGenerator);
+
     const [state, setState] = useState(PathfinderState.STOPPED);
     const [result, setResult] = useState<unknown>(null);
 
     const [origin, setOrigin] = useState<Coordinate>(({ x: 0, y: 0 }));
     const [goal, setGoal] = useState<Coordinate>(({ x: columns - 1, y: rows - 1 }));
 
-    const [options, OptionsElement] = usePathfindingOptions(pathfinder);
     const [isPending, startTransition] = useTransition();
 
     const velocityRef = useRef(Delay.DEFAULT);
@@ -201,11 +219,11 @@ const PathfindingAlgorithms = () => {
     }, [nodes, result]);
 
     useEffect(() => {
-        if (options === dijkstraDefaultOptions) {
-            options.nodeReferences = nodes;
-            options.goal = goal;
+        if (pathfinderOptions === dijkstraDefaultOptions) {
+            pathfinderOptions.nodeReferences = nodes;
+            pathfinderOptions.goal = goal;
         }
-    }, [options, nodes, goal]);
+    }, [pathfinderOptions, nodes, goal]);
     //@ts-ignore
     global.NODES = nodes;
 
@@ -226,7 +244,17 @@ const PathfindingAlgorithms = () => {
             delay: velocityRef,
             state: stateRef,
             resume,
-            options: { direction: options }
+            options: { direction: pathfinderOptions }
+        });
+    };
+
+    const runOG = async () => {
+        return await OBSTRUCTION_GENERATOR_MAP[obstructionGenerator]({
+            origin,
+            goal,
+            grid: nodes,
+            delay: velocityRef, //@ts-ignore
+            options: obstructionGeneratorOptions
         });
     };
 
@@ -311,14 +339,11 @@ const PathfindingAlgorithms = () => {
                     </select>
                     <button
                         className='bg-slate-700 text-white font-medium px-4 py-2 rounded-lg'
-                        onClick={() => void OBSTRUCTION_GENERATOR_MAP[obstructionGenerator]({
-                            origin,
-                            goal,
-                            grid: nodes,
-                            delay: velocityRef
-                        })}>
+                        onClick={() => void runOG()}>
                         Generate maze
                     </button>
+                    <ObstructionGeneratorOptions />
+
                 </div>
             </fieldset>
             <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4 mb-3 grid gap-2'>
@@ -361,7 +386,7 @@ const PathfindingAlgorithms = () => {
                         debounceRange={false}
                     />
                 </div>
-                <OptionsElement />
+                <PathfinderOptions />
                 <div className='flex gap-2'>
                     <StateButton state={state} disable={!!result} onClick={() => void handleStart()} />
                     <button className='bg-red-700 text-white font-medium px-4 py-2 rounded-lg' onClick={handleReset}>

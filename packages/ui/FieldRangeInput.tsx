@@ -1,5 +1,6 @@
 import { debounce } from 'lodash';
 import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
+import { memo } from 'react';
 import { useState } from 'react';
 import type { Either } from '../util/type';
 
@@ -168,4 +169,4 @@ const FieldRangeInput = ({
     );
 };
 
-export default FieldRangeInput;
+export default memo(FieldRangeInput);

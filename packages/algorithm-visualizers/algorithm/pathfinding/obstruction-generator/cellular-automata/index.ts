@@ -5,15 +5,17 @@ import { asyncRecursiveAsyncGeneratorRunner } from '../../../../util/common';
 import { setupPathfinder } from '../../../../util/common';
 import { recursiveAsyncGeneratorRunner } from '../../../../util/common';
 import { isObstruction, isOutOfBounds } from '../../../../util/common';
+import type { CellularAutomataOptions } from './options';
 
-type BeginCAMazeObstructionGeneratorParams = {
+type BeginCAObstructionGeneratorParams = {
     origin: Coordinate,
     goal: Coordinate,
     grid: NodeReferences[][],
-    delay: MutableRefObject<number>
+    delay: MutableRefObject<number>,
+    options: CellularAutomataOptions
 };
 
-export type BeginCAMazeObstructionGenerator = (params: BeginCAMazeObstructionGeneratorParams) => Promise<void>;
+export type BeginCAObstructionGenerator = (params: BeginCAObstructionGeneratorParams) => Promise<void>;
 
 const queue: Coordinate[] = [];
 const directions = [
@@ -28,7 +30,7 @@ const directions = [
 ] as const;
 const visited: boolean[][] = [];
 
-export const beginCAMazectricObstructionGenerator: BeginCAMazeObstructionGenerator = async ({ origin, goal, grid, delay }) => {
+export const beginCAObstructionGenerator: BeginCAObstructionGenerator = async ({ origin, goal, grid, delay, options }) => {
     // since React batches the state updates to the nodes, they are updated only after the following code has run,
     // and to prevent this, we run this in an async function that we await, so we'll have the updated nodes when running
     // the generator
@@ -69,14 +71,16 @@ export const beginCAMazectricObstructionGenerator: BeginCAMazeObstructionGenerat
         false
     );
 
-    grid[origin.y]![origin.x]!.obstruction.current[1](false);
+    // grid[origin.y]![origin.x]!.obstruction.current[1](false);
     // grid[goal.y]![goal.x]!.obstruction.current[1](false);
 
-    void asyncRecursiveAsyncGeneratorRunner(caMazectricObstructionGenerator(grid), /* { current: 1000 } */ delay);
+    void asyncRecursiveAsyncGeneratorRunner(caMazectricObstructionGenerator(grid, delay, options), { current: 0 } /* delay */);
 };
 
 async function* caMazectricObstructionGenerator(
-    grid: NodeReferences[][]
+    grid: NodeReferences[][],
+    delay: MutableRefObject<number>,
+    options: CellularAutomataOptions
 ) {
     // eslint-disable-next-line @typescript-eslint/require-await
     async function step() {
@@ -100,22 +104,21 @@ async function* caMazectricObstructionGenerator(
                 }
 
                 counter++; // should be 3, but it works with 2 and not with 3. fun it is :)
-                if (adjacentPaths === 4 && isCurrentObstruction) {
+                if (adjacentPaths === options.setAlive && isCurrentObstruction) {
                     setCurrentObstruction(false);
                 }
-                else if ((adjacentPaths < 1 || adjacentPaths > 4) && !isCurrentObstruction) {
+                else if ((adjacentPaths < options.keepAlive.min || adjacentPaths > options.keepAlive.max) && !isCurrentObstruction) {
                     setCurrentObstruction(true);
                 }
 
             }
         }
         console.log('counter', counter);
-
     }
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < options.steps; i++) {
         await new Promise(resolve => {
-            setTimeout(resolve, 10);
+            setTimeout(resolve, delay.current);
         });
 
         await step();
