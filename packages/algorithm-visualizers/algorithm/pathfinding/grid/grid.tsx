@@ -48,11 +48,10 @@ const Grid = ({ data }: GridProps) => {
 
     return (
         <div
+            className='grid h-full gap-px'
             style={{
-                display: 'grid',
                 gridTemplateColumns: `repeat(${columns}, 1fr)`,
-                gridTemplateRows: `repeat(${rows}, 1fr)`,
-                height: '100%'
+                gridTemplateRows: `repeat(${rows}, 1fr)`
             }}
         >
             {elements}

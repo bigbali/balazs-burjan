@@ -2,31 +2,20 @@ import type { MutableRefObject } from 'react';
 import type { NodeReferences } from '../..';
 import type { Coordinate } from '../../../../util/common';
 import { setupPathfinder } from '../../../../util/common';
-import { mutateNode } from '../../../../util/common';
 import { recursiveAsyncGeneratorRunner } from '../../../../util/common';
-import { isObstruction, isOutOfBounds } from '../../../../util/common';
+import { isOutOfBounds } from '../../../../util/common';
 import type { Direction } from '../../direction';
-import type { PathfinderState } from '../../state';
-import type { DFSDirection } from '../dfs/direction';
 
-type BeginDFSParams = {
+type BeginRandomObstructionGeneratorParams = {
     origin: Coordinate,
     goal: Coordinate,
     grid: NodeReferences[][],
-    delay: MutableRefObject<number>,
-    state: MutableRefObject<PathfinderState>,
-    resume: boolean,
+    delay: MutableRefObject<number>
 };
 
-export type BeginDFS = (params: BeginDFSParams) => void;
+export type BeginRandomObstructionGenerator = (params: BeginRandomObstructionGeneratorParams) => void;
 
-type DFSStackEntry = Coordinate & {
-    parent: null | DFSStackEntry
-};
-
-type DFSStack = DFSStackEntry[];
-
-let stack: DFSStack = [];
+const stack: Coordinate[] = [];
 const directions = [
     [-1, 0],
     [1, 0],
@@ -35,29 +24,22 @@ const directions = [
 ]satisfies Direction[];
 const visited: boolean[][] = [];
 
-export const resetDFS = (callback: () => void) => {
-    stack = [];
-    callback();
-};
-
-export const beginRandomObstructionGenerator: BeginDFS = ({ origin, goal, grid, delay, resume }) => {
+export const beginRandomObstructionGenerator: BeginRandomObstructionGenerator = ({ origin, grid, delay }) => {
     setupPathfinder(
         stack,
         {
             x: origin.x,
-            y: origin.y,
-            parent: null
+            y: origin.y
         },
         grid,
         visited,
-        resume
+        false
     );
 
-    void recursiveAsyncGeneratorRunner(randomObstructionGenerator(goal, grid), delay);
+    void recursiveAsyncGeneratorRunner(randomObstructionGenerator(grid), delay);
 };
 
 function* randomObstructionGenerator(
-    goal: Coordinate,
     grid: NodeReferences[][]
 ) {
     while (stack.length > 0) {
@@ -67,7 +49,7 @@ function* randomObstructionGenerator(
             continue;
         }
 
-        if (Math.random() > 0.5) {
+        if (Math.random() >= 0.5) {
             grid[current.y]![current.x]!.obstruction.current[1](true);
         }
 
@@ -80,8 +62,7 @@ function* randomObstructionGenerator(
             if (!isOutOfBounds(x, y, grid) && !visited[y]![x]) {
                 stack.push({
                     x,
-                    y,
-                    parent: current
+                    y
                 });
             }
         }

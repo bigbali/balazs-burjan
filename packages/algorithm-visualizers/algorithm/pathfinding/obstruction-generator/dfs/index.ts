@@ -5,28 +5,23 @@ import type { Coordinate } from '../../../../util/common';
 import { setupPathfinder } from '../../../../util/common';
 import { recursiveAsyncGeneratorRunner } from '../../../../util/common';
 import { isObstruction, isOutOfBounds } from '../../../../util/common';
-import type { Direction } from '../../direction';
 
-type BeginDFSParams = {
+type BeginDFSObstructionGeneratorParams = {
     origin: Coordinate,
     goal: Coordinate,
     grid: NodeReferences[][],
     delay: MutableRefObject<number>
 };
 
-export type BeginDFSObstructionGenerator = (params: BeginDFSParams) => Promise<void>;
+export type BeginDFSObstructionGenerator = (params: BeginDFSObstructionGeneratorParams) => Promise<void>;
 
-type DFSStackEntry = Coordinate;
-
-type DFSStack = DFSStackEntry[];
-
-const stack: DFSStack = [];
-const directions: Direction[] = [
+const stack: Coordinate[] = [];
+const directions = [
     [-2, 0],
     [2, 0],
     [0, -2],
     [0, 2]
-];
+] as const;
 const visited: boolean[][] = [];
 
 export const beginDFSObstructionGenerator: BeginDFSObstructionGenerator = async ({ origin, goal, grid, delay }) => {
@@ -48,8 +43,7 @@ export const beginDFSObstructionGenerator: BeginDFSObstructionGenerator = async 
         stack,
         {
             x: origin.x,
-            y: origin.y,
-            parent: null
+            y: origin.y
         },
         grid,
         visited,

@@ -40,6 +40,8 @@ import { dijkstraDefaultOptions, DijkstraOptions } from './algorithm/dijkstra/op
 import { beginDFSObstructionGenerator } from './obstruction-generator/dfs';
 import { beginRandomObstructionGenerator } from './obstruction-generator/random';
 
+import { ObstructionGenerator, OBSTRUCTION_GENERATOR_MAP } from './obstruction-generator';
+
 export const enum Dimensions {
     MIN = 5,
     DEFAULT = 20,
@@ -52,7 +54,7 @@ export const enum Delay {
     MAX = 200
 };
 
-export enum PathfindingAlgorithm {
+export enum Pathfinder {
     BREADTH_FIRST = 'breadth first',
     DEPTH_FIRST = 'depth first',
     DIJKSTRA = 'dijkstra',
@@ -60,10 +62,10 @@ export enum PathfindingAlgorithm {
 }
 
 const DefaultOption = {
-    [PathfindingAlgorithm.BREADTH_FIRST]: BFSDirection.ORTHOGONAL,
-    [PathfindingAlgorithm.DEPTH_FIRST]: DFSDirection.TBLR,
-    [PathfindingAlgorithm.DIJKSTRA]: dijkstraDefaultOptions,
-    [PathfindingAlgorithm.BIDIRECTIONAL]: undefined
+    [Pathfinder.BREADTH_FIRST]: BFSDirection.ORTHOGONAL,
+    [Pathfinder.DEPTH_FIRST]: DFSDirection.TBLR,
+    [Pathfinder.DIJKSTRA]: dijkstraDefaultOptions,
+    [Pathfinder.BIDIRECTIONAL]: undefined
 } as const;
 
 type PlaceholderElementProps = any;
@@ -74,10 +76,10 @@ const PlaceholderElement = ({ }: PlaceholderElementProps) => (
 );
 
 const ALGORITHM_OPTIONS_MAP = {
-    [PathfindingAlgorithm.BREADTH_FIRST]: BFSOptions,
-    [PathfindingAlgorithm.DEPTH_FIRST]: DFSOptions,
-    [PathfindingAlgorithm.DIJKSTRA]: DijkstraOptions,
-    [PathfindingAlgorithm.BIDIRECTIONAL]: PlaceholderElement
+    [Pathfinder.BREADTH_FIRST]: BFSOptions,
+    [Pathfinder.DEPTH_FIRST]: DFSOptions,
+    [Pathfinder.DIJKSTRA]: DijkstraOptions,
+    [Pathfinder.BIDIRECTIONAL]: PlaceholderElement
 } as const;
 
 export type NodeReferences = {
@@ -90,30 +92,30 @@ export type NodeReferences = {
 
 type PathfinderPlaceholder = (...args: any[]) => void;
 type PathFinderMap = {
-    [PathfindingAlgorithm.BREADTH_FIRST]: BeginBFS,
-    [PathfindingAlgorithm.DEPTH_FIRST]: BeginDFS,
-    [PathfindingAlgorithm.DIJKSTRA]: BeginDijkstra,
-    [PathfindingAlgorithm.BIDIRECTIONAL]: PathfinderPlaceholder
+    [Pathfinder.BREADTH_FIRST]: BeginBFS,
+    [Pathfinder.DEPTH_FIRST]: BeginDFS,
+    [Pathfinder.DIJKSTRA]: BeginDijkstra,
+    [Pathfinder.BIDIRECTIONAL]: PathfinderPlaceholder
 };
 
 const PATHFINDER_MAP: PathFinderMap = {
-    [PathfindingAlgorithm.BREADTH_FIRST]: async (...args) => beginBFS(...args),
-    [PathfindingAlgorithm.DEPTH_FIRST]: async (...args) => beginDFS(...args),
-    [PathfindingAlgorithm.DIJKSTRA]: async (...args) => beginDijkstra(...args),
+    [Pathfinder.BREADTH_FIRST]: beginBFS,
+    [Pathfinder.DEPTH_FIRST]: beginDFS,
+    [Pathfinder.DIJKSTRA]: beginDijkstra,
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    [PathfindingAlgorithm.BIDIRECTIONAL]: async () => { }
+    [Pathfinder.BIDIRECTIONAL]: async () => { }
 } as const;
 
 const resetBidirectional = () => null;
 
 export const RESET_MAP = {
-    [PathfindingAlgorithm.BREADTH_FIRST]: resetBFS,
-    [PathfindingAlgorithm.DEPTH_FIRST]: resetDFS,
-    [PathfindingAlgorithm.DIJKSTRA]: resetDijkstra,
-    [PathfindingAlgorithm.BIDIRECTIONAL]: resetBidirectional
+    [Pathfinder.BREADTH_FIRST]: resetBFS,
+    [Pathfinder.DEPTH_FIRST]: resetDFS,
+    [Pathfinder.DIJKSTRA]: resetDijkstra,
+    [Pathfinder.BIDIRECTIONAL]: resetBidirectional
 } as const;
 
-const usePathfindingOptions = (algorithm: PathfindingAlgorithm) => {
+const usePathfindingOptions = (algorithm: Pathfinder) => {
     const [options, setOptions] = useState(DefaultOption[algorithm]);
 
     useEffect(() => {
@@ -139,14 +141,15 @@ const PathfindingAlgorithms = () => {
 
     const [rows, setRows] = useState(Dimensions.DEFAULT);
     const [columns, setColumns] = useState(Dimensions.DEFAULT);
-    const [algorithm, setAlgorithm] = useState(PathfindingAlgorithm.BREADTH_FIRST);
+    const [pathfinder, setPathfinder] = useState(Pathfinder.BREADTH_FIRST);
+    const [obstructionGenerator, setObstructionGenerator] = useState(ObstructionGenerator.DFS);
     const [state, setState] = useState(PathfinderState.STOPPED);
     const [result, setResult] = useState<unknown>(null);
 
     const [origin, setOrigin] = useState<Coordinate>(({ x: 0, y: 0 }));
     const [goal, setGoal] = useState<Coordinate>(({ x: columns - 1, y: rows - 1 }));
 
-    const [options, OptionsElement] = usePathfindingOptions(algorithm);
+    const [options, OptionsElement] = usePathfindingOptions(pathfinder);
     const [isPending, startTransition] = useTransition();
 
     const velocityRef = useRef(Delay.DEFAULT);
@@ -216,7 +219,7 @@ const PathfindingAlgorithms = () => {
     };
 
     const runPathfinder = async (resume: boolean) => {
-        return await PATHFINDER_MAP[algorithm]({
+        return await PATHFINDER_MAP[pathfinder]({
             origin,
             goal,
             grid: nodes,
@@ -260,7 +263,7 @@ const PathfindingAlgorithms = () => {
         setState(PathfinderState.STOPPED);
         setResult(null);
 
-        RESET_MAP[algorithm](() => {
+        RESET_MAP[pathfinder](() => {
             forEachNode(nodes, (node) => node.reset.current());
         });
     };
@@ -288,12 +291,32 @@ const PathfindingAlgorithms = () => {
                         step={1}
                         onChange={setColumnsTransition}
                     />
-                    <button onClick={() => void beginDFSObstructionGenerator({
-                        origin,
-                        goal,
-                        grid: nodes,
-                        delay: velocityRef
-                    })}>
+                    <select
+                        id='obstruction-generator'
+                        className='border border-slate-3 rounded-md capitalize'
+                        value={obstructionGenerator}
+                        onChange={(e) => setObstructionGenerator(e.currentTarget.value as ObstructionGenerator)}
+                    >
+                        {Object.values(ObstructionGenerator).map((value) => {
+                            return (
+                                <option
+                                    key={value}
+                                    value={value}
+                                    className='capitalize'
+                                >
+                                    {value}
+                                </option>
+                            );
+                        })}
+                    </select>
+                    <button
+                        className='bg-slate-700 text-white font-medium px-4 py-2 rounded-lg'
+                        onClick={() => void OBSTRUCTION_GENERATOR_MAP[obstructionGenerator]({
+                            origin,
+                            goal,
+                            grid: nodes,
+                            delay: velocityRef
+                        })}>
                         Generate maze
                     </button>
                 </div>
@@ -311,10 +334,10 @@ const PathfindingAlgorithms = () => {
                             <select
                                 id='algorithm'
                                 className='border border-slate-3 rounded-md capitalize'
-                                value={algorithm}
-                                onChange={(e) => setAlgorithm(e.currentTarget.value as PathfindingAlgorithm)}
+                                value={pathfinder}
+                                onChange={(e) => setPathfinder(e.currentTarget.value as Pathfinder)}
                             >
-                                {Object.values(PathfindingAlgorithm).map((value) => {
+                                {Object.values(Pathfinder).map((value) => {
                                     return (
                                         <option
                                             key={value}

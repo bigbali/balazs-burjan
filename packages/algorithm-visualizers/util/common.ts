@@ -46,6 +46,11 @@ type RecursiveAsyncGeneratorRunner = <T>(
     delay: MutableRefObject<number>
 ) => Promise<T>;
 
+type AsyncRecursiveAsyncGeneratorRunner = <T>(
+    generator: AsyncGenerator<unknown, T, unknown>,
+    delay: MutableRefObject<number>
+) => Promise<T>;
+
 /**
  * A generator runner that recursively calls itself.
  * @param generator
@@ -65,6 +70,21 @@ export const recursiveAsyncGeneratorRunner: RecursiveAsyncGeneratorRunner = asyn
     });
 
     return await recursiveAsyncGeneratorRunner(generator, delay);
+};
+
+export const asyncRecursiveAsyncGeneratorRunner: AsyncRecursiveAsyncGeneratorRunner = async (generator, delay) => {
+    const result = await generator.next();
+
+    if (result.done) {
+        return result.value;
+    }
+
+    // dark magic, don't touch
+    await new Promise<void>((resolve) => {
+        setTimeout(() => resolve(), delay.current);
+    });
+
+    return await asyncRecursiveAsyncGeneratorRunner(generator, delay);
 };
 
 type MutateNode = (

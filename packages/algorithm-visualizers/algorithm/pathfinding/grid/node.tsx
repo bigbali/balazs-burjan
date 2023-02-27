@@ -57,7 +57,7 @@ const Node = ({
         <div
             onClick={() => setIsShowMenu(state => !state)}
             className={
-                `aspect-square border bg-slate-500 relative transform-gpu  transition
+                `aspect-square bg-slate-500 relative transform-gpu  transition
                 ${isOrigin ? '!bg-sky-800' : ''}
                 ${isGoal ? '!bg-green-700' : ''}
                 ${isObstruction ? '!bg-black' : ''}
