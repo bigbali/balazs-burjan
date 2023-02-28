@@ -35,29 +35,33 @@ export const beginCAObstructionGenerator: BeginCAObstructionGenerator = async ({
     // and to prevent this, we run this in an async function that we await, so we'll have the updated nodes when running
     // the generator
     // eslint-disable-next-line @typescript-eslint/require-await
-    // async function setObstructions() {
-    //     for (const row of grid) {
-    //         for (const node of row) {
-    //             if (Math.random() >= 0.5) {
-    //                 node.obstruction.current[1](true);
-    //             }
-    //         }
-    //     }
-    // }
-    // await setObstructions();
-
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async function x() {
-        for (let i = origin.y - 5; i < origin.y + 5; i++) {
-            for (let j = origin.x - 5; j <= origin.x + 5; j++) {
-                if (!isOutOfBounds(j, i, grid) && Math.random() >= 0.25) {
-                    grid[i]![j]!.obstruction.current[1](true);
+    async function setObstructions() {
+        for (const row of grid) {
+            for (const node of row) {
+                if (Math.random() >= 0.6) {
+                    node.obstruction.current[1](true);
                 }
             }
         }
-    };
+    }
+    await setObstructions();
 
-    await x();
+    // eslint-disable-next-line @typescript-eslint/require-await
+    // async function x() {
+    //     for (let i = origin.y - 5; i < origin.y + 5; i++) {
+    //         for (let j = origin.x - 5; j <= origin.x + 5; j++) {
+    //             if (!isOutOfBounds(j, i, grid) && Math.random() >= 0.25) {
+    //                 grid[i]![j]!.obstruction.current[1](true);
+    //             }
+    //         }
+    //     }
+    // };
+
+    // await x();
+
+    if (options.interrupt) {
+        options.interrupt.current = false;
+    }
 
 
     setupPathfinder(
@@ -83,13 +87,10 @@ async function* caMazectricObstructionGenerator(
     options: CellularAutomataOptions
 ) {
     // eslint-disable-next-line @typescript-eslint/require-await
-    async function step() {
-        let counter = 0;
+    function step() {
         for (let y = 0; y < grid.length; y++) {
             for (let x = 0; x < grid[0]!.length; x++) {
                 const [isCurrentObstruction, setCurrentObstruction] = grid[y]![x]!.obstruction.current;
-
-                // const current = grid[y]![x]!;
 
                 let adjacentPaths = 0;
                 for (const [dx, dy] of directions) {
@@ -97,31 +98,87 @@ async function* caMazectricObstructionGenerator(
                     const ny = y + dy;
 
                     if (!isOutOfBounds(nx, ny, grid)) {
-                        if (!isObstruction(nx, ny, grid)) {
+                        if (isObstruction(nx, ny, grid)) {
                             adjacentPaths++;
                         }
                     }
                 }
 
-                counter++; // should be 3, but it works with 2 and not with 3. fun it is :)
-                if (adjacentPaths === options.setAlive && isCurrentObstruction) {
-                    setCurrentObstruction(false);
-                }
-                else if ((adjacentPaths < options.keepAlive.min || adjacentPaths > options.keepAlive.max) && !isCurrentObstruction) {
+                if (adjacentPaths === options.setAlive && !isCurrentObstruction) {
                     setCurrentObstruction(true);
+                }
+                else if (
+                    (adjacentPaths < options.keepAlive.min || adjacentPaths > options.keepAlive.max)
+                    && isCurrentObstruction) {
+                    setCurrentObstruction(false);
                 }
 
             }
         }
-        console.log('counter', counter);
+        // }
+        // eslint-disable-next-line @typescript-eslint/require-await
+        // function step() {
+        //     for (let y = 0; y < grid.length; y++) {
+        //         for (let x = 0; x < grid[0]!.length; x++) {
+        //             const [isCurrentObstruction, setCurrentObstruction] = grid[y]![x]!.obstruction.current;
+
+        //             let adjacentPaths = 0;
+        //             for (const [dx, dy] of directions) {
+        //                 const nx = x + dx;
+        //                 const ny = y + dy;
+
+        //                 if (!isOutOfBounds(nx, ny, grid)) {
+        //                     if (isObstruction(nx, ny, grid)) {
+        //                         adjacentPaths++;
+        //                     }
+        //                 }
+        //             }
+
+        //             if (isCurrentObstruction) {
+        //                 if (adjacentPaths === 3 || adjacentPaths === 4) {
+        //                     setCurrentObstruction(true);
+        //                 }
+        //                 else {
+        //                     setCurrentObstruction(false);
+
+        //                 }
+        //             }
+        //             else {
+        //                 if (adjacentPaths === 3) {
+        //                     setCurrentObstruction(true);
+        //                 }
+        //                 else {
+        //                     setCurrentObstruction(false);
+
+        //                 }
+
+        //             }
+
+
+        //             // if (adjacentPaths === 3 && !isCurrentObstruction) {
+        //             //     setCurrentObstruction(true);
+        //             // }
+        //             // else if (
+        //             //     (adjacentPaths < options.keepAlive.min || adjacentPaths > options.keepAlive.max)
+        //             //     && isCurrentObstruction) {
+        //             //     setCurrentObstruction(false);
+        //             // }
+
+        //         }
+        //     }
     }
 
     for (let i = 0; i < options.steps; i++) {
+        if (options.interrupt?.current) {
+            console.log('interrupt');
+            return;
+        }
+
         await new Promise(resolve => {
             setTimeout(resolve, delay.current);
         });
 
-        await step();
+        step();
         yield;
     }
 

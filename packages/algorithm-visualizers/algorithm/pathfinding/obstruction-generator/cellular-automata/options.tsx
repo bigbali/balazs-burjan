@@ -1,4 +1,6 @@
-import type { Dispatch, SetStateAction } from 'react';
+import type { Dispatch, MutableRefObject } from 'react';
+import { createRef, SetStateAction } from 'react';
+import { memo } from 'react';
 import { startTransition } from 'react';
 import FieldRangeInput from 'ui/FieldRangeInput';
 
@@ -9,13 +11,13 @@ export type CellularAutomataOptions = {
         max: number
     },
     steps: number,
-    interrupt?: boolean,
     preset?: string
+    interrupt?: MutableRefObject<boolean>,
 };
 
 export type CellularAutomataOptionsProps = {
     options: CellularAutomataOptions,
-    setOptions: Dispatch<SetStateAction<CellularAutomataOptions>>
+    setOptions: Dispatch<Partial<CellularAutomataOptions>>
 };
 
 enum CAPreset {
@@ -56,7 +58,7 @@ const CA_PRESETS_MAP: Record<CAPreset, CellularAutomataOptions & { preset: strin
 
 export const CA_DEFAULT_OPTIONS = CA_PRESETS_MAP[CAPreset.CWOL];
 
-export const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
+const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
     if (!options) {
         return null;
     }
@@ -88,19 +90,62 @@ export const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps)
                     );
                 })}
             </select>
-            <div className='flex gap-2'>
+            <div className='flex gap-2 flex-wrap'>
                 <FieldRangeInput
                     label='Steps'
                     defaultValue={options.steps}
                     min={1}
                     max={3000}
                     step={1}
-                    onChange={(steps) => startTransition(() => setOptions(options => ({
-                        ...options,
-                        steps
-                    })))}
+                    onChange={(steps) => setOptions({ steps })}
                 />
+                <FieldRangeInput
+                    label='Set Alive'
+                    defaultValue={options.setAlive}
+                    min={0}
+                    max={8}
+                    step={1}
+                    onChange={(setAlive) => setOptions({ setAlive })}
+                />
+                <FieldRangeInput
+                    label='Keep Alive Min'
+                    defaultValue={options.keepAlive.min}
+                    min={0}
+                    max={8}
+                    step={1}
+                    onChange={(min) => setOptions({
+                        keepAlive: {
+                            ...options.keepAlive,
+                            min
+                        }
+                    })}
+                />
+                <FieldRangeInput
+                    label='Keep Alive Max'
+                    defaultValue={options.keepAlive.max}
+                    min={0}
+                    max={8}
+                    step={1}
+                    onChange={(max) => setOptions({
+                        keepAlive: {
+                            ...options.keepAlive,
+                            max
+                        }
+                    })}
+                />
+                <button
+                    className='bg-slate-700 text-white font-medium px-4 py-2 rounded-lg'
+                    onClick={() => {
+                        if (!options.interrupt) {
+                            options.interrupt = createRef() as MutableRefObject<boolean>;
+                        }
+                        options.interrupt.current = true;
+                    }}>
+                    Interrupt
+                </button>
             </div>
         </>
     );
 };
+
+export default memo(CAOptions);

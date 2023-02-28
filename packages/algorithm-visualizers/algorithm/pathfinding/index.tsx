@@ -45,7 +45,8 @@ import {
     ObstructionGenerator,
     OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP,
     OBSTRUCTION_GENERATOR_MAP,
-    OBSTRUCTION_GENERATOR_OPTIONS_MAP
+    OBSTRUCTION_GENERATOR_OPTIONS_MAP,
+    useObstructionGeneratorOptions
 } from './obstruction-generator';
 import { Pathfinder } from './algorithm';
 
@@ -126,21 +127,6 @@ const usePathfinderOptions = (algorithm: Pathfinder) => {
 
     return [
         options,
-        () => <Element options={options} setOptions={setOptions} />
-    ] as const;
-};
-
-const useObstructionGeneratorOptions = (generator: ObstructionGenerator) => {
-    const [options, setOptions] = useState(OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP[generator]);
-
-    useEffect(() => {
-        setOptions(OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP[generator]);
-    }, [generator]);
-
-    const Element = OBSTRUCTION_GENERATOR_OPTIONS_MAP[generator];
-
-    return [
-        options, //@ts-ignore
         () => <Element options={options} setOptions={setOptions} />
     ] as const;
 };
