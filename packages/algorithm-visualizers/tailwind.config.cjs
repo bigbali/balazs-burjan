@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-    presets: [require('config/tailwind')],
+    presets: [require('@local/config/tailwind')],
     content: ['./**/*.{jsx,ts,tsx}']
 };

@@ -4,10 +4,10 @@ import {
     type NextAuthOptions,
     type DefaultSession
 } from 'next-auth';
-import DiscordProvider from 'next-auth/providers/discord.js';
-import GoogleProvider from 'next-auth/providers/google.js';
+import DiscordProvider from 'next-auth/providers/discord';
+import GoogleProvider from 'next-auth/providers/google';
 // import GitHubProvider from 'next-auth/providers/github';
-import FacebookProvider from 'next-auth/providers/facebook.js';
+import FacebookProvider from 'next-auth/providers/facebook';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { env } from '../env/server.mjs';
 import { prisma } from './db';

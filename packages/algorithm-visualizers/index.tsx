@@ -1,7 +1,7 @@
 import { startTransition, useState } from 'react';
 import PathfinderVisualizer from './algorithm/pathfinding';
 import { useLoading } from './store/loading';
-import 'config/tailwind/tailwind.css';
+import '@local/config/tailwind/tailwind.css';
 
 enum Mode {
     DRAW = 'draw',

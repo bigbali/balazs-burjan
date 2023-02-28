@@ -1,6 +1,6 @@
 import type { Dispatch, MutableRefObject } from 'react';
 import { createRef, memo } from 'react';
-import FieldRangeInput from 'ui/FieldRangeInput';
+import FieldRangeInput from '@local/ui/FieldRangeInput';
 
 enum CAPreset {
     MAZE = 'maze',

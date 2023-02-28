@@ -1,1 +1,1 @@
-export { default } from 'algorithm-visualizers';
+export { default } from '@local/algorithm-visualizers';

@@ -1,4 +1,4 @@
-import FieldRangeInput from "ui/FieldRangeInput";
+import FieldRangeInput from '@local/ui/FieldRangeInput';
 
 export default function Docs() {
     return (

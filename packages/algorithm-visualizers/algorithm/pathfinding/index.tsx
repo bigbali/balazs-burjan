@@ -14,7 +14,7 @@ import { useRef } from 'react';
 import { createRef } from 'react';
 import React, { useMemo, useState } from 'react';
 import Grid from './grid/grid';
-import FieldRangeInput from 'ui/FieldRangeInput';
+import FieldRangeInput from '@local/ui/FieldRangeInput';
 import { StateButton } from './state-button';
 import { PathfinderState } from './state';
 import type { Coordinate } from '../../util/common';
