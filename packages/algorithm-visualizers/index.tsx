@@ -1,5 +1,5 @@
 import { startTransition, useState } from 'react';
-import PathfindingAlgorithms from './algorithm/pathfinding';
+import PathfinderVisualizer from './algorithm/pathfinding';
 import { useLoading } from './store/loading';
 import 'config/tailwind/tailwind.css';
 
@@ -10,7 +10,7 @@ enum Mode {
 }
 
 const ALGORITHM_VISUALIZER_MAP = {
-    [Mode.PATHFINDER]: <PathfindingAlgorithms />,
+    [Mode.PATHFINDER]: <PathfinderVisualizer />,
     [Mode.DRAW]: <h1>NOT IMPLEMENTED</h1>,
     [Mode.SORT]: <h1>NOT IMPLEMENTED</h1>
 };

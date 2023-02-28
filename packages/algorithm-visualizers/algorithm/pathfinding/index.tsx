@@ -4,9 +4,6 @@ import type {
     SetStateAction
 } from 'react';
 import {
-    useReducer
-} from 'react';
-import {
     useCallback
 } from 'react';
 import {
@@ -16,39 +13,22 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { createRef } from 'react';
 import React, { useMemo, useState } from 'react';
-import type { BeginDFS } from './algorithm/dfs';
-import { resetDFS } from './algorithm/dfs';
-import { beginDFS } from './algorithm/dfs';
 import Grid from './grid/grid';
 import FieldRangeInput from 'ui/FieldRangeInput';
 import { StateButton } from './state-button';
 import { PathfinderState } from './state';
-import { BFSDirection } from './algorithm/bfs/direction';
-import { BFSOptions } from './algorithm/bfs/options';
-import type { BeginBFS } from './algorithm/bfs';
-import { beginBFS } from './algorithm/bfs';
-import { resetBFS } from './algorithm/bfs/';
 import type { Coordinate } from '../../util/common';
 import { forEachNode } from '../../util/common';
 import { useLoading } from '../../store/loading';
-import { DFSDirection } from './algorithm/dfs/direction';
-import { DFSOptions } from './algorithm/dfs/options';
-import type { BeginDijkstra } from './algorithm/dijkstra';
-import { resetDijkstra } from './algorithm/dijkstra';
-import { beginDijkstra } from './algorithm/dijkstra';
-import { dijkstraDefaultOptions, DijkstraOptions } from './algorithm/dijkstra/options';
-import { beginDFSObstructionGenerator } from './obstruction-generator/dfs';
-import { beginRandomObstructionGenerator } from './obstruction-generator/random';
+import { dijkstraDefaultOptions } from './algorithm/dijkstra/options';
 
 import {
     DEFAULT_OBSTRUCTION_GENERATOR,
     ObstructionGenerator,
-    OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP,
     OBSTRUCTION_GENERATOR_MAP,
-    OBSTRUCTION_GENERATOR_OPTIONS_MAP,
     useObstructionGeneratorOptions
 } from './obstruction-generator';
-import { Pathfinder } from './algorithm';
+import { Pathfinder, PATHFINDER_MAP, RESET_MAP, usePathfinderOptions } from './algorithm';
 
 export const enum Dimensions {
     MIN = 5,
@@ -62,27 +42,6 @@ export const enum Delay {
     MAX = 200
 };
 
-const DEFAULT_OPTION = {
-    [Pathfinder.BREADTH_FIRST]: BFSDirection.ORTHOGONAL,
-    [Pathfinder.DEPTH_FIRST]: DFSDirection.TBLR,
-    [Pathfinder.DIJKSTRA]: dijkstraDefaultOptions,
-    [Pathfinder.BIDIRECTIONAL]: undefined
-} as const;
-
-export type PlaceholderElementProps = any;
-export const PlaceholderElement = ({ }: PlaceholderElementProps) => (
-    <h1 className='text-5xl'>
-        Placeholder!
-    </h1>
-);
-
-const ALGORITHM_OPTIONS_MAP = {
-    [Pathfinder.BREADTH_FIRST]: BFSOptions,
-    [Pathfinder.DEPTH_FIRST]: DFSOptions,
-    [Pathfinder.DIJKSTRA]: DijkstraOptions,
-    [Pathfinder.BIDIRECTIONAL]: PlaceholderElement
-} as const;
-
 export type NodeReferences = {
     setIsVisited: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
     setIsHighlighted: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
@@ -91,55 +50,7 @@ export type NodeReferences = {
     reset: MutableRefObject<() => void>
 };
 
-type PathfinderPlaceholder = (...args: any[]) => void;
-type PathFinderMap = {
-    [Pathfinder.BREADTH_FIRST]: BeginBFS,
-    [Pathfinder.DEPTH_FIRST]: BeginDFS,
-    [Pathfinder.DIJKSTRA]: BeginDijkstra,
-    [Pathfinder.BIDIRECTIONAL]: PathfinderPlaceholder
-};
-
-const PATHFINDER_MAP: PathFinderMap = {
-    [Pathfinder.BREADTH_FIRST]: beginBFS,
-    [Pathfinder.DEPTH_FIRST]: beginDFS,
-    [Pathfinder.DIJKSTRA]: beginDijkstra,
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
-    [Pathfinder.BIDIRECTIONAL]: async () => { }
-} as const;
-
-const resetBidirectional = () => null;
-
-export const RESET_MAP = {
-    [Pathfinder.BREADTH_FIRST]: resetBFS,
-    [Pathfinder.DEPTH_FIRST]: resetDFS,
-    [Pathfinder.DIJKSTRA]: resetDijkstra,
-    [Pathfinder.BIDIRECTIONAL]: resetBidirectional
-} as const;
-
-const usePathfinderOptions = (algorithm: Pathfinder) => {
-    const [options, setOptions] = useState(DEFAULT_OPTION[algorithm]);
-
-    useEffect(() => {
-        setOptions(DEFAULT_OPTION[algorithm]);
-    }, [algorithm]);
-
-    const Element = ALGORITHM_OPTIONS_MAP[algorithm];
-
-    return [
-        options,
-        () => <Element options={options} setOptions={setOptions} />
-    ] as const;
-};
-
-const PathfindingAlgorithms = () => {
-    // const [gridOptions, setGridOptions] = useReducer({
-    //     rows: Dimensions.DEFAULT,
-    //     columns: Dimensions.DEFAULT,
-    //     algorithm: PathfindingAlgorithm.BREADTH_FIRST,
-    //     origin: { x: 0, y: 0 },
-    //     goal: { x: Dimensions.DEFAULT - 1, y: Dimensions.DEFAULT - 1 }
-    // }, (previous, current) => ({...previous, ...current}))
-
+const PathfinderVisualizer = () => {
     const [rows, setRows] = useState(Dimensions.DEFAULT);
     const [columns, setColumns] = useState(Dimensions.DEFAULT);
     const [pathfinder, setPathfinder] = useState(Pathfinder.BREADTH_FIRST);
@@ -329,7 +240,6 @@ const PathfindingAlgorithms = () => {
                         Generate maze
                     </button>
                     <ObstructionGeneratorOptions />
-
                 </div>
             </fieldset>
             <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4 mb-3 grid gap-2'>
@@ -385,4 +295,4 @@ const PathfindingAlgorithms = () => {
     );
 };
 
-export default PathfindingAlgorithms;
+export default PathfinderVisualizer;

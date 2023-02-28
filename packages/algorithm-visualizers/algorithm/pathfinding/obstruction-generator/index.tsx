@@ -1,4 +1,4 @@
-import { useEffect, useReducer, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 import { beginCAObstructionGenerator } from './cellular-automata';
 import type { CellularAutomataOptions } from './cellular-automata/options';
 import { CA_DEFAULT_OPTIONS } from './cellular-automata/options';
@@ -44,7 +44,7 @@ export const useObstructionGeneratorOptions = (generator: ObstructionGenerator) 
         setOptions(OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP[generator]);
     }, [generator]);
 
-    const Element = OBSTRUCTION_GENERATOR_OPTIONS_MAP[generator]; //@ts-ignore
+    const Element = OBSTRUCTION_GENERATOR_OPTIONS_MAP[generator];
 
     return [
         options, // @ts-ignore
