@@ -34,4 +34,13 @@
 
 // export default Messages;
 
-export { default } from '@local/messages';
+// export { default } from '@local/messages';
+
+import dynamic from 'next/dynamic';
+
+// @ts-ignore
+export default dynamic(() => import('messages/messages'));
+// @ts-ignore
+// eslint-disable-next-line max-len
+// eslint-disable-next-line @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
+// export default dynamic(() => window['@local/messages'].get('./messages').then((factory: () => any) => factory()));

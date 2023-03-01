@@ -16,7 +16,6 @@ export type MessagePageProps = {
     nextCursor: string | undefined
 };
 
-// @ts-ignore
 export const getServerSideProps: GetServerSideProps<MessagePageProps> = async ({ req, res }) => {
     // @ts-ignore
     const ctx = await createTRPCContext({ req, res });
@@ -29,16 +28,11 @@ export const getServerSideProps: GetServerSideProps<MessagePageProps> = async ({
     };
 };
 
-
-// const Messages = ({ data, nextCursor }: MessagePageProps) => <MessagesPage data={data} nextCursor={nextCursor} />;
-
 const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
     const [messages, setMessages] = useState(data);
     const sentinelRef = useRef<HTMLDivElement>(null);
     const [messagesContainerRef] = useAutoAnimate();
 
-
-    // FIXME
     const { fetchNextPage, hasNextPage } = api.message.infiniteMessages.useInfiniteQuery({}, {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
         onSuccess(data) {
@@ -85,7 +79,6 @@ const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
 
         return () => sentinel.disconnect();
     }, [fetchInfiniteQuery]);
-
 
     if (!messages) {
         return (
