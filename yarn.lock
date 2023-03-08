@@ -423,6 +423,72 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@module-federation/nextjs-mf@npm:^6.1.4":
+  version: 6.1.4
+  resolution: "@module-federation/nextjs-mf@npm:6.1.4"
+  dependencies:
+    "@module-federation/node": "*"
+    "@module-federation/utilities": 1.3.0
+    encoding: 0.1.13
+    eventemitter3: 4.0.7
+    fast-glob: ^3.2.12
+    node-fetch: 2.6.7
+    webpack-sources: 3.2.3
+  peerDependencies:
+    next: ^12 || ^13
+    react: ^17 || ^18
+    react-dom: ^17 || ^18
+    styled-jsx: "*"
+    webpack: ^5.40.0
+  peerDependenciesMeta:
+    styled-jsx:
+      optional: true
+  checksum: cfc796eb32988c2e1080a01513382ef49a7f8ef178a84c3d6bf923d04b44a8fdee87f9309bc3b0cd40c2bc1090fedec8dcea0b19d4c83358745db2823bd7f2ed
+  languageName: node
+  linkType: hard
+
+"@module-federation/node@npm:*":
+  version: 0.11.1
+  resolution: "@module-federation/node@npm:0.11.1"
+  dependencies:
+    "@module-federation/utilities": 1.3.0
+    encoding: 0.1.13
+    node-fetch: 2.6.7
+  peerDependencies:
+    next: ^12||^13
+    react: ^16||^17||^18
+    react-dom: ^16||^17||^18
+    webpack: ^5.40.0
+  peerDependenciesMeta:
+    next:
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 12b1f11b6812bd3dc6d648eb7a5c73724d809932fafac030d1981ab52580e73f56805f087a05645a7fd95997497dfae4e5537fadd30722f2605ba19692d4d8e6
+  languageName: node
+  linkType: hard
+
+"@module-federation/utilities@npm:1.3.0":
+  version: 1.3.0
+  resolution: "@module-federation/utilities@npm:1.3.0"
+  peerDependencies:
+    next: ^12 || ^13
+    react: ^16 || ^17 || ^18
+    react-dom: ^16 || ^17 || ^18
+    webpack: ^5.40.0
+  peerDependenciesMeta:
+    next:
+      optional: true
+    react:
+      optional: true
+    react-dom:
+      optional: true
+  checksum: 29b283a9f66a26b9839f529186e0e6d7480a4940fb2f75492571535ae429d7f814df7a8c32ae5e0658df89377c302c8babbf3129d3cc6926c119ee1363fa8033
+  languageName: node
+  linkType: hard
+
 "@next-auth/prisma-adapter@npm:^1.0.5":
   version: 1.0.5
   resolution: "@next-auth/prisma-adapter@npm:1.0.5"
@@ -1960,7 +2026,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"encoding@npm:^0.1.13":
+"encoding@npm:0.1.13, encoding@npm:^0.1.13":
   version: 0.1.13
   resolution: "encoding@npm:0.1.13"
   dependencies:
@@ -2501,11 +2567,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"eventemitter3@npm:4.0.7":
+  version: 4.0.7
+  resolution: "eventemitter3@npm:4.0.7"
+  checksum: 1875311c42fcfe9c707b2712c32664a245629b42bb0a5a84439762dd0fd637fc54d078155ea83c2af9e0323c9ac13687e03cfba79b03af9f40c89b4960099374
+  languageName: node
+  linkType: hard
+
 "example-messages@workspace:*, example-messages@workspace:apps/example-messages":
   version: 0.0.0-use.local
   resolution: "example-messages@workspace:apps/example-messages"
   dependencies:
     "@formkit/auto-animate": 1.0.0-beta.6
+    "@module-federation/nextjs-mf": ^6.1.4
     "@next-auth/prisma-adapter": ^1.0.5
     "@prisma/client": ^4.11.0
     "@tanstack/react-query": ^4.26.1
@@ -2549,6 +2623,7 @@ __metadata:
   resolution: "examples@workspace:apps/examples"
   dependencies:
     "@formkit/auto-animate": 1.0.0-beta.6
+    "@module-federation/nextjs-mf": ^6.1.4
     "@tanstack/react-query": ^4.20.0
     "@types/lodash": ^4.14.191
     "@types/node": ^18.11.18
@@ -4049,6 +4124,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"node-fetch@npm:2.6.7":
+  version: 2.6.7
+  resolution: "node-fetch@npm:2.6.7"
+  dependencies:
+    whatwg-url: ^5.0.0
+  peerDependencies:
+    encoding: ^0.1.0
+  peerDependenciesMeta:
+    encoding:
+      optional: true
+  checksum: 8d816ffd1ee22cab8301c7756ef04f3437f18dace86a1dae22cf81db8ef29c0bf6655f3215cb0cdb22b420b6fe141e64b26905e7f33f9377a7fa59135ea3e10b
+  languageName: node
+  linkType: hard
+
 "node-gyp@npm:latest":
   version: 9.3.1
   resolution: "node-gyp@npm:9.3.1"
@@ -5274,6 +5363,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"tr46@npm:~0.0.3":
+  version: 0.0.3
+  resolution: "tr46@npm:0.0.3"
+  checksum: 726321c5eaf41b5002e17ffbd1fb7245999a073e8979085dacd47c4b4e8068ff5777142fc6726d6ca1fd2ff16921b48788b87225cbc57c72636f6efa8efbffe3
+  languageName: node
+  linkType: hard
+
 "ts-node@npm:^10.9.1":
   version: 10.9.1
   resolution: "ts-node@npm:10.9.1"
@@ -5583,6 +5679,30 @@ __metadata:
   version: 2.3.0
   resolution: "v8-compile-cache@npm:2.3.0"
   checksum: adb0a271eaa2297f2f4c536acbfee872d0dd26ec2d76f66921aa7fc437319132773483344207bdbeee169225f4739016d8d2dbf0553913a52bb34da6d0334f8e
+  languageName: node
+  linkType: hard
+
+"webidl-conversions@npm:^3.0.0":
+  version: 3.0.1
+  resolution: "webidl-conversions@npm:3.0.1"
+  checksum: c92a0a6ab95314bde9c32e1d0a6dfac83b578f8fa5f21e675bc2706ed6981bc26b7eb7e6a1fab158e5ce4adf9caa4a0aee49a52505d4d13c7be545f15021b17c
+  languageName: node
+  linkType: hard
+
+"webpack-sources@npm:3.2.3":
+  version: 3.2.3
+  resolution: "webpack-sources@npm:3.2.3"
+  checksum: 989e401b9fe3536529e2a99dac8c1bdc50e3a0a2c8669cbafad31271eadd994bc9405f88a3039cd2e29db5e6d9d0926ceb7a1a4e7409ece021fe79c37d9c4607
+  languageName: node
+  linkType: hard
+
+"whatwg-url@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "whatwg-url@npm:5.0.0"
+  dependencies:
+    tr46: ~0.0.3
+    webidl-conversions: ^3.0.0
+  checksum: b8daed4ad3356cc4899048a15b2c143a9aed0dfae1f611ebd55073310c7b910f522ad75d727346ad64203d7e6c79ef25eafd465f4d12775ca44b90fa82ed9e2c
   languageName: node
   linkType: hard
 
