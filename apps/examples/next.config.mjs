@@ -1,6 +1,6 @@
 // @ts-check
 
-import NextFederationPlugin from '@module-federation/nextjs-mf';
+import { NextFederationPlugin } from '@module-federation/nextjs-mf';
 
 /** @type {import("next").NextConfig} */
 const config = {

@@ -1,6 +1,6 @@
 // @ts-check
 
-import NextFederationPlugin from '@module-federation/nextjs-mf';
+import { NextFederationPlugin } from '@module-federation/nextjs-mf';
 
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
