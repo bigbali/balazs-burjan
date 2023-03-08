@@ -2632,7 +2632,7 @@ __metadata:
     "@types/react-dom": ^18.0.10
     algorithm-visualizers: "workspace:*"
     autoprefixer: ^10.4.7
-    config: "*"
+    config: "workspace:*"
     eslint: ^8.30.0
     eslint-config-next: 13.1.6
     example-messages: "workspace:*"
@@ -2649,7 +2649,7 @@ __metadata:
     ts-node: ^10.9.1
     tsconfig: "workspace:*"
     typescript: ^4.9.5
-    ui: "*"
+    ui: "workspace:*"
     util: "workspace:*"
     zod: ^3.20.2
     zustand: ^4.3.3

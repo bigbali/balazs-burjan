@@ -1,6 +1,10 @@
 // @ts-check
 
-import { NextFederationPlugin } from '@module-federation/nextjs-mf';
+// import { NextFederationPlugin } from '@module-federation/nextjs-mf';
+
+const NextFederationPlugin = await import('@module-federation/nextjs-mf').then(
+    (x) => x.NextFederationPlugin
+);
 
 /** @type {import("next").NextConfig} */
 const config = {

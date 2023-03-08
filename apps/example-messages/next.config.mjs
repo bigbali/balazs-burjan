@@ -2,6 +2,10 @@
 
 import { NextFederationPlugin } from '@module-federation/nextjs-mf';
 
+// const NextFederationPlugin = await import('@module-federation/nextjs-mf').then(
+//     (x) => x.NextFederationPlugin
+// );
+
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
  * This is especially useful for Docker builds.
