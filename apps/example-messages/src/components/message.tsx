@@ -1,7 +1,7 @@
 import { useSession } from 'next-auth/react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useRef, useState } from 'react';
-import type { MessageWithAuthor } from '../pages/messages';
+import type { MessageWithAuthor } from '../pages';
 import { api } from '../utils/api';
 
 type MessageProps = MessageWithAuthor & { setMessages: Dispatch<SetStateAction<MessageWithAuthor[] | undefined>> };

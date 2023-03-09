@@ -5,6 +5,8 @@
 // import { appRouter } from '../../../server/api/root';
 // import { createTRPCContext } from '../../../server/api/trpc';
 
+import dynamic from 'next/dynamic';
+
 // import dynamic from 'next/dynamic';
 
 // export type MessageWithAuthor = Message & { author: User };
@@ -35,10 +37,10 @@
 
 // export default Messages;
 
-// export default dynamic(() => import('example-messages/src/pages/messages'));
+export default dynamic(() => import('examplemessages/messages'), { ssr: false });
 
-export default function F() {
-    return <h1>
-        this
-    </h1>;
-}
+// export default function F() {
+//     return <h1>
+//         this
+//     </h1>;
+// }

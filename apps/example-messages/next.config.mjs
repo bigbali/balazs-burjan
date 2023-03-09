@@ -2,10 +2,6 @@
 
 import { NextFederationPlugin } from '@module-federation/nextjs-mf';
 
-// const NextFederationPlugin = await import('@module-federation/nextjs-mf').then(
-//     (x) => x.NextFederationPlugin
-// );
-
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
  * This is especially useful for Docker builds.
@@ -20,7 +16,7 @@ const config = {
         config.plugins.push(
             new NextFederationPlugin({
                 // @ts-ignore
-                name: 'example-messages',
+                name: 'examplemessages',
                 remotes: {
                     examples: `examples@http://localhost:3000/_next/static/${
                         isServer ? 'ssr' : 'chunks'
@@ -28,11 +24,32 @@ const config = {
                 },
                 filename: 'static/chunks/remoteEntry.js',
                 exposes: {
-                    './messages': './src/pages/messages.tsx'
+                    './messages': './src/pages/index.tsx'
                 },
                 shared: {
                     // whatever else
-                }
+                    'next-auth': {
+                        singleton: true,
+                        eager: true
+                    },
+                    '@trpc/client': {
+                        singleton: true,
+                        eager: true
+                    },
+                    '@trpc/next': {
+                        singleton: true
+                        // eager: true
+                    },
+                    '@trpc/react-query': {
+                        singleton: true
+                        // eager: true
+                    },
+                    '@trpc/server': {
+                        singleton: true,
+                        eager: true
+                    }
+                },
+                extraOptions: {}
             })
         );
 

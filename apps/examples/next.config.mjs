@@ -1,10 +1,6 @@
 // @ts-check
 
-// import { NextFederationPlugin } from '@module-federation/nextjs-mf';
-
-const NextFederationPlugin = await import('@module-federation/nextjs-mf').then(
-    (x) => x.NextFederationPlugin
-);
+import { NextFederationPlugin } from '@module-federation/nextjs-mf';
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -17,10 +13,11 @@ const config = {
                 name: 'examples',
                 filename: 'static/chunks/remoteEntry.js',
                 remotes: {
-                    'example-messages': `example-messages@http://localhost:3001/_next/static/${
+                    examplemessages: `examplemessages@http://localhost:3001/_next/static/${
                         isServer ? 'ssr' : 'chunks'
                     }/remoteEntry.js`
-                }
+                },
+                extraOptions: {}
             })
         );
 
