@@ -1,29 +1,5 @@
-// @ts-check
-
-import { NextFederationPlugin } from '@module-federation/nextjs-mf';
-
 /** @type {import("next").NextConfig} */
 const config = {
-    webpack(config, options) {
-        const { isServer } = options;
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-        config.plugins.push(
-            new NextFederationPlugin({
-                // @ts-ignore
-                name: 'examples',
-                filename: 'static/chunks/remoteEntry.js',
-                remotes: {
-                    examplemessages: `examplemessages@http://localhost:3001/_next/static/${
-                        isServer ? 'ssr' : 'chunks'
-                    }/remoteEntry.js`
-                },
-                extraOptions: {}
-            })
-        );
-
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-        return config;
-    },
     reactStrictMode: false,
     /**
      * If you have the "experimental: { appDir: true }" setting enabled, then you

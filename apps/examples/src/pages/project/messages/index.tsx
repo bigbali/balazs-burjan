@@ -32,12 +32,15 @@ import dynamic from 'next/dynamic';
 //     };
 // };
 
+import MessagesPage from 'example-messages/src/pages/index';
+
 
 // const Messages = ({ data, nextCursor }: MessagePageProps) => <MessagesPage data={data} nextCursor={nextCursor} />;
 
 // export default Messages;
 
-export default dynamic(() => import('examplemessages/messages'), { ssr: false });
+// export default dynamic(() => import('examplemessages/messages'), { ssr: false });
+export default MessagesPage;
 
 // export default function F() {
 //     return <h1>
