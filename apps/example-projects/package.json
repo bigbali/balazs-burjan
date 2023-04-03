@@ -19,8 +19,8 @@
         "@trpc/react-query": "^10.9.0",
         "@trpc/server": "^10.9.0",
         "@types/ws": "^8.5.4",
-        "algorithm-visualizers": "*",
-        "config": "*",
+        "algorithm-visualizers": "workspace:*",
+        "config": "workspace:*",
         "lodash": "^4.17.21",
         "next": "13.1.6",
         "next-auth": "^4.19.0",
@@ -29,7 +29,7 @@
         "react-dom": "18.2.0",
         "superjson": "1.9.1",
         "ts-node": "^10.9.1",
-        "ui": "*",
+        "ui": "workspace:*",
         "zod": "^3.20.2",
         "zustand": "^4.3.3"
     },
@@ -47,11 +47,11 @@
         "prettier-plugin-tailwindcss": "^0.2.1",
         "prisma": "^4.9.0",
         "tailwindcss": "^3.2.7",
-        "tsconfig": "*",
+        "tsconfig": "workspace:*",
         "typescript": "^4.9.5",
-        "util": "*"
+        "util": "workspace:*"
     },
-    "packageManager": "yarn@3.4.1",
+    "packageManager": "yarn@3.5.0",
     "prisma": {
         "seed": "yarn dlx ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
     }

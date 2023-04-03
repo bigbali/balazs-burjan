@@ -9,18 +9,6 @@
 /** @type {import("next").NextConfig} */
 const config = {
     reactStrictMode: false,
-    sassOptions: {
-        additionalData: (/** @type {string} */ content) => {
-            // put something in here and all .scss files will have it
-            const importAutomatically = [
-                '@import "src/style/mixin.scss";',
-                '@import "src/style/function.scss";'
-            ];
-
-            return importAutomatically.join('').concat(content);
-        }
-    },
-
     /**
      * If you have the "experimental: { appDir: true }" setting enabled, then you
      * must comment the below `i18n` config out.
@@ -34,7 +22,7 @@ const config = {
     experimental: {
         swcPlugins: [['next-superjson-plugin', {}]]
     },
-    transpilePackages: ['ui', 'algorithms', 'util']
+    transpilePackages: ['ui', 'algorithm-visualizers', 'util']
 };
 
 export default config;

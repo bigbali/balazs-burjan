@@ -28,7 +28,8 @@ const Grid = ({ data }: GridProps) => {
     } = data;
 
     // theoretically, this is the most performant way, and we need this performance in this case
-    const elements = [];
+    const elements = new Array(rows);
+
     for (let row = 0; row < rows; row++) {
         elements.push(
             <Row
