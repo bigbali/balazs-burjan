@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from 'react';
+import { useState } from 'react';
 import { memo } from 'react';
 import type { Coordinate } from '../../../util/common';
 import type { NodeReferences } from './../index';
@@ -17,6 +18,7 @@ type GridProps = {
 };
 
 const Grid = ({ data }: GridProps) => {
+    const [isFullScreen, setIsFullScreen] = useState(false);
     const {
         columns,
         rows,
@@ -46,15 +48,26 @@ const Grid = ({ data }: GridProps) => {
         );
     }
 
+    const fullscreenClassName = 'absolute inset-16 max-h-screen max-w-screen object-contain';
+
     return (
-        <div
-            className='grid h-full gap-px'
-            style={{
-                gridTemplateColumns: `repeat(${columns}, 1fr)`,
-                gridTemplateRows: `repeat(${rows}, 1fr)`
-            }}
-        >
-            {elements}
+        <div className={`${isFullScreen ? fullscreenClassName : ''}`}>
+            <div className='mx-auto max-h-full max-w-full' style={{ aspectRatio: isFullScreen ? `${columns}/${rows}` : undefined }}>
+                <button className='border border-slate-300 rounded-md px-2 py-1 mb-2'
+                    onClick={() => setIsFullScreen(state => !state)}
+                >
+                    {isFullScreen ? 'Shrink' : 'Enlarge'}
+                </button>
+                <div
+                    className='grid h-full gap-px bg-white'
+                    style={{
+                        gridTemplateColumns: `repeat(${columns}, 1fr)`,
+                        gridTemplateRows: `repeat(${rows}, 1fr)`
+                    }}
+                >
+                    {elements}
+                </div>
+            </div>
         </div>
     );
 };

@@ -27,7 +27,7 @@ const Row = ({ data }: RowProps) => {
         setGoal
     } = data;
 
-    const elements = [];
+    const elements = new Array(columns);
     for (let column = 0; column < columns; column++) {
         elements.push(
             <Node
