@@ -200,22 +200,24 @@ const PathfinderVisualizer = () => {
                     Grid Options
                 </legend>
                 <div className='flex gap-4'>
-                    <FieldRangeInput
-                        label='Rows'
-                        defaultValue={rows}
-                        min={Dimensions.MIN}
-                        max={Dimensions.MAX}
-                        step={1}
-                        onChange={setRowsTransition}
-                    />
-                    <FieldRangeInput
-                        label='Columns'
-                        defaultValue={columns}
-                        min={Dimensions.MIN}
-                        max={Dimensions.MAX}
-                        step={1}
-                        onChange={setColumnsTransition}
-                    />
+                    <div className='grid gap-2'>
+                        <FieldRangeInput
+                            label='Rows'
+                            defaultValue={rows}
+                            min={Dimensions.MIN}
+                            max={Dimensions.MAX}
+                            step={1}
+                            onChange={setRowsTransition}
+                        />
+                        <FieldRangeInput
+                            label='Columns'
+                            defaultValue={columns}
+                            min={Dimensions.MIN}
+                            max={Dimensions.MAX}
+                            step={1}
+                            onChange={setColumnsTransition}
+                        />
+                    </div>
                     <select
                         id='obstruction-generator'
                         className='border border-slate-3 rounded-md capitalize'

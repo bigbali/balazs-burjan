@@ -4,9 +4,11 @@ import { api } from '../../../utils/api';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import Form from './form';
 import Message from './message';
+import { useSession } from 'next-auth/react';
 
 const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
     const [messages, setMessages] = useState(data);
+    const { status } = useSession();
     const sentinelRef = useRef<HTMLDivElement>(null);
     const [messagesContainerRef] = useAutoAnimate();
 
@@ -72,7 +74,19 @@ const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
                 Messages
             </h1>
             <div>
-                <Form onMessageAdded={handleMessageAdded} />
+                {status === 'authenticated' &&
+                    <Form onMessageAdded={handleMessageAdded} />
+                }
+                {status === 'unauthenticated' &&
+                    <>
+                        <h2 className='text-2xl text-center'>
+                            You&apos;re not logged in.
+                        </h2>
+                        <p className='text-lg text-center mb-12'>
+                            If you decide to log in, you&apos;ll be able to post messages :)
+                        </p>
+                    </>
+                }
                 <div className='w-1/2 ml-auto mr-auto' ref={messagesContainerRef}>
                     {messages.map(message => (
                         <Message
