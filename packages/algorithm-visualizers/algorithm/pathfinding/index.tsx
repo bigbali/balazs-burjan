@@ -29,6 +29,7 @@ import {
     useObstructionGeneratorOptions
 } from './obstruction-generator';
 import { Pathfinder, PATHFINDER_MAP, RESET_MAP, usePathfinderOptions } from './algorithm';
+import Expander from 'ui/expander';
 
 export const enum Dimensions {
     MIN = 5,
@@ -78,13 +79,12 @@ const PathfinderVisualizer = () => {
     useEffect(() => { stateRef.current = state; }, [state]);
 
     const nodes = useMemo(() => {
-        const refs: NodeReferences[][] = [];
+        const refs = new Array<NodeReferences[]>(rows);
         for (let y = 0; y < rows; y++) {
-            const row: NodeReferences[] = [];
-            refs.push(row);
+            const row = new Array<NodeReferences>(columns);
 
             for (let x = 0; x < columns; x++) {
-                row.push({
+                row[x] = {
                     setIsVisited: createRef() as MutableRefObject<
                         Dispatch<SetStateAction<boolean>>
                     >,
@@ -94,8 +94,10 @@ const PathfinderVisualizer = () => {
                     obstruction: createRef() as MutableRefObject<[boolean, Dispatch<SetStateAction<boolean>>]>,
                     weight: createRef() as MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>,
                     reset: createRef() as MutableRefObject<() => void>
-                });
+                };
             }
+
+            refs[y] = row;
         }
 
         return refs;
@@ -155,6 +157,7 @@ const PathfinderVisualizer = () => {
         });
     };
 
+    // TODO switch
     const handleStart = async () => {
         if (state === PathfinderState.STOPPED) {
             updateState(PathfinderState.RUNNING);
@@ -194,73 +197,43 @@ const PathfinderVisualizer = () => {
     };
 
     return (
-        <div className='flex gap-4 flex-col'>
-            <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4'>
-                <legend className='text-center px-4'>
-                    Grid Options
-                </legend>
-                <div className='flex gap-4'>
-                    <div className='grid gap-2'>
-                        <FieldRangeInput
-                            label='Rows'
-                            defaultValue={rows}
-                            min={Dimensions.MIN}
-                            max={Dimensions.MAX}
-                            step={1}
-                            onChange={setRowsTransition}
-                        />
-                        <FieldRangeInput
-                            label='Columns'
-                            defaultValue={columns}
-                            min={Dimensions.MIN}
-                            max={Dimensions.MAX}
-                            step={1}
-                            onChange={setColumnsTransition}
-                        />
-                    </div>
-                    <select
-                        id='obstruction-generator'
-                        className='border border-slate-3 rounded-md capitalize'
-                        value={obstructionGenerator}
-                        onChange={(e) => setObstructionGenerator(e.currentTarget.value as ObstructionGenerator)}
-                    >
-                        {Object.values(ObstructionGenerator).map((value) => {
-                            return (
-                                <option
-                                    key={value}
-                                    value={value}
-                                    className='capitalize'
-                                >
-                                    {value}
-                                </option>
-                            );
-                        })}
-                    </select>
-                    <button
-                        className='bg-slate-700 text-white font-medium px-4 py-2 rounded-lg'
-                        onClick={() => void runOG()}>
-                        Generate maze
-                    </button>
-                    <ObstructionGeneratorOptions />
-                </div>
-            </fieldset>
-            <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4 mb-3 grid gap-2'>
-                <legend className='text-center px-4'>
-                    Algorithm Options
-                </legend>
-                <div className='flex gap-4'>
-                    <div>
-                        <div className='flex gap-2'>
-                            <label htmlFor='algorithm' className='capitalize'>
-                                Algorithm
-                            </label>
+        <div className='flex gap-4 justify-between'>
+            <Grid data={gridData} />
+            <div className='flex flex-col gap-4 border-slate-300 border rounded-lg w-1/4 min-w-fit p-2'>
+                <Expander
+                    className='border-slate-300'
+                    label='Grid'
+                    open>
+                    <fieldset className='border rounded-lg px-4 pt-3 pb-4'>
+                        <legend className='text-center px-4 hidden'>
+                            Grid Options
+                        </legend>
+                        <div className='flex flex-col gap-4'>
+                            <div className='grid gap-2'>
+                                <FieldRangeInput
+                                    label='Rows'
+                                    defaultValue={rows}
+                                    min={Dimensions.MIN}
+                                    max={Dimensions.MAX}
+                                    step={1}
+                                    onChange={setRowsTransition}
+                                />
+                                <FieldRangeInput
+                                    label='Columns'
+                                    defaultValue={columns}
+                                    min={Dimensions.MIN}
+                                    max={Dimensions.MAX}
+                                    step={1}
+                                    onChange={setColumnsTransition}
+                                />
+                            </div>
                             <select
-                                id='algorithm'
+                                id='obstruction-generator'
                                 className='border border-slate-3 rounded-md capitalize'
-                                value={pathfinder}
-                                onChange={(e) => setPathfinder(e.currentTarget.value as Pathfinder)}
+                                value={obstructionGenerator}
+                                onChange={(e) => setObstructionGenerator(e.currentTarget.value as ObstructionGenerator)}
                             >
-                                {Object.values(Pathfinder).map((value) => {
+                                {Object.values(ObstructionGenerator).map((value) => {
                                     return (
                                         <option
                                             key={value}
@@ -272,27 +245,66 @@ const PathfinderVisualizer = () => {
                                     );
                                 })}
                             </select>
+                            <button
+                                className='bg-slate-700 text-white font-medium px-4 py-2 rounded-lg'
+                                onClick={() => void runOG()}>
+                                Generate maze
+                            </button>
+                            <ObstructionGeneratorOptions />
                         </div>
-                    </div>
-                    <FieldRangeInput
-                        label='Delay (ms)'
-                        defaultValue={Delay.DEFAULT}
-                        min={Delay.MIN}
-                        max={Delay.MAX}
-                        step={1}
-                        onChange={(velocity) => (velocityRef.current = velocity)}
-                        debounceRange={false}
-                    />
-                </div>
-                <PathfinderOptions />
-                <div className='flex gap-2'>
-                    <StateButton state={state} disable={!!result} onClick={() => void handleStart()} />
-                    <button className='bg-red-700 text-white font-medium px-4 py-2 rounded-lg' onClick={handleReset}>
-                        Reset
-                    </button>
-                </div>
-            </fieldset>
-            <Grid data={gridData} />
+                    </fieldset>
+                </Expander>
+                <Expander label='Algorithm'>
+                    <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4 mb-3 grid gap-2'>
+                        <legend className='text-center px-4'>
+                            Algorithm Options
+                        </legend>
+                        <div className='flex flex-col gap-4'>
+                            <div>
+                                <div className='flex gap-2'>
+                                    <label htmlFor='algorithm' className='capitalize'>
+                                        Algorithm
+                                    </label>
+                                    <select
+                                        id='algorithm'
+                                        className='border border-slate-3 rounded-md capitalize'
+                                        value={pathfinder}
+                                        onChange={(e) => setPathfinder(e.currentTarget.value as Pathfinder)}
+                                    >
+                                        {Object.values(Pathfinder).map((value) => {
+                                            return (
+                                                <option
+                                                    key={value}
+                                                    value={value}
+                                                    className='capitalize'
+                                                >
+                                                    {value}
+                                                </option>
+                                            );
+                                        })}
+                                    </select>
+                                </div>
+                            </div>
+                            <FieldRangeInput
+                                label='Delay (ms)'
+                                defaultValue={Delay.DEFAULT}
+                                min={Delay.MIN}
+                                max={Delay.MAX}
+                                step={1}
+                                onChange={(velocity) => (velocityRef.current = velocity)}
+                                debounceRange={false}
+                            />
+                        </div>
+                        <PathfinderOptions />
+                        <div className='flex gap-2'>
+                            <StateButton state={state} disable={!!result} onClick={() => void handleStart()} />
+                            <button className='bg-red-700 text-white font-medium px-4 py-2 rounded-lg' onClick={handleReset}>
+                                Reset
+                            </button>
+                        </div>
+                    </fieldset>
+                </Expander>
+            </div>
         </div>
     );
 };

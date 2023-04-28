@@ -19,6 +19,7 @@ type GridProps = {
 
 const Grid = ({ data }: GridProps) => {
     const [isFullScreen, setIsFullScreen] = useState(false);
+    const [isContained, setIsContained] = useState(true);
     const {
         columns,
         rows,
@@ -49,14 +50,20 @@ const Grid = ({ data }: GridProps) => {
     }
 
     const fullscreenClassName = 'absolute inset-16 max-h-screen max-w-screen object-contain';
+    const containedClassName = 'absolute max-h-screen max-w-screen ';
 
     return (
-        <div className={`${isFullScreen ? fullscreenClassName : ''}`}>
-            <div className='mx-auto max-h-full max-w-full' style={{ aspectRatio: isFullScreen ? `${columns}/${rows}` : undefined }}>
+        <div /* className={`${isFullScreen ? fullscreenClassName : isContained ? containedClassName : ''}`} */>
+            <div className='mx-auto max-h-full max-w-full' style={{ aspectRatio: `${columns}/${rows}` }}>
                 <button className='border border-slate-300 rounded-md px-2 py-1 mb-2'
                     onClick={() => setIsFullScreen(state => !state)}
                 >
                     {isFullScreen ? 'Shrink' : 'Enlarge'}
+                </button>
+                <button className='border border-slate-300 rounded-md px-2 py-1 mb-2'
+                    onClick={() => setIsContained(state => !state)}
+                >
+                    {isContained ? 'Disable contain' : 'Enable contain'}
                 </button>
                 <div
                     className='grid h-full gap-px bg-white'

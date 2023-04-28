@@ -131,7 +131,7 @@ const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
                     Manual
                 </option>
             </select>
-            <div className='flex gap-2 flex-wrap'>
+            <div className='flex flex-col flex-wrap gap-2'>
                 {options.initialPattern.type === 'random' && (
                     <FieldRangeInput
                         label='Probability'
