@@ -51,7 +51,11 @@ export type NodeReferences = {
     reset: MutableRefObject<() => void>
 };
 
-const PathfinderVisualizer = () => {
+type PathfinderVisualizerProps = {
+    modeSelector: JSX.Element
+};
+
+const PathfinderVisualizer: React.FC<PathfinderVisualizerProps> = ({ modeSelector }) => {
     const [rows, setRows] = useState(Dimensions.DEFAULT);
     const [columns, setColumns] = useState(Dimensions.DEFAULT);
     const [pathfinder, setPathfinder] = useState(Pathfinder.BREADTH_FIRST);
@@ -70,6 +74,8 @@ const PathfinderVisualizer = () => {
 
     const velocityRef = useRef(Delay.DEFAULT);
     const stateRef = useRef(state);
+
+    const [isMenuExpanded, setIsMenuExpanded] = useState(true);
 
     const setRowsTransition = useCallback((value: number) => startTransition(() => setRows(value)), []);
     const setColumnsTransition = useCallback((value: number) => startTransition(() => setColumns(value)), []);
@@ -123,6 +129,8 @@ const PathfinderVisualizer = () => {
             pathfinderOptions.goal = goal;
         }
     }, [pathfinderOptions, nodes, goal]);
+
+    // TODO remove when finished
     //@ts-ignore
     global.NODES = nodes;
 
@@ -196,82 +204,81 @@ const PathfinderVisualizer = () => {
         });
     };
 
-    return (
-        <div className='flex gap-4 justify-between'>
-            <Grid data={gridData} />
-            <div className='flex flex-col gap-4 border-slate-300 border rounded-lg w-1/4 min-w-fit p-2'>
-                <Expander
-                    className='border-slate-300'
-                    label='Grid'
-                    open>
-                    <fieldset className='border rounded-lg px-4 pt-3 pb-4'>
-                        <legend className='text-center px-4 hidden'>
-                            Grid Options
-                        </legend>
-                        <div className='flex flex-col gap-4'>
-                            <div className='grid gap-2'>
-                                <FieldRangeInput
-                                    label='Rows'
-                                    defaultValue={rows}
-                                    min={Dimensions.MIN}
-                                    max={Dimensions.MAX}
-                                    step={1}
-                                    onChange={setRowsTransition}
-                                />
-                                <FieldRangeInput
-                                    label='Columns'
-                                    defaultValue={columns}
-                                    min={Dimensions.MIN}
-                                    max={Dimensions.MAX}
-                                    step={1}
-                                    onChange={setColumnsTransition}
-                                />
-                            </div>
-                            <select
-                                id='obstruction-generator'
-                                className='border border-slate-3 rounded-md capitalize'
-                                value={obstructionGenerator}
-                                onChange={(e) => setObstructionGenerator(e.currentTarget.value as ObstructionGenerator)}
-                            >
-                                {Object.values(ObstructionGenerator).map((value) => {
-                                    return (
-                                        <option
-                                            key={value}
-                                            value={value}
-                                            className='capitalize'
-                                        >
-                                            {value}
-                                        </option>
-                                    );
-                                })}
-                            </select>
-                            <button
-                                className='bg-slate-700 text-white font-medium px-4 py-2 rounded-lg'
-                                onClick={() => void runOG()}>
-                                Generate maze
-                            </button>
-                            <ObstructionGeneratorOptions />
-                        </div>
-                    </fieldset>
-                </Expander>
-                <Expander label='Algorithm'>
-                    <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4 mb-3 grid gap-2'>
-                        <legend className='text-center px-4'>
-                            Algorithm Options
-                        </legend>
-                        <div className='flex flex-col gap-4'>
-                            <div>
-                                <div className='flex gap-2'>
-                                    <label htmlFor='algorithm' className='capitalize'>
-                                        Algorithm
-                                    </label>
+    let settingsContents: JSX.Element;
+
+    if (!isMenuExpanded) {
+        settingsContents = (
+            <div className='flex justify-between'>
+                <button
+                    className='flex flex-col justify-center bg-slate-100 cursor-pointer'
+                    onClick={() => setIsMenuExpanded(state => !state)}
+                >
+                    {/* eslint-disable-next-line max-len */}
+                    <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={1.5} stroke='currentColor' className='w-6 h-6'>
+                        {/* eslint-disable-next-line max-len */}
+                        <path strokeLinecap='round' strokeLinejoin='round' d='M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75' />
+                    </svg>
+                </button>
+            </div>
+        );
+    } else {
+        settingsContents = (
+            <div
+                className='flex flex-col gap-4 bg-white border-slate-300 border rounded-lg w-1/4 min-w-fit h-full p-2'
+            >
+                <div className='flex justify-between'>
+                    {modeSelector}
+                    <button
+                        className='flex flex-col justify-center bg-slate-100 cursor-pointer'
+                        onClick={() => setIsMenuExpanded(state => !state)}
+                    >
+                        {/* eslint-disable-next-line max-len */}
+                        <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={1.5} stroke='currentColor' className='w-6 h-6'>
+                            <path strokeLinecap='round' strokeLinejoin='round' d='M6 18L18 6M6 6l12 12' />
+                        </svg>
+
+                    </button>
+                </div>
+                <div className='flex flex-col justify-between h-full'>
+                    <div className='flex flex-col gap-2'>
+                        <Expander
+                            label='Grid'
+                            openInitial
+                        >
+                            <fieldset className='px-4 pt-3 pb-4'>
+                                <legend className='text-center px-4 hidden'>
+                                    Grid Options
+                                </legend>
+                                <div className='flex flex-col gap-4'>
+                                    <div className='grid gap-2'>
+                                        <FieldRangeInput
+                                            label='Rows'
+                                            defaultValue={rows}
+                                            min={Dimensions.MIN}
+                                            max={Dimensions.MAX}
+                                            step={1}
+                                            className='flex gap-2'
+                                            fieldStyle={{ marginLeft: 'auto' }}
+                                            onChange={setRowsTransition}
+                                        />
+                                        <FieldRangeInput
+                                            label='Columns'
+                                            defaultValue={columns}
+                                            min={Dimensions.MIN}
+                                            max={Dimensions.MAX}
+                                            step={1}
+                                            className='flex gap-2'
+                                            fieldStyle={{ marginLeft: 'auto' }}
+                                            onChange={setColumnsTransition}
+                                        />
+                                    </div>
                                     <select
-                                        id='algorithm'
+                                        id='obstruction-generator'
                                         className='border border-slate-3 rounded-md capitalize'
-                                        value={pathfinder}
-                                        onChange={(e) => setPathfinder(e.currentTarget.value as Pathfinder)}
+                                        value={obstructionGenerator}
+                                        onChange={(e) => setObstructionGenerator(e.currentTarget.value as ObstructionGenerator)}
                                     >
-                                        {Object.values(Pathfinder).map((value) => {
+                                        {Object.values(ObstructionGenerator).map((value) => {
                                             return (
                                                 <option
                                                     key={value}
@@ -283,27 +290,78 @@ const PathfinderVisualizer = () => {
                                             );
                                         })}
                                     </select>
+                                    <ObstructionGeneratorOptions />
+                                    <button
+                                        className='bg-slate-700 text-white font-medium px-4 py-2 rounded-lg'
+                                        onClick={() => void runOG()}>
+                                        Generate maze
+                                    </button>
                                 </div>
-                            </div>
-                            <FieldRangeInput
-                                label='Delay (ms)'
-                                defaultValue={Delay.DEFAULT}
-                                min={Delay.MIN}
-                                max={Delay.MAX}
-                                step={1}
-                                onChange={(velocity) => (velocityRef.current = velocity)}
-                                debounceRange={false}
-                            />
-                        </div>
-                        <PathfinderOptions />
-                        <div className='flex gap-2'>
-                            <StateButton state={state} disable={!!result} onClick={() => void handleStart()} />
-                            <button className='bg-red-700 text-white font-medium px-4 py-2 rounded-lg' onClick={handleReset}>
-                                Reset
-                            </button>
-                        </div>
-                    </fieldset>
-                </Expander>
+                            </fieldset>
+                        </Expander>
+                        <Expander label='Algorithm'>
+                            <fieldset className='border border-slate-300 rounded-lg px-4 pt-3 pb-4 grid gap-2'>
+                                <legend className='text-center px-4'>
+                                    Algorithm Options
+                                </legend>
+                                <div className='flex flex-col gap-4'>
+                                    <div>
+                                        <div className='flex gap-2'>
+                                            <label htmlFor='algorithm' className='capitalize'>
+                                                Algorithm
+                                            </label>
+                                            <select
+                                                id='algorithm'
+                                                className='border border-slate-3 rounded-md capitalize'
+                                                value={pathfinder}
+                                                onChange={(e) => setPathfinder(e.currentTarget.value as Pathfinder)}
+                                            >
+                                                {Object.values(Pathfinder).map((value) => {
+                                                    return (
+                                                        <option
+                                                            key={value}
+                                                            value={value}
+                                                            className='capitalize'
+                                                        >
+                                                            {value}
+                                                        </option>
+                                                    );
+                                                })}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <FieldRangeInput
+                                        label='Delay (ms)'
+                                        defaultValue={Delay.DEFAULT}
+                                        min={Delay.MIN}
+                                        max={Delay.MAX}
+                                        step={1}
+                                        className='flex gap-2'
+                                        fieldStyle={{ marginLeft: 'auto' }}
+                                        onChange={(velocity) => (velocityRef.current = velocity)}
+                                        debounceRange={false}
+                                    />
+                                </div>
+                                <PathfinderOptions />
+                            </fieldset>
+                        </Expander>
+                    </div>
+                    <div className='flex gap-2'>
+                        <StateButton state={state} disable={!!result} onClick={() => void handleStart()} />
+                        <button className='bg-red-700 text-white font-medium px-4 py-2 rounded-lg' onClick={handleReset}>
+                            Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    return ( // strange stuff, but this needs translate(0) so the contained fixed element is not relative to viewport
+        <div className='relative max-w-full p-2 translate-x-0'>
+            <Grid data={gridData} />
+            <div className='fixed right-2 inset-y-2 h-full'>
+                {settingsContents}
             </div>
         </div>
     );

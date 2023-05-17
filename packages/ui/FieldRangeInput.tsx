@@ -1,8 +1,9 @@
 import { debounce } from 'lodash';
-import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
+import type { ChangeEvent, Dispatch, HTMLAttributes, SetStateAction } from 'react';
 import { memo } from 'react';
 import { useState } from 'react';
 import type { Either } from '../util/type';
+import type { CSSProperties } from 'react';
 
 type BaseFieldRangeInputProps = {
     min: number,
@@ -10,7 +11,10 @@ type BaseFieldRangeInputProps = {
     step: number,
     defaultValue: number,
     debounceRange?: boolean,
-    label: string
+    label: string,
+    labelStyle?: CSSProperties,
+    fieldStyle?: CSSProperties,
+    rangeStyle?: CSSProperties
 };
 
 type GeneralOnChange = {
@@ -27,7 +31,9 @@ type SpecializedOnChange = {
  * If `onChange` is provided, it will be used. Even if you go around the type checker and provide all three
  * methods, `onChange` will override the other two.
  */
-type FieldRangeInputProps = BaseFieldRangeInputProps & Either<GeneralOnChange, SpecializedOnChange>;
+type FieldRangeInputProps = BaseFieldRangeInputProps
+    & Either<GeneralOnChange, SpecializedOnChange>
+    & Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>;
 
 type FieldRangeInputHandlerOptions = {
     event: ChangeEvent<HTMLInputElement>,
@@ -113,7 +119,11 @@ const FieldRangeInput = ({
     label,
     onFieldChange,
     onRangeChange,
-    onChange
+    onChange,
+    labelStyle,
+    fieldStyle,
+    rangeStyle,
+    ...props
 }: FieldRangeInputProps) => {
     const [value, setValue] = useState<number | null>(defaultValue);
 
@@ -125,14 +135,15 @@ const FieldRangeInput = ({
         : onRangeChange;
 
     return (
-        <div className='flex gap-2'>
+        <div {...props}>
             {label && (
-                <label htmlFor='columns'>
+                <label htmlFor='columns' style={labelStyle}>
                     {label}
                 </label>
             )}
             <input
                 className='border border-slate-300 rounded-md text-center'
+                style={fieldStyle}
                 type='number'
                 id='columns'
                 max={max}
@@ -150,6 +161,7 @@ const FieldRangeInput = ({
                 })}
             />
             <input
+                style={rangeStyle}
                 type='range'
                 max={max}
                 min={min}

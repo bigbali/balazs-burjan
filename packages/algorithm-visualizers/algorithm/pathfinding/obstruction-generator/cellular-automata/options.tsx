@@ -103,6 +103,9 @@ const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
                     );
                 })}
             </select>
+            <label htmlFor='ca-initial-pattern'>
+                Starting Pattern
+            </label>
             <select
                 id='ca-initial-pattern'
                 className='border border-slate-3 rounded-md capitalize'
@@ -114,7 +117,8 @@ const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
                         : { type: initialPatternType };
 
                     setOptions({
-                        initialPattern: { ...initialPattern }
+                        initialPattern: { ...initialPattern },
+                        steps: options.steps
                     });
                 }}
             >
@@ -122,13 +126,13 @@ const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
                     value='random'
                     className='capitalize'
                 >
-                    Random
+                    Generate Random
                 </option>
                 <option
                     value='manual'
                     className='capitalize'
                 >
-                    Manual
+                    Use Existing
                 </option>
             </select>
             <div className='flex flex-col flex-wrap gap-2'>
@@ -139,6 +143,8 @@ const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
                         min={1}
                         max={100}
                         step={1}
+                        className='flex gap-2'
+                        fieldStyle={{ marginLeft: 'auto' }}
                         onChange={(probability) => setOptions({
                             initialPattern: {
                                 type: 'random',
@@ -153,7 +159,10 @@ const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
                     min={1}
                     max={3000}
                     step={1}
+                    className='flex gap-2'
+                    fieldStyle={{ marginLeft: 'auto' }}
                     onChange={(steps) => setOptions({ steps })}
+                    title='Number of iterations to run before stopping'
                 />
                 <FieldRangeInput
                     label='Set Alive'
@@ -161,7 +170,10 @@ const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
                     min={0}
                     max={8}
                     step={1}
+                    className='flex gap-2'
+                    fieldStyle={{ marginLeft: 'auto' }}
                     onChange={(setAlive) => setOptions({ setAlive })}
+                    title='Set cell state to alive if there are exactly this many alive adjacent cells'
                 />
                 <FieldRangeInput
                     label='Keep Alive Min'
@@ -169,12 +181,15 @@ const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
                     min={0}
                     max={8}
                     step={1}
+                    className='flex gap-2'
+                    fieldStyle={{ marginLeft: 'auto' }}
                     onChange={(min) => setOptions({
                         keepAlive: {
                             ...options.keepAlive,
                             min
                         }
                     })}
+                    title='Keep cell state as alive if there are at least this many alive adjacent cells'
                 />
                 <FieldRangeInput
                     label='Keep Alive Max'
@@ -182,12 +197,15 @@ const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
                     min={0}
                     max={8}
                     step={1}
+                    className='flex gap-2'
+                    fieldStyle={{ marginLeft: 'auto' }}
                     onChange={(max) => setOptions({
                         keepAlive: {
                             ...options.keepAlive,
                             max
                         }
                     })}
+                    title='Keep cell state as alive if there are at most this many alive adjacent cells'
                 />
                 <button
                     className='bg-slate-700 text-white font-medium px-4 py-2 rounded-lg'
@@ -196,7 +214,10 @@ const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
                             options.interrupt = createRef() as MutableRefObject<boolean>;
                         }
                         options.interrupt.current = true;
-                    }}>
+                    }}
+                    title='Stop the Obstruction Generator'
+
+                >
                     Interrupt
                 </button>
             </div>
