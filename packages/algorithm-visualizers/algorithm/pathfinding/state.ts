@@ -3,5 +3,6 @@
 export enum PathfinderState {
     STOPPED = 'stopped',
     RUNNING = 'running',
-    PAUSED = 'paused'
+    PAUSED = 'paused',
+    DONE = 'done'
 };

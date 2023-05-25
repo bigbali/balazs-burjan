@@ -5,7 +5,8 @@ import FieldRangeInput from 'ui/FieldRangeInput';
 enum CAPreset {
     MAZE = 'maze',
     MAZECTRIC = 'mazectric',
-    CWOL = 'conway\'s way of life'
+    CWOL = 'conway\'s way of life',
+    HIGHLIFE = 'HighLife'
 };
 
 type InitialPattern = { type: 'random', probability: number } | { type: 'manual' };
@@ -63,6 +64,15 @@ const CA_PRESETS_MAP: Record<CAPreset, CellularAutomataOptions> = {
             max: 3
         },
         preset: CAPreset.CWOL
+    },
+    [CAPreset.HIGHLIFE]: {
+        ...DEFAULT_OPTIONS,
+        setAlive: 4,
+        keepAlive: {
+            min: 3,
+            max: 6
+        },
+        preset: CAPreset.HIGHLIFE
     }
 };
 

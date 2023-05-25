@@ -1,13 +1,16 @@
 import type { MutableRefObject } from 'react';
 import type { NodeReferences } from '../..';
 import type { Coordinate } from '../../../../util/common';
-import { setupPathfinder } from '../../../../util/common';
-import { mutateNode } from '../../../../util/common';
-import { recursiveAsyncGeneratorRunner } from '../../../../util/common';
-import { isObstruction, isOutOfBounds } from '../../../../util/common';
 import type { Direction } from '../../direction';
-import { PathfinderState } from '../../state';
 import type { BFSDirection } from './direction';
+import {
+    setupPathfinder,
+    mutateNode,
+    recursiveAsyncGeneratorRunner,
+    isObstruction,
+    isOutOfBounds
+} from '../../../../util/common';
+import { PathfinderState } from '../../state';
 import { Directions } from './direction';
 
 type BeginBFSParams = {

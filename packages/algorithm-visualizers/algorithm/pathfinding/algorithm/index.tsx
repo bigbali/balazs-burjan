@@ -25,18 +25,17 @@ const DEFAULT_OPTION = {
     [Pathfinder.BIDIRECTIONAL]: undefined
 } as const;
 
-type PathFinderMap = {
+type PathfinderMap = {
     [Pathfinder.BREADTH_FIRST]: BeginBFS,
     [Pathfinder.DEPTH_FIRST]: BeginDFS,
     [Pathfinder.DIJKSTRA]: BeginDijkstra,
-    [Pathfinder.BIDIRECTIONAL]: (...args: any[]) => void
+    [Pathfinder.BIDIRECTIONAL]: (...args: any[]) => Promise<void>
 };
 
-export const PATHFINDER_MAP: PathFinderMap = {
+export const PATHFINDER_MAP: PathfinderMap = {
     [Pathfinder.BREADTH_FIRST]: beginBFS,
     [Pathfinder.DEPTH_FIRST]: beginDFS,
     [Pathfinder.DIJKSTRA]: beginDijkstra,
-    // eslint-disable-next-line @typescript-eslint/no-misused-promises
     [Pathfinder.BIDIRECTIONAL]: async () => { }
 } as const;
 

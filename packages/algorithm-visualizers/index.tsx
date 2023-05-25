@@ -1,4 +1,4 @@
-import { startTransition, useMemo, useState } from 'react';
+import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
 import PathfinderVisualizer from './algorithm/pathfinding';
 import { useLoading } from './store/loading';
 import 'config/tailwind/tailwind.css';
@@ -17,7 +17,18 @@ const ALGORITHM_VISUALIZER_MAP = {
 
 const Algorithms = () => {
     const [mode, setMode] = useState(() => Mode.PATHFINDER);
+    const [containedHeight, setContainedHeight] = useState(0);
     const isLoading = useLoading(state => state.isLoading);
+    const visualizerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (visualizerRef.current) {
+            setContainedHeight(
+                visualizerRef.current.offsetTop
+                // parseInt(getComputedStyle(visualizerRef.current).paddingBlock.replace('px', ''))
+            );
+        }
+    }, []);
 
     const Visualizer = useMemo(() => ALGORITHM_VISUALIZER_MAP[mode], [mode]);
     const ModeSelector = useMemo(() => (
@@ -60,7 +71,12 @@ const Algorithms = () => {
                     </h1>
                 </div>
             )}
-            <Visualizer modeSelector={ModeSelector} key={mode} />
+            <Visualizer
+                modeSelector={ModeSelector}
+                key={mode}
+                ref={visualizerRef}
+                containedHeight={containedHeight}
+            />
         </>
     );
 };

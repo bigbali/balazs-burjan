@@ -48,7 +48,7 @@ const Grid = ({ data }: GridProps) => {
     }
 
     return (
-        <div className='mr-8'>
+        <div className='mr-8 h-full'>
             <div className='mx-auto max-h-full max-w-full' style={{ aspectRatio: `${columns}/${rows}` }}>
                 <div
                     className='grid h-full gap-px bg-white'
