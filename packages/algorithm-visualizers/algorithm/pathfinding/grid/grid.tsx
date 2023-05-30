@@ -31,7 +31,7 @@ const Grid = ({ data }: GridProps) => {
     const elements = new Array(rows);
 
     for (let row = 0; row < rows; row++) {
-        elements.push(
+        elements[row] = (
             <Row
                 key={row}
                 data={{

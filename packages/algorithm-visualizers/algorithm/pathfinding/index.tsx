@@ -61,11 +61,17 @@ type PathfinderVisualizerProps = {
     containedHeight?: number
 };
 
+enum CellAction {
+    SHOW_OPTIONS = 'Show Options',
+    OBSTRUCTION_DRAWING = 'Obstruction Drawing'
+};
+
 export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
     function PathfinderVisualizer({ modeSelector, containedHeight }, ref) {
         const [rows, setRows] = useState(Dimensions.DEFAULT);
         const [columns, setColumns] = useState(Dimensions.DEFAULT);
         const [pathfinder, setPathfinder] = useState(Pathfinder.BREADTH_FIRST);
+        const [cellAction, setCellAction] = useState(CellAction.SHOW_OPTIONS);
         const [pathfinderOptions, PathfinderOptions] = usePathfinderOptions(pathfinder);
 
         const [obstructionGenerator, setObstructionGenerator] = useState(DEFAULT_OBSTRUCTION_GENERATOR);
@@ -231,7 +237,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
         } else { // NOTE let's not worry about containing the grid for now as we'll move to using canvas
             settingsContents = (
                 <div
-                    className='flex flex-col gap-2 bg-white border-slate-300 border rounded-lg w-1/4 min-w-fit h-full p-2'
+                    className='flex flex-col gap-2 bg-white border-slate-300 border rounded-lg w-96 h-full p-2'
                 >
                     <div className='flex justify-between gap-4 mb-4'>
                         {modeSelector}

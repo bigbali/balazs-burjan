@@ -28,8 +28,9 @@ const Row = ({ data }: RowProps) => {
     } = data;
 
     const elements = new Array(columns);
+
     for (let column = 0; column < columns; column++) {
-        elements.push(
+        elements[column] = (
             <Node
                 key={`${column},${rowIndex}`}
                 x={column}

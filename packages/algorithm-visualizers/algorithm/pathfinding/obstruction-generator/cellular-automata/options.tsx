@@ -3,9 +3,9 @@ import { createRef, memo } from 'react';
 import FieldRangeInput from 'ui/FieldRangeInput';
 
 enum CAPreset {
-    MAZE = 'maze',
-    MAZECTRIC = 'mazectric',
-    CWOL = 'conway\'s way of life',
+    MAZE = 'Maze',
+    MAZECTRIC = 'Mazectric',
+    CWOL = 'Conway\'s way of life',
     HIGHLIFE = 'HighLife'
 };
 
@@ -74,7 +74,7 @@ const CA_PRESETS_MAP: Record<CAPreset, CellularAutomataOptions> = {
         },
         preset: CAPreset.HIGHLIFE
     }
-};
+} as const;
 
 export const CA_DEFAULT_OPTIONS = CA_PRESETS_MAP[CAPreset.CWOL];
 
