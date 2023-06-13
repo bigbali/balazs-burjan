@@ -11,6 +11,7 @@ import {
     ,
     forwardRef
 } from 'react';
+import dynamic from 'next/dynamic';
 import {
     useTransition
 } from 'react';
@@ -18,7 +19,6 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { createRef } from 'react';
 import React, { useMemo, useState } from 'react';
-import Grid from './grid/grid';
 import FieldRangeInput from 'ui/FieldRangeInput';
 import { StateButton } from './state-button';
 import { PathfinderState } from './state';
@@ -35,6 +35,10 @@ import {
 } from './obstruction-generator';
 import { Pathfinder, PATHFINDER_MAP, RESET_MAP, usePathfinderOptions } from './algorithm';
 import Expander from 'ui/expander';
+
+const Grid = dynamic(() => import('./grid/grid'), {
+    ssr: false
+});
 
 export const enum Dimensions {
     MIN = 5,
@@ -373,7 +377,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
         return ( // strange stuff, but this needs translate(0) so the contained fixed element is not relative to viewport
             <div
                 style={{
-                    height: `calc(100vh - ${containedHeight || 0}px)`
+                    height: `calc(100vh - ${containedHeight ?? 0}px)`
                 }}
                 className='relative max-w-full p-2 translate-x-0 overflow-hidden'
                 ref={ref}

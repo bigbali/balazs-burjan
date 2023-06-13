@@ -7,7 +7,7 @@ const Navigation = () => {
     const { asPath } = router;
 
     return (
-        <nav className='flex items-center border-b-red-400 border-b w-full p-4'>
+        <nav className='flex items-center border-b-red-400 border-b w-full p-4' id='header'>
             <Link href='/' className='text-2xl font-medium'>
                 Example Projects
             </Link>

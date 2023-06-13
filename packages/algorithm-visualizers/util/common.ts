@@ -64,7 +64,6 @@ export const recursiveAsyncGeneratorRunner: RecursiveAsyncGeneratorRunner = asyn
         return result.value;
     }
 
-    // dark magic, don't touch
     await new Promise<void>((resolve) => {
         setTimeout(() => resolve(), delay.current);
     });
@@ -79,7 +78,6 @@ export const asyncRecursiveAsyncGeneratorRunner: AsyncRecursiveAsyncGeneratorRun
         return result.value;
     }
 
-    // dark magic, don't touch
     await new Promise<void>((resolve) => {
         setTimeout(() => resolve(), delay.current);
     });

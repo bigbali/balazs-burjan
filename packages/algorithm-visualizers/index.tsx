@@ -25,7 +25,6 @@ const Algorithms = () => {
         if (visualizerRef.current) {
             setContainedHeight(
                 visualizerRef.current.offsetTop
-                // parseInt(getComputedStyle(visualizerRef.current).paddingBlock.replace('px', ''))
             );
         }
     }, []);
