@@ -7,6 +7,8 @@ import type { Coordinate } from '../../../util/common';
 import type { NodeReferences } from './../index';
 import { Layer, Rect, Stage } from 'react-konva';
 import Node from './node';
+import { Html } from 'react-konva-utils';
+import NodeControls from '../node-controls';
 
 type GridData = {
     columns: number,
@@ -112,6 +114,7 @@ const Grid: FC<GridProps> = ({ data }) => {
 
     return (
         <div className='mr-8 h-full' ref={gridRef}>
+            <NodeControls />
             <Stage
                 className='mx-auto max-h-full max-w-full'
                 width={gridDimensions.x / columns * columns}

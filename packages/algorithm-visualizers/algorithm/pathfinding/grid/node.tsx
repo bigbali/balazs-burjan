@@ -4,6 +4,7 @@ import type { Coordinate } from '../../../util/common';
 import { KonvaNodeComponent, Rect } from 'react-konva';
 import { Html } from 'react-konva-utils';
 import type Konva from 'konva';
+import { useNodeControlsMenu } from '../node-controls';
 
 const enum NodeFill {
     ORIGIN = 'rgb(32, 200, 80)',
@@ -49,7 +50,6 @@ const Node = ({
     setOrigin,
     setGoal
 }: NodeProps) => {
-    const [isShowMenu, setIsShowMenu] = useState(false);
     const [isVisited, setIsVisited] = useState(false);
     const [isHighlighted, setIsHighlighted] = useState(false);
     const [obstructionState, isObstruction, setIsObstruction] = useForwardedState(false);
@@ -59,6 +59,8 @@ const Node = ({
     obstructionRef.current = obstructionState;
     weightRef.current = weightState;
 
+    const nodeRef = useRef<Konva.Rect>(null);
+
     const reset = () => {
         setIsVisited(false);
         setIsHighlighted(false);
@@ -66,8 +68,17 @@ const Node = ({
         setWeight(null);
     };
 
-    const nodeRef = useRef<Konva.Rect>(null);
-    const menuRef = useRef<HTMLDivElement>(null);
+    const setMenuNodeRef = useNodeControlsMenu(state => state.setNodeRef);
+    const setNodeSize = useNodeControlsMenu(state => state.setNodeSize);
+    const setMenuOrigin = useNodeControlsMenu(state => state.setOrigin);
+    const setMenuGoal = useNodeControlsMenu(state => state.setGoal);
+
+    const updateMenu = () => {
+        setMenuNodeRef(nodeRef);
+        setNodeSize(nodeSize);
+        setMenuOrigin(() => setOrigin({ x, y }));
+        setMenuGoal(() => setGoal({ x, y }));
+    };
 
     resetRef.current = reset;
 
@@ -90,56 +101,18 @@ const Node = ({
         return 'rgb(230, 230, 230)';
     })();
 
-    useEffect(() => {
-        if (!nodeRef.current || !menuRef.current) return;
-
-        menuRef.current.style.left = `${nodeRef.current.x()}px`;
-        menuRef.current.style.top = `${nodeRef.current.y()}px`;
-    }, [isShowMenu]);
-
-    // FIXME menu should be separate element and one instance, and should be moved to position on node click
-
     return (
-        <>
-            <Rect
-                x={nodeSize * x}
-                y={nodeSize * y}
-                width={nodeSize}
-                height={nodeSize}
-                fill={fill}
-                shadowBlur={1}
-                shadowColor='rgb(127, 127, 127)'
-                onClick={() => setIsShowMenu(state => !state)}
-                ref={nodeRef}
-            />
-            <Html>
-                {isShowMenu && (
-                    <div
-                        className='absolute bottom-full bg-yellow-500 p-4'
-                        ref={menuRef}
-                    >
-                        <button
-                            className='bg-sky-800 text-white px-4 py-2 border-none'
-                            onClick={() => startTransition(() => setOrigin({ x, y }))}
-                        >
-                            Set Starting Point
-                        </button>
-                        <button
-                            className='bg-green-700 text-white px-4 py-2 border-none'
-                            onClick={() => startTransition(() => setGoal({ x, y }))}
-                        >
-                            Set Goal Point
-                        </button>
-                        <button
-                            className='bg-black text-white px-4 py-2 border-none'
-                            onClick={() => setIsObstruction(state => !state)}
-                        >
-                            Set Obstruction
-                        </button>
-                    </div>
-                )}
-            </Html>
-        </>
+        <Rect
+            x={nodeSize * x}
+            y={nodeSize * y}
+            width={nodeSize}
+            height={nodeSize}
+            fill={fill}
+            shadowBlur={1}
+            shadowColor='rgb(127, 127, 127)'
+            onClick={updateMenu}
+            ref={nodeRef}
+        />
     );
 };
 
