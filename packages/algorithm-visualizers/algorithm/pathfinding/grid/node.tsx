@@ -1,5 +1,5 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { memo, startTransition, useEffect, useRef, useState } from 'react';
+import { memo, startTransition, useCallback, useEffect, useRef, useState } from 'react';
 import type { Coordinate } from '../../../util/common';
 import { KonvaNodeComponent, Rect } from 'react-konva';
 import { Html } from 'react-konva-utils';
@@ -73,17 +73,21 @@ const Node = ({
     const setMenuOrigin = useNodeControlsMenu(state => state.setOrigin);
     const setMenuGoal = useNodeControlsMenu(state => state.setGoal);
 
+    const setMenuOriginCallback = useCallback(() => setOrigin({ x, y }), [setOrigin, x, y]);
+    const setMenuGoalCallback = useCallback(() => setGoal({ x, y }), [setGoal, x, y]);
+
+
     const updateMenu = () => {
         setMenuNodeRef(nodeRef);
         setNodeSize(nodeSize);
-        setMenuOrigin(() => setOrigin({ x, y }));
-        setMenuGoal(() => setGoal({ x, y }));
+        setMenuOrigin(setMenuOriginCallback);
+        setMenuGoal(setMenuGoalCallback);
     };
 
     resetRef.current = reset;
 
     const fill = (() => {
-        if (isHighlighted && !isOrigin && !isGoal) return NodeFill.HIGHLIGHTED;
+        if (isHighlighted && !isOrigin && !isGoal && !isObstruction) return NodeFill.HIGHLIGHTED;
         if (isOrigin) return NodeFill.ORIGIN;
         if (isGoal) return NodeFill.TARGET;
         if (isVisited) return NodeFill.VISITED;

@@ -28,7 +28,8 @@ export const useNodeControlsMenu = create<NodeControlsMenuStore>((set) => ({
 
 const NodeControls = () => {
     const [isExpanded, setIsExpanded] = useState(false);
-    const prevNodeRef = useRef<Konva.Rect | null>();
+    const preventStateChangeRef = useRef(true);
+    const isInitialRenderRef = useRef(true);
 
     const {
         nodeRef,
@@ -37,13 +38,38 @@ const NodeControls = () => {
         setGoalCallback
     } = useNodeControlsMenu();
 
+    // on every render, invert expanded state unless it's the initial render,
+    // or unless it's a re-render caused by inverting state in previous render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
-        if (nodeRef.current) {
-            setIsExpanded(prevNodeRef.current !== nodeRef.current);
+        if (isInitialRenderRef.current) {
+            isInitialRenderRef.current = false;
+            return;
         }
 
-        prevNodeRef.current = nodeRef.current;
+        if (!preventStateChangeRef.current) {
+            setIsExpanded(state => !state);
+        }
+
+        preventStateChangeRef.current = !preventStateChangeRef.current;
+    });
+
+    // when we have a new nodeRef (when clicked on a new node), force the expanded state to true
+    // unless node is unset
+    useEffect(() => {
+        if (nodeRef.current === null) {
+            return;
+        }
+
+        if (isExpanded) { // fix
+            preventStateChangeRef.current = false;
+        }
+
+        setIsExpanded(true);
+
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [nodeRef]);
+
 
     if (isExpanded) {
         return (
@@ -90,8 +116,6 @@ const NodeControls = () => {
     }
 
     return null;
-
-
 };
 
 export default NodeControls;

@@ -1,24 +1,19 @@
 import type {
     Dispatch,
-    FC,
     MutableRefObject,
-    PropsWithRef,
-    Ref,
     SetStateAction
 } from 'react';
 import {
-    useCallback
-    ,
-    forwardRef
+    useCallback,
+    useTransition,
+    useMemo,
+    useState,
+    forwardRef,
+    useEffect,
+    useRef,
+    createRef
 } from 'react';
 import dynamic from 'next/dynamic';
-import {
-    useTransition
-} from 'react';
-import { useEffect } from 'react';
-import { useRef } from 'react';
-import { createRef } from 'react';
-import React, { useMemo, useState } from 'react';
 import FieldRangeInput from 'ui/FieldRangeInput';
 import { StateButton } from './state-button';
 import { PathfinderState } from './state';
@@ -48,8 +43,8 @@ export const enum Dimensions {
 
 export const enum Delay {
     MIN = 1,
-    DEFAULT = 10,
-    MAX = 200
+    DEFAULT = 50,
+    MAX = 1000
 };
 
 export type NodeReferences = {
