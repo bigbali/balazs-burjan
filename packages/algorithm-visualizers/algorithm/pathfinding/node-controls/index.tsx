@@ -1,41 +1,56 @@
 import type Konva from 'konva';
 import type { Dispatch, RefObject, SetStateAction } from 'react';
-import { createContext, createRef, startTransition, useEffect, useRef, useState } from 'react';
-import type { Coordinate } from '../../../util/common';
+import { createRef, startTransition, useEffect, useRef, useState } from 'react';
 import { create } from 'zustand';
 
+type Callback<T = () => void> = T;
+type SetCallback<T = Callback> = (callback: T) => void;
+type Set<T> = (arg: T) => void;
+
+/**
+ * `Callback`: a function that is called on the selected node
+ * `SetCallback`: a setter function that we call from the selected node to set the `Callback` for `NodeControls`
+ */
 type NodeControlsMenuStore = {
     nodeRef: RefObject<Konva.Rect>,
     nodeSize: number,
-    setNodeRef: (newNodeRef: NodeControlsMenuStore['nodeRef']) => void,
-    setNodeSize: (newNodeSize: number) => void
-    setOriginCallback: () => void,
-    setGoalCallback: () => void,
-    setOrigin: (callback: () => void) => void,
-    setGoal: (callback: () => void) => void
+    setNodeRef: Set<NodeControlsMenuStore['nodeRef']>,
+    setNodeSize: Set<NodeControlsMenuStore['nodeSize']>,
+    nodeSetOrigin: Callback,
+    nodeSetTarget: Callback,
+    setNodeSetOrigin: SetCallback,
+    setNodeSetTarget: SetCallback,
+    nodeSetHighlight: Callback<Dispatch<SetStateAction<boolean>>>,
+    setNodeSetHighlight: SetCallback<NodeControlsMenuStore['nodeSetHighlight']>
 };
+
+const initialCb = () => undefined;
 
 export const useNodeControlsMenu = create<NodeControlsMenuStore>((set) => ({
     nodeRef: createRef(),
     nodeSize: 0,
     setNodeRef: (nodeRef) => set(() => ({ nodeRef })),
     setNodeSize: (nodeSize) => set(() => ({ nodeSize })),
-    setOriginCallback: () => { },
-    setGoalCallback: () => { },
-    setOrigin: (callback) => set(() => ({ setOriginCallback: callback })),
-    setGoal: (callback) => set(() => ({ setGoalCallback: callback }))
+    nodeSetOrigin: initialCb,
+    nodeSetTarget: initialCb,
+    nodeSetHighlight: initialCb,
+    setNodeSetOrigin: (callback) => set(() => ({ nodeSetOrigin: callback })),
+    setNodeSetTarget: (callback) => set(() => ({ nodeSetTarget: callback })),
+    setNodeSetHighlight: (callback) => set(() => ({ nodeSetHighlight: callback }))
 }));
 
 const NodeControls = () => {
     const [isExpanded, setIsExpanded] = useState(false);
     const preventStateChangeRef = useRef(true);
     const isInitialRenderRef = useRef(true);
+    const prevNodeRef = useRef<Konva.Rect | null>();
 
     const {
         nodeRef,
         nodeSize,
-        setOriginCallback,
-        setGoalCallback
+        nodeSetOrigin: setOriginCallback,
+        nodeSetTarget: setGoalCallback,
+        nodeSetHighlight: nodeHighlightCallback
     } = useNodeControlsMenu();
 
     // on every render, invert expanded state unless it's the initial render,
@@ -48,7 +63,7 @@ const NodeControls = () => {
         }
 
         if (!preventStateChangeRef.current) {
-            setIsExpanded(state => !state);
+            setIsExpanded(!isExpanded);
         }
 
         preventStateChangeRef.current = !preventStateChangeRef.current;
@@ -61,20 +76,25 @@ const NodeControls = () => {
             return;
         }
 
-        if (isExpanded) { // fix
-            preventStateChangeRef.current = false;
-        }
-
         setIsExpanded(true);
+
+        return () => {
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+            prevNodeRef.current = nodeRef.current;
+        };
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [nodeRef]);
 
+    useEffect(() => { // this highlights the selected node and resets when demounting
+        nodeHighlightCallback(isExpanded);
+        return () => nodeHighlightCallback(false);
+    }, [isExpanded, nodeHighlightCallback]);
 
     if (isExpanded) {
         return (
             <div
-                className='absolute bg-yellow-500 p-4 w-30 h-30 flex flex-col'
+                className='absolute border border-slate-300 bg-white rounded-lg p-4 w-30 h-30 flex flex-col'
                 style={{
                     zIndex: 1,
                     left: nodeRef.current
@@ -105,12 +125,6 @@ const NodeControls = () => {
                 >
                     Set Goal Point
                 </button>
-                {/* <button
-                    className='bg-black text-white px-4 py-2 border-none'
-                    onClick={() => setIsObstruction(state => !state)}
-                >
-                    Set Obstruction
-                </button> */}
             </div>
         );
     }

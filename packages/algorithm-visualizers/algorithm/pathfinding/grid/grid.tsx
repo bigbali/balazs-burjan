@@ -1,14 +1,12 @@
 import type { Dispatch, FC, SetStateAction } from 'react';
-import { Fragment, lazy, useEffect } from 'react';
-import { useRef } from 'react';
-import { useState } from 'react';
-import { memo } from 'react';
+import { Fragment, useEffect, useRef, useState, memo } from 'react';
 import type { Coordinate } from '../../../util/common';
 import type { NodeReferences } from './../index';
-import { Layer, Rect, Stage } from 'react-konva';
+import { Layer, Stage } from 'react-konva';
 import Node from './node';
-import { Html } from 'react-konva-utils';
 import NodeControls from '../node-controls';
+
+export const GRID_MARGIN = 3;
 
 type GridData = {
     columns: number,
@@ -86,7 +84,10 @@ const Grid: FC<GridProps> = ({ data }) => {
     });
 
     // NOTE useMemo?
-    const nodeSize = Math.min(gridDimensions.x / columns, gridDimensions.y / rows);
+    const nodeSize = Math.min(
+        (gridDimensions.x - GRID_MARGIN * 2) / columns,
+        (gridDimensions.y - GRID_MARGIN * 2) / rows
+    );
     const rowElements = new Array(rows);
 
     for (let row = 0; row < rows; row++) {
