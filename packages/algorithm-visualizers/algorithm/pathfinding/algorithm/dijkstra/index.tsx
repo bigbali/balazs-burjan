@@ -32,7 +32,7 @@ const directions = [
     [1, 0],
     [0, -1],
     [0, 1]
-]satisfies Direction[];
+] satisfies Direction[];
 
 const visited: boolean[][] = [];
 

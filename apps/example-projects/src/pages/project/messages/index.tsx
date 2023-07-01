@@ -1,6 +1,6 @@
 import type { GetServerSideProps } from 'next';
 import type { Message, User } from '@prisma/client';
-import { createProxySSGHelpers } from '@trpc/react-query/ssg';
+import { createServerSideHelpers } from '@trpc/react-query/server';
 import MessagesPage from '../../../components/_pages/messages';
 import { appRouter } from '../../../server/api/root';
 import { createTRPCContext } from '../../../server/api/trpc';
@@ -13,13 +13,9 @@ export type MessagePageProps = {
 };
 
 export const getServerSideProps: GetServerSideProps<MessagePageProps> = async ({ req, res }) => {
-    // @ts-ignore
+    // @ts-ignore FIXME
     const ctx = await createTRPCContext({ req, res });
-    // const caller = appRouter.createCaller(ctx);
-    // const messages = await caller.message.getInitial();
-
-    // const messages = await createProxySSGHelpers({ ctx, router: appRouter }).message.getInitial.fetch();
-    const messages = await createProxySSGHelpers({ ctx, router: appRouter }).message.getInitial.fetch();
+    const messages = await createServerSideHelpers({ ctx, router: appRouter }).message.getInitial.fetch();
 
     return {
         props: {
@@ -27,7 +23,6 @@ export const getServerSideProps: GetServerSideProps<MessagePageProps> = async ({
         }
     };
 };
-
 
 const Messages = ({ data, nextCursor }: MessagePageProps) => <MessagesPage data={data} nextCursor={nextCursor} />;
 

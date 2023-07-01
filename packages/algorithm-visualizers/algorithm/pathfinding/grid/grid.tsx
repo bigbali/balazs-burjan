@@ -4,7 +4,7 @@ import type { Coordinate } from '../../../util/common';
 import type { NodeReferences } from './../index';
 import { Layer, Stage } from 'react-konva';
 import Node from './node';
-import NodeControls from '../node-controls';
+import NodeControls, { useNodeControlsMenu } from '../node-controls';
 
 export const GRID_MARGIN = 3;
 
@@ -82,6 +82,12 @@ const Grid: FC<GridProps> = ({ data }) => {
         x: 0,
         y: 0
     });
+
+    const setGrid = useNodeControlsMenu(state => state.setGrid);
+
+    useEffect(() => {
+        setGrid(gridRef.current);
+    }, [setGrid]);
 
     // NOTE useMemo?
     const nodeSize = Math.min(

@@ -1,5 +1,5 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { memo, useCallback, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import type { Coordinate } from '../../../util/common';
 import { Rect } from 'react-konva';
 import type Konva from 'konva';
@@ -8,8 +8,9 @@ import { GRID_MARGIN } from './grid';
 
 const enum NodeColor {
     OUTLINE = 'rgb(127, 127, 127)',
-    MENU_HIGHLIGHT_OUTLINE = 'rgb(255, 0, 89)',
-    BACKTRACE_HIGHLIGHT = 'orange',
+    HIGHLIGHT = 'orange',
+    HIGHLIGHT_SELECTED = 'rgb(255, 0, 89)',
+    HIGHLIGHT_BACKTRACE = 'rgb(138, 24, 219)',
     ORIGIN = 'rgb(32, 200, 80)',
     TARGET = 'rgb(30, 128, 230)',
     VISITED = 'rgb(190, 210, 210)',
@@ -73,37 +74,32 @@ const Node = ({
 
     resetRef.current = reset;
 
-    const setMenuNodeRef = useNodeControlsMenu(state => state.setNodeRef);
+    const setNodeRef = useNodeControlsMenu(state => state.setNodeRef);
     const setNodeSize = useNodeControlsMenu(state => state.setNodeSize);
-    const setMenuOrigin = useNodeControlsMenu(state => state.setNodeSetOrigin);
-    const setMenuGoal = useNodeControlsMenu(state => state.setNodeSetTarget);
-    const setNodeHighlightCallback = useNodeControlsMenu(state => state.setNodeSetHighlight);
+    const setNodeIsOrigin = useNodeControlsMenu(state => state.setNodeIsOrigin);
+    const setNodeIsTarget = useNodeControlsMenu(state => state.setNodeIsTarget);
+    const setOriginSetter = useNodeControlsMenu(state => state.setNodeSetOrigin);
+    const setTargetSetter = useNodeControlsMenu(state => state.setNodeSetTarget);
+    const setNodeHighlightSetter = useNodeControlsMenu(state => state.setNodeSetHighlight);
 
     const [isHighlightedByMenu, setIsHighlightedByMenu] = useState(false);
 
-    const setMenuOriginCallback = useCallback(() => setOrigin({ x, y }), [setOrigin, x, y]);
-    const setMenuGoalCallback = useCallback(() => setGoal({ x, y }), [setGoal, x, y]);
+    const setMenuOriginCallback = () => setOrigin({ x, y });
+    const setMenuGoalCallback = () => setGoal({ x, y });
 
-    const updateMenu = useCallback(() => {
-        setMenuNodeRef(nodeRef);
+    const updateMenu = () => {
+        setNodeRef(nodeRef.current);
         setNodeSize(nodeSize);
-        setMenuOrigin(setMenuOriginCallback);
-        setMenuGoal(setMenuGoalCallback);
-        setNodeHighlightCallback(setIsHighlightedByMenu);
+        setNodeIsOrigin(isOrigin);
+        setNodeIsTarget(isGoal);
+        setOriginSetter(setMenuOriginCallback);
+        setTargetSetter(setMenuGoalCallback);
+        setNodeHighlightSetter(setIsHighlightedByMenu);
         nodeRef.current?.moveToTop();
-    }, [
-        nodeSize,
-        setMenuGoal,
-        setMenuGoalCallback,
-        setMenuNodeRef,
-        setMenuOrigin,
-        setMenuOriginCallback,
-        setNodeHighlightCallback,
-        setNodeSize
-    ]);
+    };
 
     const fill = (() => {
-        if (isHighlighted && !isOrigin && !isGoal && !isObstruction) return NodeColor.BACKTRACE_HIGHLIGHT;
+        if (isHighlighted && !isOrigin && !isGoal && !isObstruction) return NodeColor.HIGHLIGHT_BACKTRACE;
         if (isOrigin) return NodeColor.ORIGIN;
         if (isGoal) return NodeColor.TARGET;
         if (isVisited) return NodeColor.VISITED;
@@ -128,7 +124,7 @@ const Node = ({
             width={nodeSize}
             height={nodeSize}
             fill={fill}
-            stroke={isHighlightedByMenu ? NodeColor.MENU_HIGHLIGHT_OUTLINE : NodeColor.OUTLINE}
+            stroke={isHighlightedByMenu ? NodeColor.HIGHLIGHT_SELECTED : NodeColor.OUTLINE}
             strokeWidth={isHighlightedByMenu ? 5 : 0.25}
             onClick={updateMenu}
             ref={nodeRef}
