@@ -1,5 +1,5 @@
 import type { Dispatch, FC, SetStateAction } from 'react';
-import { Fragment, useEffect, useRef, useState, memo } from 'react';
+import { Fragment, useEffect, useRef, useState, memo, useMemo } from 'react';
 import type { Coordinate } from '../../../util/common';
 import type { NodeReferences } from './../index';
 import { Layer, Stage } from 'react-konva';
@@ -89,26 +89,28 @@ const Grid: FC<GridProps> = ({ data }) => {
         setGrid(gridRef.current);
     }, [setGrid]);
 
-    // NOTE useMemo?
     const nodeSize = Math.min(
         (gridDimensions.x - GRID_MARGIN * 2) / columns,
         (gridDimensions.y - GRID_MARGIN * 2) / rows
     );
-    const rowElements = new Array(rows);
+    const rowElementsxxx = useMemo(() => {
+        const rowElements = new Array<JSX.Element>(rows);
 
-    for (let row = 0; row < rows; row++) {
-        rowElements[row] = (
-            <Row
-                key={row}
-                data={{
-                    nodeSize,
-                    row,
-                    columns,
-                    ...gridData
-                }}
-            />
-        );
-    }
+        for (let row = 0; row < rows; row++) {
+            rowElements[row] = (
+                <Row
+                    key={row}
+                    data={{
+                        nodeSize,
+                        row,
+                        columns,
+                        ...gridData
+                    }}
+                />
+            );
+        }
+        return rowElements;
+    }, [columns, gridData, nodeSize, rows]);
 
     useEffect(() => {
         if (!gridRef.current) return;
@@ -128,7 +130,7 @@ const Grid: FC<GridProps> = ({ data }) => {
                 height={gridDimensions.y / rows * rows}
             >
                 <Layer>
-                    {rowElements}
+                    {rowElementsxxx}
                 </Layer>
             </Stage>
         </div>

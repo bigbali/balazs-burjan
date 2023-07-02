@@ -30,6 +30,7 @@ import {
 } from './obstruction-generator';
 import { Pathfinder, PATHFINDER_MAP, RESET_MAP, usePathfinderOptions } from './algorithm';
 import Expander from 'ui/expander';
+import { NodeSelectionModeSelector } from './node-selection-mode';
 
 const Grid = dynamic(() => import('./grid/grid'), {
     ssr: false
@@ -60,17 +61,11 @@ type PathfinderVisualizerProps = {
     containedHeight?: number
 };
 
-enum CellAction {
-    SHOW_OPTIONS = 'Show Options',
-    OBSTRUCTION_DRAWING = 'Obstruction Drawing'
-};
-
 export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
     function PathfinderVisualizer({ modeSelector, containedHeight }, ref) {
         const [rows, setRows] = useState(Dimensions.DEFAULT);
         const [columns, setColumns] = useState(Dimensions.DEFAULT);
         const [pathfinder, setPathfinder] = useState(Pathfinder.BREADTH_FIRST);
-        const [cellAction, setCellAction] = useState(CellAction.SHOW_OPTIONS);
         const [pathfinderOptions, PathfinderOptions] = usePathfinderOptions(pathfinder);
 
         const [obstructionGenerator, setObstructionGenerator] = useState(DEFAULT_OBSTRUCTION_GENERATOR);
@@ -233,7 +228,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
                     </button>
                 </div>
             );
-        } else { // NOTE let's not worry about containing the grid for now as we'll move to using canvas
+        } else {
             settingsContents = (
                 <div
                     className='flex flex-col gap-2 bg-white border-slate-300 border rounded-lg w-96 h-full p-2'
@@ -282,6 +277,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
                         onChange={(velocity) => (velocityRef.current = velocity)}
                         debounceRange={false}
                     />
+                    <NodeSelectionModeSelector />
                     <div className='flex flex-col justify-between h-full gap-4'>
                         <div className='flex flex-col gap-2'>
                             <Expander
@@ -364,7 +360,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
                                 Reset
                             </button>
                         </div>
-                    </div>
+                        N</div>
                 </div>
             );
         }

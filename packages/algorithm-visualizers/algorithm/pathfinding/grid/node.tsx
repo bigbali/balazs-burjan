@@ -1,11 +1,12 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useRef, useState } from 'react';
 import type { Coordinate } from '../../../util/common';
 import { Rect } from 'react-konva';
 import type Konva from 'konva';
 import { useNodeControlsMenu } from '../node-controls';
 import { GRID_MARGIN } from './grid';
 import { NodeColor } from './node-color';
+import { NodeSelectionMode, useNodeSelectionMode } from '../node-selection-mode';
 
 
 // FIXME wtf is this
@@ -74,12 +75,17 @@ const Node = ({
     const setObstructionSetter = useNodeControlsMenu(state => state.setNodeSetObstruction);
     const setNodeHighlightSetter = useNodeControlsMenu(state => state.setNodeSetHighlight);
 
+    const getNodeSelectionMode = useNodeSelectionMode(state => state.getNodeSelectionMode);
+
     const [isHighlightedByMenu, setIsHighlightedByMenu] = useState(false);
 
     const setMenuOriginCallback = () => setOrigin({ x, y });
     const setMenuGoalCallback = () => setGoal({ x, y });
 
     const updateMenu = () => {
+        if (getNodeSelectionMode() !== NodeSelectionMode.MENU)
+            return;
+
         setNodeRef(nodeRef.current);
         setNodeSize(nodeSize);
         setNodeIsOrigin(isOrigin);
@@ -129,6 +135,16 @@ const Node = ({
                     : 0.25
             }
             onClick={updateMenu}
+            onMouseDown={() => {
+                if (getNodeSelectionMode() === NodeSelectionMode.DRAW_OBSTRUCTION) {
+                    setIsObstruction(true);
+                }
+            }}
+            onMouseEnter={(e) => {
+                if (e.evt.buttons > 0 && getNodeSelectionMode() === NodeSelectionMode.DRAW_OBSTRUCTION) {
+                    setIsObstruction(true);
+                }
+            }}
             ref={nodeRef}
         />
     );
