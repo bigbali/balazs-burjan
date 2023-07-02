@@ -6,6 +6,11 @@
         "lint": "TIMING=1 eslint \"**/*.ts*\""
     },
     "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^6.4.0",
+        "@fortawesome/free-regular-svg-icons": "^6.4.0",
+        "@fortawesome/free-solid-svg-icons": "^6.4.0",
+        "@fortawesome/react-fontawesome": "latest",
+        "add": "^2.0.6",
         "konva": "^9.2.0",
         "lodash": "^4.17.21",
         "million": "^2.4.8",
@@ -13,7 +18,8 @@
         "react-dom": "18.2.0",
         "react-konva": "^18.2.9",
         "react-konva-utils": "^1.0.4",
-        "ui": "workspace:*"
+        "ui": "workspace:*",
+        "yarn": "^1.22.19"
     },
     "devDependencies": {
         "@types/lodash": "^4.14.191",

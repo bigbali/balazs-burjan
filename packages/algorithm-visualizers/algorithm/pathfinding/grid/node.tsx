@@ -5,18 +5,8 @@ import { Rect } from 'react-konva';
 import type Konva from 'konva';
 import { useNodeControlsMenu } from '../node-controls';
 import { GRID_MARGIN } from './grid';
+import { NodeColor } from './node-color';
 
-const enum NodeColor {
-    OUTLINE = 'rgb(127, 127, 127)',
-    HIGHLIGHT = 'orange',
-    HIGHLIGHT_SELECTED = 'rgb(255, 0, 89)',
-    HIGHLIGHT_BACKTRACE = 'rgb(138, 24, 219)',
-    ORIGIN = 'rgb(32, 200, 80)',
-    TARGET = 'rgb(30, 128, 230)',
-    VISITED = 'rgb(190, 210, 210)',
-    OBSTRUCTION = 'rgb(30, 30, 30)',
-    DEFAULT = 'rgb(230, 230, 230)',
-};
 
 // FIXME wtf is this
 
@@ -78,8 +68,10 @@ const Node = ({
     const setNodeSize = useNodeControlsMenu(state => state.setNodeSize);
     const setNodeIsOrigin = useNodeControlsMenu(state => state.setNodeIsOrigin);
     const setNodeIsTarget = useNodeControlsMenu(state => state.setNodeIsTarget);
+    const setNodeIsObstruction = useNodeControlsMenu(state => state.setNodeIsObstruction);
     const setOriginSetter = useNodeControlsMenu(state => state.setNodeSetOrigin);
     const setTargetSetter = useNodeControlsMenu(state => state.setNodeSetTarget);
+    const setObstructionSetter = useNodeControlsMenu(state => state.setNodeSetObstruction);
     const setNodeHighlightSetter = useNodeControlsMenu(state => state.setNodeSetHighlight);
 
     const [isHighlightedByMenu, setIsHighlightedByMenu] = useState(false);
@@ -92,8 +84,10 @@ const Node = ({
         setNodeSize(nodeSize);
         setNodeIsOrigin(isOrigin);
         setNodeIsTarget(isGoal);
+        setNodeIsObstruction(isObstruction);
         setOriginSetter(setMenuOriginCallback);
         setTargetSetter(setMenuGoalCallback);
+        setObstructionSetter(setIsObstruction);
         setNodeHighlightSetter(setIsHighlightedByMenu);
         nodeRef.current?.moveToTop();
     };
@@ -124,8 +118,16 @@ const Node = ({
             width={nodeSize}
             height={nodeSize}
             fill={fill}
-            stroke={isHighlightedByMenu ? NodeColor.HIGHLIGHT_SELECTED : NodeColor.OUTLINE}
-            strokeWidth={isHighlightedByMenu ? 5 : 0.25}
+            stroke={
+                isHighlightedByMenu
+                    ? NodeColor.HIGHLIGHT_SELECTED
+                    : NodeColor.OUTLINE
+            }
+            strokeWidth={
+                isHighlightedByMenu
+                    ? 5
+                    : 0.25
+            }
             onClick={updateMenu}
             ref={nodeRef}
         />
