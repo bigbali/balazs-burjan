@@ -1,6 +1,7 @@
-import type { Dispatch, MutableRefObject } from 'react';
+import type { MutableRefObject } from 'react';
 import { createRef, memo } from 'react';
 import FieldRangeInput from 'ui/FieldRangeInput';
+import type { ObstructionGeneratorOptionsProps } from '../options';
 
 enum CAPreset {
     MAZE = 'Maze',
@@ -21,11 +22,6 @@ export type CellularAutomataOptions = {
     preset?: CAPreset,
     initialPattern: InitialPattern,
     interrupt?: MutableRefObject<boolean>
-};
-
-export type CellularAutomataOptionsProps = {
-    options: CellularAutomataOptions,
-    setOptions: Dispatch<Partial<CellularAutomataOptions>>
 };
 
 const DEFAULT_OPTIONS = {
@@ -78,7 +74,7 @@ const CA_PRESETS_MAP: Record<CAPreset, CellularAutomataOptions> = {
 
 export const CA_DEFAULT_OPTIONS = CA_PRESETS_MAP[CAPreset.CWOL];
 
-const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
+const CAOptions: React.FC<ObstructionGeneratorOptionsProps<CellularAutomataOptions>> = ({ options, setOptions }) => {
     if (!options) {
         return null;
     }
@@ -226,7 +222,6 @@ const CAOptions = ({ options, setOptions }: CellularAutomataOptionsProps) => {
                         options.interrupt.current = true;
                     }}
                     title='Stop the Obstruction Generator'
-
                 >
                     Interrupt
                 </button>

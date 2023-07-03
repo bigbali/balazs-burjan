@@ -6,10 +6,10 @@ import type { Either } from '../util/type';
 import type { CSSProperties } from 'react';
 
 type BaseFieldRangeInputProps = {
-    min: number,
-    max: number,
-    step: number,
-    defaultValue: number,
+    min?: number,
+    max?: number,
+    step?: number,
+    defaultValue?: number,
     debounceRange?: boolean,
     label: string,
     labelStyle?: CSSProperties,
@@ -110,7 +110,7 @@ export const handleFieldRangeInputChange = ({
     }
 };
 
-const FieldRangeInput = ({
+const FieldRangeInput: React.FC<FieldRangeInputProps> = ({
     min = 1,
     max = 100,
     step = 1,
@@ -124,7 +124,7 @@ const FieldRangeInput = ({
     fieldStyle,
     rangeStyle,
     ...props
-}: FieldRangeInputProps) => {
+}) => {
     const [value, setValue] = useState<number | null>(defaultValue);
 
     const fieldCallback = !!onChange
@@ -152,9 +152,9 @@ const FieldRangeInput = ({
                 value={value || ''}
                 onChange={(e) => handleFieldRangeInputChange({
                     event: e,
-                    min: min,
-                    max: max,
-                    defaultValue: defaultValue,
+                    min,
+                    max,
+                    defaultValue,
                     debounce: false,
                     setter: setValue,
                     callback: fieldCallback
@@ -169,9 +169,9 @@ const FieldRangeInput = ({
                 value={value || min}
                 onChange={(e) => handleFieldRangeInputChange({
                     event: e,
-                    min: min,
-                    max: max,
-                    defaultValue: defaultValue,
+                    min,
+                    max,
+                    defaultValue,
                     debounce: debounceRange,
                     setter: setValue,
                     callback: rangeCallback

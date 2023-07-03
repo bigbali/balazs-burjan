@@ -2,15 +2,16 @@ import type { MutableRefObject } from 'react';
 import type { NodeReferences } from '../..';
 import type { Coordinate } from '../../../../util/common';
 import { setupPathfinder } from '../../../../util/common';
-import { recursiveAsyncGeneratorRunner } from '../../../../util/common';
 import { isOutOfBounds } from '../../../../util/common';
 import type { Direction } from '../../direction';
+import type { RandomOptions } from './options';
 
 type BeginRandomObstructionGeneratorParams = {
     origin: Coordinate,
     goal: Coordinate,
     grid: NodeReferences[][],
-    delay: MutableRefObject<number>
+    delay: MutableRefObject<number>,
+    options: RandomOptions
 };
 
 export type BeginRandomObstructionGenerator = (params: BeginRandomObstructionGeneratorParams) => void;
@@ -24,7 +25,7 @@ const directions = [
 ] satisfies Direction[];
 const visited: boolean[][] = [];
 
-export const beginRandomObstructionGenerator: BeginRandomObstructionGenerator = ({ origin, grid, delay }) => {
+export const beginRandomObstructionGenerator: BeginRandomObstructionGenerator = ({ origin, grid, options }) => {
     setupPathfinder(
         stack,
         {
@@ -36,12 +37,15 @@ export const beginRandomObstructionGenerator: BeginRandomObstructionGenerator = 
         false
     );
 
-    void recursiveAsyncGeneratorRunner(randomObstructionGenerator(grid), delay);
+    generateRandomObstructions(grid, options);
 };
 
-function* randomObstructionGenerator(
-    grid: NodeReferences[][]
+function generateRandomObstructions(
+    grid: BeginRandomObstructionGeneratorParams['grid'],
+    { probability: p }: BeginRandomObstructionGeneratorParams['options']
 ) {
+    const probability = p / 100;
+
     while (stack.length > 0) {
         const current = stack.pop()!;
 
@@ -49,7 +53,7 @@ function* randomObstructionGenerator(
             continue;
         }
 
-        if (Math.random() >= 0.5) {
+        if (Math.random() <= probability) {
             grid[current.y]![current.x]!.obstruction.current[1](true);
         }
 
@@ -66,7 +70,5 @@ function* randomObstructionGenerator(
                 });
             }
         }
-
-        yield;
     }
 }

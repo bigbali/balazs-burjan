@@ -23,7 +23,6 @@ import { useLoading } from '../../store/loading';
 import { dijkstraDefaultOptions } from './algorithm/dijkstra/options';
 
 import {
-    DEFAULT_OBSTRUCTION_GENERATOR,
     ObstructionGenerator,
     OBSTRUCTION_GENERATOR_MAP,
     useObstructionGeneratorOptions
@@ -61,6 +60,7 @@ type PathfinderVisualizerProps = {
     containedHeight?: number
 };
 
+// TODO major refactor
 export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
     function PathfinderVisualizer({ modeSelector, containedHeight }, ref) {
         const [rows, setRows] = useState(Dimensions.DEFAULT);
@@ -68,7 +68,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
         const [pathfinder, setPathfinder] = useState(Pathfinder.BREADTH_FIRST);
         const [pathfinderOptions, PathfinderOptions] = usePathfinderOptions(pathfinder);
 
-        const [obstructionGenerator, setObstructionGenerator] = useState(DEFAULT_OBSTRUCTION_GENERATOR);
+        const [obstructionGenerator, setObstructionGenerator] = useState(ObstructionGenerator.CELLULAR_AUTOMATA);
         const [obstructionGeneratorOptions, ObstructionGeneratorOptions] = useObstructionGeneratorOptions(obstructionGenerator);
 
         const [state, setState] = useState(PathfinderState.STOPPED);
@@ -115,7 +115,6 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
 
             return refs;
         }, [columns, rows]);
-
 
         // FIXME replace with final solution
         useEffect(() => {
@@ -360,7 +359,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
                                 Reset
                             </button>
                         </div>
-                        N</div>
+                    </div>
                 </div>
             );
         }
