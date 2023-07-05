@@ -19,8 +19,13 @@ export const OBSTRUCTION_GENERATOR_MAP = {
     [ObstructionGenerator.CELLULAR_AUTOMATA]: beginCAObstructionGenerator
 } as const;
 
+const DFSOpt: React.FC = () => {
+    return null;
+};
+
+
 export const OBSTRUCTION_GENERATOR_OPTIONS_MAP = {
-    [ObstructionGenerator.DFS]: () => null,
+    [ObstructionGenerator.DFS]: DFSOpt,
     [ObstructionGenerator.RANDOM]: RandomObstructionGeneratorOptions,
     [ObstructionGenerator.CELLULAR_AUTOMATA]: CAOptions
 } as const;
