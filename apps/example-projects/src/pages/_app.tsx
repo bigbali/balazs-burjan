@@ -1,6 +1,6 @@
 import { type AppType } from 'next/app';
 
-import Layout from '../components/layout';
+import Layout from 'ui/layout';
 
 import 'config/tailwind/tailwind.css';
 import '../styles/font.css';

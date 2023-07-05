@@ -4,7 +4,7 @@
     "private": true,
     "scripts": {
         "build": "next build",
-        "dev": "next dev",
+        "dev": "next dev -p 3002",
         "start": "next start",
         "lint": "next lint",
         "postinstall": "prisma generate"
@@ -19,7 +19,6 @@
         "@trpc/next": "^10.33.0",
         "@trpc/react-query": "^10.33.0",
         "@trpc/server": "^10.33.0",
-        "algorithm-visualizers": "workspace:*",
         "config": "workspace:*",
         "lodash": "^4.17.21",
         "million": "^2.4.8",

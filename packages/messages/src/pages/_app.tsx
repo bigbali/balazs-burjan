@@ -3,17 +3,16 @@ import { type Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
 
 import { api } from '../utils/api';
-import Layout from '../components/layout';
+import Layout from 'ui/layout';
 
 import 'config/tailwind/tailwind.css';
-import '../styles/font.css';
 
 const MyApp: AppType<{ session: Session | null }> = ({
     Component,
     pageProps: { session, ...pageProps }
 }) => {
     return (
-        <SessionProvider session={session}>
+        <SessionProvider session={session} basePath='/project/messages/api/auth'>
             <Layout>
                 <Component {...pageProps} />
             </Layout>
