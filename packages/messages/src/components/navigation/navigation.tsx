@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import PROJECTS from '../../data/projects';
 
 const Navigation = () => {
     const router = useRouter();
@@ -11,7 +12,7 @@ const Navigation = () => {
                 Example Projects
             </Link>
             <ul className='flex ml-auto gap-4 capitalize text-lg'>
-                {/* {PROJECTS.map(project => {
+                {PROJECTS.map(project => {
                     const isCurrent = asPath.slice('/project/'.length) === project;
 
                     return (
@@ -21,7 +22,7 @@ const Navigation = () => {
                             </Link>
                         </li>
                     );
-                })} */}
+                })}
             </ul>
         </nav>
     );

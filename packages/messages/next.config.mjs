@@ -1,7 +1,15 @@
 // @ts-check
 
+/**
+ * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
+ * This is especially useful for Docker builds.
+ */
+import million from 'million/compiler';
+!process.env.SKIP_ENV_VALIDATION && (await import('./src/env/server.mjs'));
+
 /** @type {import("next").NextConfig} */
 const config = {
+    // reactStrictMode: true,
     /**
      * If you have the "experimental: { appDir: true }" setting enabled, then you
      * must comment the below `i18n` config out.
@@ -12,8 +20,11 @@ const config = {
         locales: ['en'],
         defaultLocale: 'en'
     },
-    // TODO algorithm-visualizers as seperate app, currently it's a package only
+    experimental: {
+        swcPlugins: [['next-superjson-plugin', {}]]
+    },
     transpilePackages: ['ui', 'algorithm-visualizers', 'util']
 };
 
-export default config;
+// export default config;
+export default million.next(config);
