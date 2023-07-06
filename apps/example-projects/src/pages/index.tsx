@@ -44,7 +44,7 @@ const Home: NextPage = () => {
                     </h1>
                     <div className='grid grid-flow-col auto-cols-fr gap-4'>
                         {PROJECTS.map((project) => (
-                            <Link key={project.slug} href={`project/${project.slug}`}>
+                            <Link key={project.slug} href={`/project/${project.slug}`}>
                                 <div
                                     style={{ background: project.color }}
                                     className={`

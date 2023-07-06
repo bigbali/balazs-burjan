@@ -16,17 +16,17 @@ export type MessagePageProps = {
     nextCursor: string | undefined
 };
 
-// export const getServerSideProps: GetServerSideProps<MessagePageProps> = async ({ req, res }) => {
-//     // @ts-ignore FIXME
-//     const ctx = await createTRPCContext({ req, res });
-//     const messages = await createServerSideHelpers({ ctx, router: appRouter }).message.getInitial.fetch();
+export const getServerSideProps: GetServerSideProps<MessagePageProps> = async ({ req, res }) => {
+    // @ts-ignore FIXME
+    const ctx = await createTRPCContext({ req, res });
+    const messages = await createServerSideHelpers({ ctx, router: appRouter }).message.getInitial.fetch();
 
-//     return {
-//         props: {
-//             ...messages
-//         }
-//     };
-// };
+    return {
+        props: {
+            ...messages
+        }
+    };
+};
 
 const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
     const [messages, setMessages] = useState(data);
@@ -123,10 +123,4 @@ const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
     );
 };
 
-const Messages = ({ data, nextCursor }: MessagePageProps) => <MessagesPage data={data} nextCursor={nextCursor} />;
-
-// export default Messages;
-
-const X = () => <div><h1>hey</h1></div>;
-
-export default X;
+export default MessagesPage;
