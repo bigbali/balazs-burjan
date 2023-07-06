@@ -8,11 +8,8 @@ const config = {
             beforeFiles: [
                 {
                     source: '/project/messages',
-                    destination: 'http://localhost:3002/project/messages'
-                },
-                {
-                    source: '/test',
-                    destination: 'http://localhost:3002/project/messages/hey'
+                    destination: 'http://localhost:3002/project/messages',
+                    basePath: false
                 }
             ],
             afterFiles: [],
