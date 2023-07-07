@@ -1,22 +1,37 @@
+import type {
+    FC,
+    PropsWithChildren
+} from 'react';
 import {
-    type ForwardRefRenderFunction,
-    type PropsWithChildren,
     forwardRef
 } from 'react';
+import Head from 'next/head';
 import Header from './header';
 
-forwardRef<HTMLElement, PropsWithChildren>;
-type LayoutComponent = ForwardRefRenderFunction<HTMLElement, PropsWithChildren>;
+type LayoutProps = {
+    title?: string,
+    description?: string,
+    favicon?: string,
+    auth?: boolean
+} & PropsWithChildren;
 
-const Layout: LayoutComponent = ({ children }, ref) => {
-    return (
-        <>
-            <Header />
-            <main ref={ref}>
-                {children}
-            </main>
-        </>
-    );
-};
+const Layout: FC<LayoutProps> = forwardRef<HTMLElement, LayoutProps>(
+    function Layout({ children, title, description, favicon, auth = false }, ref) {
+        return (
+            <>
+                <Head>
+                    <title>
+                        {title}
+                    </title>
+                    <meta name='description' content={description} />
+                    <link rel='icon' href={favicon} />
+                </Head>
+                <Header auth={auth} />
+                <main ref={ref}>
+                    {children}
+                </main>
+            </>
+        );
+    });
 
-export default forwardRef(Layout);
+export default Layout;

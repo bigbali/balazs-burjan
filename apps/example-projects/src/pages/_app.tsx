@@ -6,11 +6,12 @@ import 'config/tailwind/tailwind.css';
 import '../styles/font.css';
 
 const MyApp: AppType = ({
-    Component
+    Component,
+    pageProps: { ...pageProps }
 }) => {
     return (
-        <Layout>
-            <Component />
+        <Layout title='Projects' description='Projects by Balázs Burján'>
+            <Component {...pageProps} />
         </Layout>
     );
 };

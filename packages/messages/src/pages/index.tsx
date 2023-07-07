@@ -1,5 +1,5 @@
 import type { GetServerSideProps } from 'next';
-import { useSession } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 import { createTRPCContext } from '../server/api/trpc';
 import { createServerSideHelpers } from '@trpc/react-query/server';
 import { api } from '../utils/api';
@@ -90,6 +90,8 @@ const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
         );
     }
 
+    // console.log(s);
+
     return (
         <div className='pl-24 pr-24 pt-12 pb-12'>
             <h1 className='text-3xl font-medium text-center mb-8'>
@@ -100,14 +102,17 @@ const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
                     <Form onMessageAdded={handleMessageAdded} />
                 }
                 {status === 'unauthenticated' &&
-                    <>
+                    <div className='flex flex-col items-center gap-4 mb-6'>
                         <h2 className='text-2xl text-center'>
-                            You&apos;re not logged in.
+                            You need to log in to post messages.
                         </h2>
-                        <p className='text-lg text-center mb-12'>
-                            If you decide to log in, you&apos;ll be able to post messages :)
-                        </p>
-                    </>
+                        <button
+                            className='bg-theme-red py-2 px-4 text-white text-[1.5rem] font-medium rounded-2'
+                            onClick={() => void signIn()}
+                        >
+                            Log in
+                        </button>
+                    </div>
                 }
                 <div className='w-1/2 ml-auto mr-auto' ref={messagesContainerRef}>
                     {messages.map(message => (

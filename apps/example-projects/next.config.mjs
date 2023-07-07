@@ -7,8 +7,9 @@ const config = {
         return {
             beforeFiles: [
                 {
-                    source: '/project/messages',
-                    destination: 'http://localhost:3002/project/messages',
+                    source: '/project/messages/:path*',
+                    destination:
+                        'http://localhost:3002/project/messages/:path*',
                     basePath: false
                 }
             ],
@@ -16,7 +17,6 @@ const config = {
             fallback: []
         };
     },
-    // TODO algorithm-visualizers as seperate app, currently it's a package only
     transpilePackages: ['ui', 'algorithm-visualizers', 'util']
 };
 

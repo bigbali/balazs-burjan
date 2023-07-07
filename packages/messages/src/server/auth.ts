@@ -33,22 +33,36 @@ declare module 'next-auth' {
     // }
 }
 
-/**
- * Options for NextAuth.js used to configure adapters, providers, callbacks,
- * etc.
- *
- * @see https://next-auth.js.org/configuration/options
- **/
-export const authOptions: NextAuthOptions = {
+// NOTE https://medium.com/@romeobazil/share-auth-session-between-nextjs-multi-zones-apps-using-nextauth-js-5bab51bb7e31
+
+const useSecureCookies = !!process.env.VERCEL_URL;
+
+export const authOptions: NextAuthOptions = ({
+    cookies: {
+        sessionToken: {
+            name: `${useSecureCookies ? '__Secure-' : ''}next-auth.session-token`,
+            options: {
+                httpOnly: true,
+                sameSite: 'lax',
+                path: '/project/messages',
+                domain: 'localhost',
+                secure: useSecureCookies
+            }
+        }
+    },
     callbacks: {
         session({ session, user }) {
             if (session.user) {
                 session.user.id = user.id;
-                // session.user.role = user.role; <-- put other properties on the session here
             }
             return session;
+        },
+        // eslint-disable-next-line @typescript-eslint/require-await
+        async redirect({ url }) {
+            return url;
         }
     },
+    secret: process.env.SECRET as string,
     adapter: PrismaAdapter(prisma),
     providers: [
         DiscordProvider({
@@ -59,7 +73,14 @@ export const authOptions: NextAuthOptions = {
         GoogleProvider({
             clientId: env.GOOGLE_CLIENT_ID,
             clientSecret: env.GOOGLE_CLIENT_SECRET,
-            allowDangerousEmailAccountLinking: true
+            allowDangerousEmailAccountLinking: true,
+            authorization: {
+                params: {
+                    prompt: 'consent',
+                    access_type: 'offline',
+                    response_type: 'code'
+                }
+            }
         }),
         FacebookProvider({
             clientId: env.FACEBOOK_CLIENT_ID,
@@ -67,17 +88,8 @@ export const authOptions: NextAuthOptions = {
             allowDangerousEmailAccountLinking: true
 
         })
-        /**
-         * ...add more providers here
-         *
-         * Most other providers require a bit more work than the Discord provider.
-         * For example, the GitHub provider requires you to add the
-         * `refresh_token_expires_in` field to the Account model. Refer to the
-         * NextAuth.js docs for the provider you want to use. Example:
-         * @see https://next-auth.js.org/providers/github
-         **/
     ]
-};
+});
 
 /**
  * Wrapper for `getServerSession` so that you don't need to import the

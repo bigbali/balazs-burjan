@@ -13,8 +13,8 @@ const MyApp: AppType<{ session: Session | null }> = ({
     pageProps: { session, ...pageProps }
 }) => {
     return (
-        <SessionProvider session={session} basePath={`http://localhost:3002${BASEPATH}/api/auth`}>
-            <Layout>
+        <SessionProvider session={session} basePath={`${BASEPATH}/api/auth`}>
+            <Layout title='Messages' description='A messaging application using Next.js and Prisma' auth>
                 <Component {...pageProps} />
             </Layout>
         </SessionProvider>

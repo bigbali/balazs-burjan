@@ -4,7 +4,7 @@ import { NextResponse } from 'next/server';
 const withHeaders = (response: Response | NextResponse) => {
     response.headers.set('Access-Control-Allow-Origin', '*');
     response.headers.set('Access-Control-Allow-Credentials', 'true');
-    response.headers.set('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
+    response.headers.set('Access-Control-Allow-Methods', 'GET, OPTIONS, PATCH, DELETE, POST, PUT');
     response.headers.set(
         'Access-Control-Allow-Headers',
         // eslint-disable-next-line max-len
@@ -14,6 +14,7 @@ const withHeaders = (response: Response | NextResponse) => {
     return response;
 };
 
+// Allow all origins to prevent CORS issues
 export function middleware({ method }: NextRequest) {
     if (method === 'OPTIONS') { // Preflight request, does not work with 'NextResponse.next()'
         return withHeaders(new Response());

@@ -10,6 +10,12 @@ module.exports = {
                 'theme-light-bg': '#FAFAFA',
                 'theme-dark-text': '#F0F0F0',
                 'theme-light-text': '#232328'
+            },
+            borderRadius: {
+                1: '0.25rem',
+                2: '0.5rem',
+                3: '0.75rem',
+                4: '1rem'
             }
         }
     }

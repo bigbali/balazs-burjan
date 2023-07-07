@@ -1,3 +1,5 @@
+import type { Session } from 'next-auth';
+import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { FC } from 'react';
@@ -7,12 +9,22 @@ const PROJECTS = [
     'messages'
 ] as const;
 
-const Header: FC = () => {
-    const router = useRouter();
-    const { asPath } = router;
+type HeaderProps = {
+    auth: boolean
+};
+
+const Header: FC<HeaderProps> = ({ auth }) => {
+    const { asPath } = useRouter();
+
+    let session: Session | null = null;
+    // Yes, we are breaking the rule of hooks. And it works, so worry not!
+    if (auth) {
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        session = useSession().data;
+    }
 
     return (
-        <nav className='flex items-center b w-full p-4 drop-shadow-md' id='header'>
+        <nav className='flex items-center w-full p-4 gap-4' id='header'>
             <Link href='http://localhost:3000/' className='text-2xl font-medium'>
                 Example Projects
             </Link>
@@ -31,6 +43,16 @@ const Header: FC = () => {
                     );
                 })}
             </ul>
+            {session?.user && (
+                <div>
+                    <p>
+                        Hello,&nbsp;
+                        <span className='font-medium'>
+                            {session.user.name}
+                        </span>
+                    </p>
+                </div>
+            )}
         </nav>
     );
 };
