@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
 import type { ObstructionGeneratorOptionsProps } from '../options';
-import { FieldRangeInput } from 'ui';
+import FieldRangeInput from 'ui/FieldRangeInput';
 
 export type RandomOptions = {
     probability: number

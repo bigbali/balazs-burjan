@@ -1,5 +1,5 @@
 import type { Session } from 'next-auth';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import type { FC } from 'react';
@@ -14,10 +14,12 @@ type HeaderProps = {
 };
 
 const Header: FC<HeaderProps> = ({ auth }) => {
-    const { asPath } = useRouter();
+    const { basePath, asPath } = useRouter();
+    const path = basePath || asPath;
 
     let session: Session | null = null;
-    // Yes, we are breaking the rule of hooks. And it works, so worry not!
+    // as 'auth' is absolutely static, we can use it to conditionally call the hook
+    // (although the linter will still bare its teeth for it)
     if (auth) {
         // eslint-disable-next-line react-hooks/rules-of-hooks
         session = useSession().data;
@@ -30,7 +32,7 @@ const Header: FC<HeaderProps> = ({ auth }) => {
             </Link>
             <ul className='flex ml-auto gap-4 capitalize text-lg'>
                 {PROJECTS.map(project => {
-                    const isCurrent = asPath.slice('/project/'.length) === project;
+                    const isCurrent = path.slice('/project/'.length) === project;
 
                     return (
                         <li key={project}>
@@ -44,13 +46,16 @@ const Header: FC<HeaderProps> = ({ auth }) => {
                 })}
             </ul>
             {session?.user && (
-                <div>
+                <div className='flex items-center gap-4'>
                     <p>
                         Hello,&nbsp;
                         <span className='font-medium'>
                             {session.user.name}
                         </span>
                     </p>
+                    <button className='rounded-2 border border-theme-red px-4 py-2 font-medium' onClick={() => void signOut()}>
+                        Sign out
+                    </button>
                 </div>
             )}
         </nav>
