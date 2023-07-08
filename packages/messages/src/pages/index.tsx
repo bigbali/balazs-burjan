@@ -28,7 +28,7 @@ export const getServerSideProps: GetServerSideProps<MessagePageProps> = async ({
     };
 };
 
-const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
+const Messages = ({ data, nextCursor }: MessagePageProps) => {
     const [messages, setMessages] = useState(data);
     const { status } = useSession();
     const sentinelRef = useRef<HTMLDivElement>(null);
@@ -90,8 +90,6 @@ const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
         );
     }
 
-    // console.log(s);
-
     return (
         <div className='pl-24 pr-24 pt-12 pb-12'>
             <h1 className='text-3xl font-medium text-center mb-8'>
@@ -128,4 +126,4 @@ const MessagesPage = ({ data, nextCursor }: MessagePageProps) => {
     );
 };
 
-export default MessagesPage;
+export default Messages;
