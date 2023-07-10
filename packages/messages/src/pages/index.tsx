@@ -96,9 +96,7 @@ const Messages = ({ data, nextCursor }: MessagePageProps) => {
                 Messages
             </h1>
             <div>
-                {status === 'authenticated' &&
-                    <Form onMessageAdded={handleMessageAdded} />
-                }
+                {status === 'authenticated' && <Form onMessageAdded={handleMessageAdded} />}
                 {status === 'unauthenticated' &&
                     <div className='flex flex-col items-center gap-4 mb-6'>
                         <h2 className='text-2xl text-center'>

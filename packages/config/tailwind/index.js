@@ -2,7 +2,7 @@
 module.exports = {
     content: [
         '../../packages/ui/**/*.{js,ts,jsx,tsx}',
-        '../../packages/algorithm-visualizers/**/*.{js,ts,jsx,tsx}',
+        '../../packages/algorithms/**/*.{js,ts,jsx,tsx}',
         './src/**/*.{js,ts,jsx,tsx}'
     ],
     plugins: [],

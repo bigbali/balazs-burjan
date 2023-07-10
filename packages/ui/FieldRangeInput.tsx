@@ -1,9 +1,13 @@
+import type {
+    ChangeEvent,
+    Dispatch,
+    HTMLAttributes,
+    SetStateAction,
+    CSSProperties
+} from 'react';
+import { memo, useState } from 'react';
 import { debounce } from 'lodash';
-import type { ChangeEvent, Dispatch, HTMLAttributes, SetStateAction } from 'react';
-import { memo } from 'react';
-import { useState } from 'react';
 import type { Either } from '../util/type';
-import type { CSSProperties } from 'react';
 
 type BaseFieldRangeInputProps = {
     min?: number,
@@ -47,7 +51,7 @@ type FieldRangeInputHandlerOptions = {
 
 /**
  * When user is typing a digit that is smaller than the minimum, we do not know if he is going to type another number or not.\
- * This could mean that the user is intending to type `12`, but our minimum is set to `1`. In usual input validation implementations,
+ * This could mean that the user intends to type `12`, but our minimum is set to `1`. In usual input validation implementations,
  * this would cause `1` to be replaced by `min`. We are using debouncing like so to prevent this from happening.
  */
 const waitForPossibleFieldInput = debounce((callback: () => void) => callback(), 500);

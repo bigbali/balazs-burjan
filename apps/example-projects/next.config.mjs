@@ -7,6 +7,12 @@ const config = {
         return {
             beforeFiles: [
                 {
+                    source: '/project/algorithms/:path*',
+                    destination:
+                        'http://localhost:3001/project/algorithms/:path*',
+                    basePath: false
+                },
+                {
                     source: '/project/messages/:path*',
                     destination:
                         'http://localhost:3002/project/messages/:path*',
@@ -17,7 +23,7 @@ const config = {
             fallback: []
         };
     },
-    transpilePackages: ['ui', 'algorithm-visualizers', 'util']
+    transpilePackages: ['ui', 'util']
 };
 
 export default config;

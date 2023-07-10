@@ -1127,42 +1127,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"algorithm-visualizers@workspace:*, algorithm-visualizers@workspace:packages/algorithm-visualizers":
-  version: 0.0.0-use.local
-  resolution: "algorithm-visualizers@workspace:packages/algorithm-visualizers"
-  dependencies:
-    "@fortawesome/fontawesome-svg-core": ^6.4.0
-    "@fortawesome/free-regular-svg-icons": ^6.4.0
-    "@fortawesome/free-solid-svg-icons": ^6.4.0
-    "@fortawesome/react-fontawesome": latest
-    "@types/lodash": ^4.14.191
-    "@types/node": ^18.11.18
-    "@types/prettier": ^2.7.2
-    "@types/react": ^18.0.26
-    "@types/react-dom": ^18.0.10
-    autoprefixer: ^10.4.7
-    config: "workspace:*"
-    eslint: ^8.34.0
-    konva: ^9.2.0
-    lodash: ^4.17.21
-    million: ^2.4.8
-    postcss: ^8.4.14
-    postcss-loader: ^7.0.2
-    prettier: ^2.8.4
-    prettier-plugin-tailwindcss: ^0.2.3
-    react: 18.2.0
-    react-dom: 18.2.0
-    react-konva: ^18.2.9
-    react-konva-utils: ^1.0.4
-    tailwindcss: ^3.2.7
-    ts-node: ^10.9.1
-    tsconfig: "workspace:*"
-    typescript: ^5.1.5
-    ui: "workspace:*"
-    util: "workspace:*"
-  languageName: unknown
-  linkType: soft
-
 "ansi-regex@npm:^5.0.1":
   version: 5.0.1
   resolution: "ansi-regex@npm:5.0.1"
@@ -2290,7 +2254,6 @@ __metadata:
     "@types/prettier": ^2.7.2
     "@types/react": ^18.0.26
     "@types/react-dom": ^18.0.10
-    algorithm-visualizers: "workspace:*"
     autoprefixer: ^10.4.7
     config: "workspace:*"
     eslint: ^8.30.0
@@ -5373,6 +5336,7 @@ __metadata:
     tsconfig: "workspace:*"
     typescript: ^5.1.5
     util: "workspace:*"
+    zustand: ^4.3.9
   languageName: unknown
   linkType: soft
 
@@ -5652,6 +5616,60 @@ __metadata:
   languageName: node
   linkType: hard
 
+"zustand@npm:^4.3.9":
+  version: 4.3.9
+  resolution: "zustand@npm:4.3.9"
+  dependencies:
+    use-sync-external-store: 1.2.0
+  peerDependencies:
+    immer: ">=9.0"
+    react: ">=16.8"
+  peerDependenciesMeta:
+    immer:
+      optional: true
+    react:
+      optional: true
+  checksum: fc83d653913fa537c354ba8b95d3a4fdebe62d2ebd3d9f5aeff2edf062811c0f5af48e02ab4da32b666752fd4f3e78c2b44624e445254f48503595435d4a7d70
+  languageName: node
+  linkType: hard
+
+"~algorithms@workspace:packages/algorithms":
+  version: 0.0.0-use.local
+  resolution: "~algorithms@workspace:packages/algorithms"
+  dependencies:
+    "@fortawesome/fontawesome-svg-core": ^6.4.0
+    "@fortawesome/free-regular-svg-icons": ^6.4.0
+    "@fortawesome/free-solid-svg-icons": ^6.4.0
+    "@fortawesome/react-fontawesome": latest
+    "@types/lodash": ^4.14.191
+    "@types/node": ^18.11.18
+    "@types/prettier": ^2.7.2
+    "@types/react": ^18.0.26
+    "@types/react-dom": ^18.0.10
+    autoprefixer: ^10.4.7
+    config: "workspace:*"
+    eslint: ^8.34.0
+    konva: ^9.2.0
+    lodash: ^4.17.21
+    million: ^2.4.8
+    next: ^13.4.7
+    postcss: ^8.4.14
+    postcss-loader: ^7.0.2
+    prettier: ^2.8.4
+    prettier-plugin-tailwindcss: ^0.2.3
+    react: 18.2.0
+    react-dom: 18.2.0
+    react-konva: ^18.2.9
+    react-konva-utils: ^1.0.4
+    tailwindcss: ^3.3.2
+    ts-node: ^10.9.1
+    tsconfig: "workspace:*"
+    typescript: ^5.1.5
+    ui: "workspace:*"
+    util: "workspace:*"
+  languageName: unknown
+  linkType: soft
+
 "~messages@workspace:packages/messages":
   version: 0.0.0-use.local
   resolution: "~messages@workspace:packages/messages"
@@ -5685,7 +5703,7 @@ __metadata:
     react: 18.2.0
     react-dom: 18.2.0
     superjson: ^1.12.4
-    tailwindcss: ^3.2.7
+    tailwindcss: ^3.3.2
     ts-node: ^10.9.1
     tsconfig: "workspace:*"
     typescript: ^5.1.5
