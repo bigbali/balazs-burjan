@@ -136,7 +136,11 @@ const Message = ({ setMessages, ...originalMessage }: MessageProps) => {
                     )}
                     {isEdit && (
                         <button
-                            className='text-base border border-blue rounded-md px-4 py-2 bg-green-700 text-white'
+                            className={`
+                                text-base border border-blue rounded-md px-4 py-2 bg-green-700 text-white
+                                disabled:opacity-50 disabled:cursor-not-allowed
+                            `}
+                            disabled={message.content.replace(/\s/g, '').length === 0}
                             onClick={() => {
                                 originalMessageRef.current = message;
                                 setIsEdit(false);

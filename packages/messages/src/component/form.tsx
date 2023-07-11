@@ -1,6 +1,9 @@
-import { type FormEvent, useState } from 'react';
+import {
+    type FormEvent,
+    useState
+} from 'react';
+import type { MessageWithAuthor } from './message';
 import { api } from '../utils/api';
-import type { MessageWithAuthor } from '../pages';
 
 export type FormProps = {
     onMessageAdded: (data: MessageWithAuthor) => void
@@ -15,6 +18,7 @@ const Form = ({ onMessageAdded }: FormProps) => {
 
     const handleSubmit = (e: FormEvent) => {
         e.preventDefault();
+        setMessage('');
         void addMessage.mutateAsync({ content: message });
     };
 
@@ -35,9 +39,11 @@ const Form = ({ onMessageAdded }: FormProps) => {
                 <input
                     type='submit'
                     value='Submit'
+                    disabled={message.replace(/\s/g, '').length === 0}
                     className={`
                         border border-teal-900 bg-teal-800 rounded-lg p-2 pl-6 pr-6 text-xl
                         text-white font-medium self-start hover:bg-teal-900 cursor-pointer
+                        disabled:opacity-50 disabled:cursor-not-allowed
                     `}
                 />
             </div>
