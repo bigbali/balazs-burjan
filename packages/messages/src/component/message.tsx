@@ -1,11 +1,14 @@
-import { useSession } from 'next-auth/react';
 import type { Dispatch, SetStateAction } from 'react';
+import type { inferRouterOutputs } from '@trpc/server';
+import type { AppRouter } from '../server/api/root';
+import { useSession } from 'next-auth/react';
 import { useRef, useState } from 'react';
-import type { MessageWithAuthor } from '../pages';
 import { api } from '../utils/api';
 
+export type MessageWithAuthor = inferRouterOutputs<AppRouter>['message']['add'];
+
 type MessageProps = MessageWithAuthor & {
-    setMessages: Dispatch<SetStateAction<MessageWithAuthor[] | undefined>>
+    setMessages: Dispatch<SetStateAction<MessageWithAuthor[]>>
 };
 
 const Message = ({ setMessages, ...originalMessage }: MessageProps) => {

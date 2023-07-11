@@ -1,25 +1,19 @@
 import type { GetServerSideProps } from 'next';
-import { signIn, useSession } from 'next-auth/react';
-import { createTRPCContext } from '../server/api/trpc';
-import { createServerSideHelpers } from '@trpc/react-query/server';
-import { api } from '../utils/api';
-import type { Message as MessageType, User } from '@prisma/client';
-import { appRouter } from '../server/api/root';
+import type { inferRouterOutputs } from '@trpc/server';
+import type { MessageWithAuthor } from '../component/message';
+import type { AppRouter } from '../server/api/root';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { signIn, useSession } from 'next-auth/react';
+import { api } from '../utils/api';
 import { useAutoAnimate } from '@formkit/auto-animate/react';
+import { ssgPublic } from '../server/api/trpcContext';
 import Form from '../component/form';
 import Message from '../component/message';
-export type MessageWithAuthor = MessageType & { author: User };
 
-export type MessagePageProps = {
-    data?: MessageWithAuthor[],
-    nextCursor: string | undefined
-};
+export type MessagePageProps = inferRouterOutputs<AppRouter>['message']['getInitial'];
 
-export const getServerSideProps: GetServerSideProps<MessagePageProps> = async ({ req, res }) => {
-    // @ts-ignore FIXME
-    const ctx = await createTRPCContext({ req, res });
-    const messages = await createServerSideHelpers({ ctx, router: appRouter }).message.getInitial.fetch();
+export const getServerSideProps: GetServerSideProps<MessagePageProps> = async () => {
+    const messages = await ssgPublic.message.getInitial.fetch();
 
     return {
         props: {
@@ -36,14 +30,14 @@ const Messages = ({ data, nextCursor }: MessagePageProps) => {
 
     const { fetchNextPage, hasNextPage } = api.message.infiniteMessages.useInfiniteQuery({}, {
         getNextPageParam: (lastPage) => lastPage.nextCursor,
-        onSuccess(data) {
-            setMessages(                              // If `items` is undefined, return empty array that will be stripped
-                data.pages.flatMap(page => page.items || [])
+        onSuccess(newData) {
+            setMessages(
+                newData.pages.flatMap(page => page.items || [])
             );
         },
         initialData: {
             pages: [
-                { // @ts-ignore
+                {
                     items: data,
                     nextCursor: nextCursor
                 }
@@ -81,15 +75,6 @@ const Messages = ({ data, nextCursor }: MessagePageProps) => {
         return () => sentinel.disconnect();
     }, [fetchInfiniteQuery]);
 
-
-    if (!messages) {
-        return (
-            <h1>
-                No messages found bro
-            </h1>
-        );
-    }
-
     return (
         <div className='pl-24 pr-24 pt-12 pb-12'>
             <h1 className='text-3xl font-medium text-center mb-8'>
@@ -111,12 +96,19 @@ const Messages = ({ data, nextCursor }: MessagePageProps) => {
                     </div>
                 }
                 <div className='w-1/2 ml-auto mr-auto' ref={messagesContainerRef}>
-                    {messages.map(message => (
-                        <Message
-                            key={message.id}
-                            setMessages={setMessages}
-                            {...message} />
-                    ))}
+                    {messages.length > 0 && (
+                        messages.map(message => (
+                            <Message
+                                key={message.id}
+                                setMessages={setMessages}
+                                {...message} />
+                        ))
+                    )}
+                    {messages.length === 0 && (
+                        <p className='text-[1.5rem] font-medium text-center'>
+                            No messages found :(
+                        </p>
+                    )}
                 </div>
                 <div className='sentinel' ref={sentinelRef} />
             </div>
