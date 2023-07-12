@@ -12,6 +12,7 @@ import {
     isObstruction,
     isOutOfBounds
 } from '../../../../util/common';
+import type { Entry } from '../../../../util/algorithm';
 
 type BeginDFSParams = {
     origin: Coordinate,
@@ -25,15 +26,10 @@ type BeginDFSParams = {
     }
 };
 
-export type BeginDFS = (params: BeginDFSParams) => Promise<DFSStackEntry | undefined>;
+export type BeginDFS = (params: BeginDFSParams) => Promise<Entry>;
 
-type DFSStackEntry = Coordinate & {
-    parent: null | DFSStackEntry
-};
 
-type DFSStack = DFSStackEntry[];
-
-let stack: DFSStack = [];
+let stack: Entry[] = [];
 let directions: Direction[] = [];
 const visited: boolean[][] = [];
 
@@ -69,7 +65,7 @@ function* dfsGenerator(
 ) {
     while (stack.length > 0) {
         if (state.current === PathfinderState.PAUSED) {
-            return;
+            return null;
         }
 
         const current = stack.pop()!;
@@ -105,4 +101,6 @@ function* dfsGenerator(
 
         yield;
     }
+
+    return null;
 }

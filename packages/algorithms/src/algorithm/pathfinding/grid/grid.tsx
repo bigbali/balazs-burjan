@@ -1,7 +1,14 @@
-import type { Dispatch, FC, SetStateAction } from 'react';
-import { Fragment, useEffect, useRef, useState, memo, useMemo } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
 import type { Coordinate } from '../../../util/common';
 import type { NodeReferences } from './../index';
+import {
+    Fragment,
+    useEffect,
+    useRef,
+    useState,
+    memo,
+    useMemo
+} from 'react';
 import { Layer, Stage } from 'react-konva';
 import Node from './node';
 import NodeControls, { useNodeControlsMenu } from '../node-controls';
@@ -29,7 +36,7 @@ type RowProps = {
     }
 };
 
-const Row: FC<RowProps> = ({ data }) => {
+const Row = ({ data }: RowProps) => {
     const {
         columns,
         row,
@@ -70,7 +77,7 @@ const Row: FC<RowProps> = ({ data }) => {
     );
 };
 
-const Grid: FC<GridProps> = ({ data }) => {
+const Grid = ({ data }: GridProps) => {
     const {
         rows,
         columns,
@@ -93,6 +100,7 @@ const Grid: FC<GridProps> = ({ data }) => {
         (gridDimensions.x - GRID_MARGIN * 2) / columns,
         (gridDimensions.y - GRID_MARGIN * 2) / rows
     );
+    // FIXME wtf xxx?
     const rowElementsxxx = useMemo(() => {
         const rowElements = new Array<JSX.Element>(rows);
 

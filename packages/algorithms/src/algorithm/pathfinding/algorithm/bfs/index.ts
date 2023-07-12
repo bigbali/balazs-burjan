@@ -3,6 +3,7 @@ import type { NodeReferences } from '../..';
 import type { Direction } from '../../direction';
 import type { BFSDirection } from './direction';
 import type { Coordinate } from '../../../../util/common';
+import type { Entry } from '../../../../util/algorithm';
 import {
     setupPathfinder,
     mutateNode,
@@ -25,15 +26,9 @@ type BeginBFSParams = {
     }
 };
 
-export type BeginBFS = (params: BeginBFSParams) => Promise<BFSQueueEntry | undefined>;
+export type BeginBFS = (params: BeginBFSParams) => Promise<Entry | null>;
 
-type BFSQueueEntry = Coordinate & {
-    parent: null | BFSQueueEntry
-};
-
-type BFSQueue = BFSQueueEntry[];
-
-let queue: BFSQueue = [];
+let queue: Entry[] = [];
 let directions: Direction[] = [];
 const visited: boolean[][] = [];
 
@@ -68,11 +63,12 @@ function* bfsGenerator(
     state: MutableRefObject<PathfinderState>
 ) {
     while (queue.length > 0) {
+        const current = queue.shift()!;
+
         if (state.current === PathfinderState.PAUSED) {
-            return;
+            return current;
         }
 
-        const current = queue.shift()!;
 
         if (current.x === goal.x && current.y === goal.y) {
             return current;
@@ -105,4 +101,6 @@ function* bfsGenerator(
 
         yield;
     }
+
+    return null;
 }

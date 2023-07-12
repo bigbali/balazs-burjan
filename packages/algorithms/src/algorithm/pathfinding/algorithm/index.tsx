@@ -1,6 +1,3 @@
-import type { BeginBFS } from './bfs';
-import type { BeginDFS } from './dfs';
-import type { BeginDijkstra } from './dijkstra';
 import { useEffect, useState } from 'react';
 import { beginBFS, resetBFS } from './bfs';
 import { BFSDirection } from './bfs/direction';
@@ -10,6 +7,7 @@ import { DFSDirection } from './dfs/direction';
 import { DFSOptions } from './dfs/options';
 import { beginDijkstra, resetDijkstra } from './dijkstra';
 import { dijkstraDefaultOptions, DijkstraOptions } from './dijkstra/options';
+import type { Entry } from '../../../util/algorithm';
 
 export enum Pathfinder {
     BREADTH_FIRST = 'breadth first',
@@ -23,20 +21,14 @@ const DEFAULT_OPTION = {
     [Pathfinder.DEPTH_FIRST]: DFSDirection.TBLR,
     [Pathfinder.DIJKSTRA]: dijkstraDefaultOptions,
     [Pathfinder.BIDIRECTIONAL]: undefined
-} as const;
-
-type PathfinderMap = {
-    [Pathfinder.BREADTH_FIRST]: BeginBFS,
-    [Pathfinder.DEPTH_FIRST]: BeginDFS,
-    [Pathfinder.DIJKSTRA]: BeginDijkstra,
-    [Pathfinder.BIDIRECTIONAL]: (...args: any[]) => Promise<void>
 };
 
-export const PATHFINDER_MAP: PathfinderMap = {
+export const PATHFINDER_MAP = {
     [Pathfinder.BREADTH_FIRST]: beginBFS,
     [Pathfinder.DEPTH_FIRST]: beginDFS,
     [Pathfinder.DIJKSTRA]: beginDijkstra,
-    [Pathfinder.BIDIRECTIONAL]: async () => { }
+    // eslint-disable-next-line @typescript-eslint/require-await
+    [Pathfinder.BIDIRECTIONAL]: async () => ({} as Entry)
 } as const;
 
 const ALGORITHM_OPTIONS_MAP = {

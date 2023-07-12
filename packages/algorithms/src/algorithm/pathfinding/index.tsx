@@ -30,6 +30,8 @@ import {
 import { Pathfinder, PATHFINDER_MAP, RESET_MAP, usePathfinderOptions } from './algorithm';
 import Expander from 'ui/expander';
 import { NodeSelectionModeSelector } from './node-selection-mode';
+import useBacktraceHighlight from './hook/useBacktraceHighlight';
+import type { Entry } from '../../util/algorithm';
 
 const Grid = dynamic(() => import('./grid/grid'), {
     ssr: false
@@ -55,6 +57,8 @@ export type NodeReferences = {
     reset: MutableRefObject<() => void>
 };
 
+export type NodeRefGrid = NodeReferences[][];
+
 type PathfinderVisualizerProps = {
     modeSelector: JSX.Element,
     containedHeight?: number
@@ -72,10 +76,10 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
         const [obstructionGeneratorOptions, ObstructionGeneratorOptions] = useObstructionGeneratorOptions(obstructionGenerator);
 
         const [state, setState] = useState(PathfinderState.STOPPED);
-        const [result, setResult] = useState<unknown>(null);
+        const [result, setResult] = useState<Entry>(null);
 
-        const [origin, setOrigin] = useState<Coordinate>(({ x: 0, y: 0 }));
-        const [goal, setGoal] = useState<Coordinate>(({ x: columns - 1, y: rows - 1 }));
+        const [origin, setOrigin] = useState<Coordinate>({ x: 0, y: 0 });
+        const [goal, setGoal] = useState<Coordinate>({ x: columns - 1, y: rows - 1 });
 
         const [isPending, startTransition] = useTransition();
 
@@ -116,18 +120,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
             return refs;
         }, [columns, rows]);
 
-        // FIXME replace with final solution
-        useEffect(() => {
-            type XXX = { x: number, y: number, parent: XXX };
-
-            if (!result) return;
-
-            let x = result as XXX;
-            while (x.parent) {
-                x = x.parent;
-                nodes[x.y]![x.x]!.setIsHighlighted.current(true);
-            }
-        }, [nodes, result]);
+        useBacktraceHighlight(nodes, result);
 
         useEffect(() => {
             if (pathfinderOptions === dijkstraDefaultOptions) {
@@ -157,6 +150,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
                 delay: velocityRef,
                 state: stateRef,
                 resume,
+                // @ts-ignore NOTE move to algo like in case  dijkstra
                 options: { direction: pathfinderOptions }
             });
         };

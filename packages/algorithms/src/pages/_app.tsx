@@ -7,7 +7,7 @@ const Algorithms: AppType = ({
     pageProps: { ...pageProps }
 }) => {
     return (
-        <Layout title='Messages' description='A messaging application using Next.js and Prisma'>
+        <Layout title='Algorithms' description='A place where you can see how algorithms work with your own eyes.'>
             <Component {...pageProps} />
         </Layout>
     );

@@ -1,3 +1,5 @@
-export default function Hey() {
-    throw Error('Say hi');
-};
+import type { Coordinate } from './common';
+
+export type Entry<T = object> = (Coordinate & {
+    parent: Entry
+} & T) | null;

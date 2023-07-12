@@ -1,6 +1,6 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { memo, useRef, useState } from 'react';
-import type { Coordinate } from '../../../src/util/common';
+import type { Coordinate } from '../../../util/common';
 import { Rect } from 'react-konva';
 import type Konva from 'konva';
 import { useNodeControlsMenu } from '../node-controls';

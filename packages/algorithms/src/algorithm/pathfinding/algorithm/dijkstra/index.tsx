@@ -13,6 +13,7 @@ import {
     isObstruction,
     isOutOfBounds
 } from '../../../../util/common';
+import type { Entry } from '../../../../util/algorithm';
 
 
 type BeginDijkstraParams = {
@@ -29,7 +30,8 @@ type BeginDijkstraParams = {
 
 const pq = new PriorityQueue();
 
-export type BeginDijkstra = (params: BeginDijkstraParams) => Promise<DijkstraQueueEntry | undefined>;
+type DijkstraEntry = Entry<{ weight: number | null }>;
+export type BeginDijkstra = (params: BeginDijkstraParams) => Promise<DijkstraEntry>;
 
 const directions = [
     [-1, 0],
@@ -76,7 +78,7 @@ function* dijkstraGenerator(
         }
 
         if (state.current === PathfinderState.PAUSED) {
-            return;
+            return null;
         }
 
         if (visited[current.y]![current.x]) {
@@ -109,4 +111,6 @@ function* dijkstraGenerator(
 
         yield;
     }
+
+    return null;
 }
