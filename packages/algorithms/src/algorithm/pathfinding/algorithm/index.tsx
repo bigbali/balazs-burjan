@@ -7,7 +7,7 @@ import { DFSDirection } from './dfs/direction';
 import { DFSOptions } from './dfs/options';
 import { beginDijkstra, resetDijkstra } from './dijkstra';
 import { dijkstraDefaultOptions, DijkstraOptions } from './dijkstra/options';
-import type { Entry } from '../../../util/algorithm';
+import type { Entry } from '../../../util/type';
 
 export enum Pathfinder {
     BREADTH_FIRST = 'breadth first',

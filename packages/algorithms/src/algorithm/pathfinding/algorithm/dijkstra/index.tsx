@@ -1,25 +1,23 @@
 import type { MutableRefObject } from 'react';
-import type { NodeReferences } from '../..';
-import type { Coordinate } from '../../../../util/common';
 import type { Direction } from '../../direction';
 import type { BFSDirection } from '../bfs/direction';
-import type { DijkstraQueueEntry } from './priority-queue';
-import { PathfinderState } from '../../state';
 import { PriorityQueue } from './priority-queue';
 import {
     setupPathfinder,
-    mutateNode,
+    markNode,
     recursiveAsyncGeneratorRunner,
     isObstruction,
     isOutOfBounds
-} from '../../../../util/common';
-import type { Entry } from '../../../../util/algorithm';
+} from '../../../../util';
+import type { Coordinate, Entry } from '../../../../util/type';
+import type { Grid } from '../../type';
+import { PathfinderState } from '../../type';
 
 
 type BeginDijkstraParams = {
     origin: Coordinate,
     goal: Coordinate,
-    grid: NodeReferences[][],
+    grid: Grid,
     delay: MutableRefObject<number>,
     state: MutableRefObject<PathfinderState>,
     resume: boolean,
@@ -65,7 +63,7 @@ export const beginDijkstra: BeginDijkstra = async ({ origin, goal, grid, delay, 
 
 function* dijkstraGenerator(
     goal: Coordinate,
-    grid: NodeReferences[][],
+    grid: Grid,
     state: MutableRefObject<PathfinderState>
 ) {
     while (!pq.isEmpty()) {
@@ -85,22 +83,21 @@ function* dijkstraGenerator(
             continue;
         }
 
-        const setVisited = mutateNode(grid, visited, current.x, current.y);
 
         if (isObstruction(current.x, current.y, grid)) {
             continue;
         }
 
-        setVisited();
+        markNode(grid, visited, current.x, current.y);
 
         for (const [dx, dy] of directions) {
             const x = current.x + dx;
             const y = current.y + dy;
 
             if (!isOutOfBounds(x, y, grid) && !visited[y]![x] && !isObstruction(x, y, grid)) {
-                const weight = grid[y]![x]!.weight.current[0];
+                const weight = grid[y]![x]!.weight[0];
 
-                pq.push(weight || 0, {
+                pq.push(weight ?? 0, {
                     x,
                     y,
                     parent: current,

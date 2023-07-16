@@ -1,13 +1,5 @@
 import type { MutableRefObject } from 'react';
-import type { NodeReferences } from '../algorithm/pathfinding';
-
-export type Coordinate = {
-    x: number,
-    y: number
-};
-
-export type NodeRef = MutableRefObject<HTMLDivElement>;
-export type NodeGrid = NodeRef[][];
+import type { Grid } from '../algorithm/pathfinding/type';
 
 export const isOutOfBounds = (x: number, y: number, grid: any[][]) => {
     if (y >= grid.length || y < 0) return true;
@@ -16,16 +8,8 @@ export const isOutOfBounds = (x: number, y: number, grid: any[][]) => {
     return false;
 };
 
-export const isObstruction = (x: number, y: number, grid: NodeReferences[][]) => {
-    const {
-        obstruction: {
-            current: [
-                isObstruction
-            ]
-        }
-    } = grid[y]![x]!;
-
-    return isObstruction;
+export const isObstruction = (x: number, y: number, grid: Grid) => {
+    return grid[y]![x]!.obstruction?.[0];
 };
 
 type ForEachNode = <T>(
@@ -34,9 +18,9 @@ type ForEachNode = <T>(
 ) => void;
 
 export const forEachNode: ForEachNode = (grid, callback) => {
-    for (let row = 0; row < grid.length; row++) {
+    for (const element of grid) {
         for (let column = 0; column < grid[0]!.length; column++) {
-            callback(grid[row]![column]!);
+            callback(element[column]!);
         }
     }
 };
@@ -85,32 +69,28 @@ export const asyncRecursiveAsyncGeneratorRunner: AsyncRecursiveAsyncGeneratorRun
     return await asyncRecursiveAsyncGeneratorRunner(generator, delay);
 };
 
-type MutateNode = (
-    grid: NodeReferences[][],
+type MarkNode = (
+    grid: Grid,
     visited: boolean[][],
     x: number,
     y: number
-) => () => void;
+) => void;
 
+// // TODO could be better, no need to return fn, can move visited to node itself
 /**
  * Updates the highlight state of the node at `grid[y][x]`
  * @returns a function to that sets the state of the node and updates the visited matrix
  */
-export const mutateNode: MutateNode = (grid, visited, x, y) => {
+export const markNode: MarkNode = (grid, visited, x, y) => {
     const {
-        setIsVisited: {
-            current: setIsVisited
-        },
-        setIsHighlighted
+        visited: [, setVisited],
+        active: [, setHighlighted]
     } = grid[y]![x]!;
 
-    setIsHighlighted.current(true);
-    setTimeout(() => setIsHighlighted.current(false), 200);
-
-    return () => {
-        setIsVisited(true);
-        visited[y]![x] = true;
-    };
+    visited[y]![x] = true;
+    setVisited(true);
+    setHighlighted(true);
+    setTimeout(() => setHighlighted(false), 200);
 };
 
 type SetupPathfinder = <T>(
@@ -118,7 +98,7 @@ type SetupPathfinder = <T>(
         push: (...args: any[]) => any
     },
     initialEntry: T,
-    grid: NodeReferences[][],
+    grid: Grid,
     visited: boolean[][],
     resume: boolean
 ) => void;

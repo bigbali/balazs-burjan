@@ -1,18 +1,18 @@
 import type { MutableRefObject } from 'react';
-import type { NodeReferences } from '../..';
-import type { Coordinate } from '../../../../util/common';
+import type { Node } from '../..';
+import type { Coordinate } from '../../../../util';
 import shuffle from 'lodash/shuffle';
 import {
     setupPathfinder,
     isObstruction,
     isOutOfBounds,
     recursiveAsyncGeneratorRunner
-} from '../../../../util/common';
+} from '../../../../util';
 
 type BeginDFSObstructionGeneratorParams = {
     origin: Coordinate,
     goal: Coordinate,
-    grid: NodeReferences[][],
+    grid: Node[][],
     delay: MutableRefObject<number>
 };
 
@@ -60,7 +60,7 @@ export const beginDFSObstructionGenerator: BeginDFSObstructionGenerator = async 
 };
 
 function* dfsObstructionGenerator(
-    grid: NodeReferences[][]
+    grid: Node[][]
 ) {
     while (stack.length > 0) {
         const current = stack.pop()!;

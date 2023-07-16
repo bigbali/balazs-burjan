@@ -22,7 +22,8 @@
         "react-dom": "18.2.0",
         "react-konva": "^18.2.9",
         "react-konva-utils": "^1.0.4",
-        "ui": "workspace:*"
+        "ui": "workspace:*",
+        "zustand": "^4.3.9"
     },
     "devDependencies": {
         "@types/lodash": "^4.14.191",

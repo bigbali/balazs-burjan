@@ -1,5 +1,5 @@
-import type { NodeReferences } from '../..';
-import type { Coordinate } from '../../../../util/common';
+import type { Node } from '../..';
+import type { Coordinate } from '../../../../util';
 
 export enum WeightPattern {
     GRAVITATIONAL = 'gravitational',
@@ -7,7 +7,7 @@ export enum WeightPattern {
     MANUAL = 'manual'
 };
 
-export const generateRandomWeightPattern = (nodeReferences: NodeReferences[][] | null) => {
+export const generateRandomWeightPattern = (nodeReferences: Node[][] | null) => {
     if (!nodeReferences) {
         return;
     }
@@ -24,7 +24,7 @@ export const generateRandomWeightPattern = (nodeReferences: NodeReferences[][] |
     }
 };
 
-export const generateGravitationalWeightPattern = (nodeReferences: NodeReferences[][] | null, goal: Coordinate | null) => {
+export const generateGravitationalWeightPattern = (nodeReferences: Node[][] | null, goal: Coordinate | null) => {
     if (!nodeReferences || !goal) {
         return;
     }

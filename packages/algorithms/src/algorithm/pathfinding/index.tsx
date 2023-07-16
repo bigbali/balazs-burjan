@@ -1,8 +1,3 @@
-import type {
-    Dispatch,
-    MutableRefObject,
-    SetStateAction
-} from 'react';
 import {
     useCallback,
     useTransition,
@@ -10,18 +5,13 @@ import {
     useState,
     forwardRef,
     useEffect,
-    useRef,
-    createRef
+    useRef
 } from 'react';
 import dynamic from 'next/dynamic';
 import FieldRangeInput from 'ui/FieldRangeInput';
-import { StateButton } from './state-button';
-import { PathfinderState } from './state';
-import type { Coordinate } from '../../util/common';
-import { forEachNode } from '../../util/common';
+import { forEachNode } from '../../util';
 import { useLoading } from 'ui/store/loading';
 import { dijkstraDefaultOptions } from './algorithm/dijkstra/options';
-
 import {
     ObstructionGenerator,
     OBSTRUCTION_GENERATOR_MAP,
@@ -30,34 +20,15 @@ import {
 import { Pathfinder, PATHFINDER_MAP, RESET_MAP, usePathfinderOptions } from './algorithm';
 import Expander from 'ui/expander';
 import { NodeSelectionModeSelector } from './node-selection-mode';
-import useBacktraceHighlight from './hook/useBacktraceHighlight';
-import type { Entry } from '../../util/algorithm';
+import useBacktraceHighlight from './component/node/useBacktraceHighlight';
+import type { Coordinate, Entry } from '../../util/type';
+import type { Node } from './type';
+import { Delay, Dimensions, PathfinderState } from './type';
+import StartButton from './component/start-button';
 
-const Grid = dynamic(() => import('./grid/grid'), {
+const Grid = dynamic(() => import('./component/grid'), {
     ssr: false
 });
-
-export const enum Dimensions {
-    MIN = 5,
-    DEFAULT = 20,
-    MAX = 150
-};
-
-export const enum Delay {
-    MIN = 1,
-    DEFAULT = 50,
-    MAX = 1000
-};
-
-export type NodeReferences = {
-    setIsVisited: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
-    setIsHighlighted: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
-    obstruction: MutableRefObject<[boolean, Dispatch<SetStateAction<boolean>>]>,
-    weight: MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>,
-    reset: MutableRefObject<() => void>
-};
-
-export type NodeRefGrid = NodeReferences[][];
 
 type PathfinderVisualizerProps = {
     modeSelector: JSX.Element,
@@ -96,21 +67,18 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
         useEffect(() => { stateRef.current = state; }, [state]);
 
         const nodes = useMemo(() => {
-            const refs = new Array<NodeReferences[]>(rows);
+            const refs = new Array<Node[]>(rows);
             for (let y = 0; y < rows; y++) {
-                const row = new Array<NodeReferences>(columns);
+                const row = new Array<Node>(columns);
 
                 for (let x = 0; x < columns; x++) {
                     row[x] = {
-                        setIsVisited: createRef() as MutableRefObject<
-                            Dispatch<SetStateAction<boolean>>
-                        >,
-                        setIsHighlighted: createRef() as MutableRefObject<
-                            Dispatch<SetStateAction<boolean>>
-                        >,
-                        obstruction: createRef() as MutableRefObject<[boolean, Dispatch<SetStateAction<boolean>>]>,
-                        weight: createRef() as MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>,
-                        reset: createRef() as MutableRefObject<() => void>
+                        visited: [false, () => { }],
+                        active: [false, () => { }],
+                        backtrace: [false, () => { }],
+                        obstruction: [false, () => { }],
+                        weight: [null, () => { }],
+                        reset: () => { }
                     };
                 }
 
@@ -200,7 +168,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
             setResult(null);
 
             RESET_MAP[pathfinder](() => {
-                forEachNode(nodes, (node) => node.reset.current());
+                forEachNode(nodes, (node) => node.reset());
             });
         };
 
@@ -348,7 +316,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
                             </Expander>
                         </div>
                         <div className='flex gap-2'>
-                            <StateButton state={state} disable={!!result} onClick={() => void handleStart()} />
+                            <StartButton state={state} disable={!!result} onClick={() => void handleStart()} />
                             <button className='bg-red-700 text-white font-medium px-4 py-2 rounded-lg' onClick={handleReset}>
                                 Reset
                             </button>

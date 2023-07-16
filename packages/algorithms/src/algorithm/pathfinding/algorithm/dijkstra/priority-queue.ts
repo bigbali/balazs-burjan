@@ -1,4 +1,4 @@
-import type { Coordinate } from '../../../../util/common';
+import type { Coordinate } from '../../../../util/type';
 
 export type DijkstraQueueEntry = Coordinate & {
     weight: number | null,

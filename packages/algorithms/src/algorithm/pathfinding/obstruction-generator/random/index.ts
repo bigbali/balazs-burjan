@@ -1,14 +1,14 @@
 import type { MutableRefObject } from 'react';
-import type { NodeReferences } from '../..';
-import type { Coordinate } from '../../../../util/common';
+import type { Grid } from '../../type';
 import type { Direction } from '../../direction';
 import type { RandomOptions } from './options';
-import { setupPathfinder, isOutOfBounds } from '../../../../util/common';
+import type { Coordinate } from '../../../../util/type';
+import { setupPathfinder, isOutOfBounds } from '../../../../util';
 
 type BeginRandomObstructionGeneratorParams = {
     origin: Coordinate,
     goal: Coordinate,
-    grid: NodeReferences[][],
+    grid: Grid,
     delay: MutableRefObject<number>,
     options: RandomOptions
 };
@@ -53,7 +53,7 @@ function generateRandomObstructions(
         }
 
         if (Math.random() <= probability) {
-            grid[current.y]![current.x]!.obstruction.current[1](true);
+            grid[current.y]![current.x]!.obstruction[1](true);
         }
 
         visited[current.y]![current.x] = true;

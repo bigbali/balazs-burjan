@@ -1,6 +1,6 @@
-import { PathfinderState } from '../state';
+import { PathfinderState } from '../type';
 
-type StateButtonProps = {
+type StartButtonProps = {
     state: PathfinderState,
     disable?: boolean,
     onClick: () => void
@@ -18,7 +18,7 @@ const START_BUTTON_CLASS_MAP = {
     [PathfinderState.PAUSED]: 'bg-green-500'
 } as const;
 
-export const StateButton = ({ state, disable, onClick }: StateButtonProps) => {
+export default function StartButton({ state, disable, onClick }: StartButtonProps) {
     return (
         <button
             className={`

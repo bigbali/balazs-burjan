@@ -1,11 +1,11 @@
-import type { Reducer } from 'react';
+import type { Dispatch, Reducer } from 'react';
 import { useCallback, useEffect, useReducer } from 'react';
 import { beginCAObstructionGenerator } from './cellular-automata';
-import { CA_DEFAULT_OPTIONS } from './cellular-automata/options';
-import CAOptions from './cellular-automata/options';
+import CAOptions, { CA_DEFAULT_OPTIONS } from './cellular-automata/options';
 import { beginDFSObstructionGenerator } from './dfs';
 import { beginRandomObstructionGenerator } from './random';
 import RandomObstructionGeneratorOptions, { RANDOM_DEFAULT_OPTIONS } from './random/options';
+import type { ValueOf } from '../../../util/type';
 
 export enum ObstructionGenerator {
     DFS = 'randomized depth first search',
@@ -13,11 +13,18 @@ export enum ObstructionGenerator {
     CELLULAR_AUTOMATA = 'cellular automata'
 };
 
+export type ObstructionGeneratorOptionsProps<T> = {
+    options: T,
+    setOptions: Dispatch<Partial<T>>
+};
+
+
 export const OBSTRUCTION_GENERATOR_MAP = {
     [ObstructionGenerator.DFS]: beginDFSObstructionGenerator,
     [ObstructionGenerator.RANDOM]: beginRandomObstructionGenerator,
     [ObstructionGenerator.CELLULAR_AUTOMATA]: beginCAObstructionGenerator
 } as const;
+
 
 const DFSOpt: React.FC = () => {
     return null;
@@ -36,7 +43,6 @@ export const OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP = {
     [ObstructionGenerator.CELLULAR_AUTOMATA]: CA_DEFAULT_OPTIONS
 };
 
-type ValueOf<T> = T[keyof T];
 export type ObstructionGeneratorOptions = ValueOf<typeof OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP>;
 type ObstructionGeneratorOptionsPayload<T> = Partial<T & { remount: boolean }>;
 

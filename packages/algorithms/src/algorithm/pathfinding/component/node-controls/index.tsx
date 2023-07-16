@@ -4,9 +4,9 @@ import { memo, startTransition, useCallback, useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { devtools } from 'zustand/middleware';
 import { position } from './position';
-import { NodeColor } from '../grid/node-color';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { NodeColor } from '../../type';
 
 type Callback<T = () => void> = T;
 type SetCallback<T = Callback> = (callback: T) => void;

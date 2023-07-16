@@ -1,18 +1,18 @@
 import type { MutableRefObject } from 'react';
-import type { NodeReferences } from '../..';
-import type { Coordinate } from '../../../../util/common';
+import type { Node } from '../..';
+import type { Coordinate } from '../../../../util';
 import type { CellularAutomataOptions } from './options';
 import {
     asyncRecursiveAsyncGeneratorRunner,
     setupPathfinder,
     isObstruction,
     isOutOfBounds
-} from '../../../../util/common';
+} from '../../../../util';
 
 type BeginCAObstructionGeneratorParams = {
     origin: Coordinate,
     goal: Coordinate,
-    grid: NodeReferences[][],
+    grid: Node[][],
     delay: MutableRefObject<number>,
     options: CellularAutomataOptions
 };
@@ -72,7 +72,7 @@ export const beginCAObstructionGenerator: BeginCAObstructionGenerator = async ({
 };
 
 async function* caObstructionGenerator(
-    grid: NodeReferences[][],
+    grid: Node[][],
     delay: MutableRefObject<number>,
     options: CellularAutomataOptions
 ) {

@@ -1,29 +1,24 @@
-import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { memo, useRef, useState } from 'react';
-import type { Coordinate } from '../../../util/common';
-import { Rect } from 'react-konva';
+import type { Dispatch, SetStateAction } from 'react';
 import type Konva from 'konva';
+import type { KonvaEventObject } from 'konva/lib/Node';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { Rect } from 'react-konva';
 import { useNodeControlsMenu } from '../node-controls';
-import { GRID_MARGIN } from './grid';
-import { NodeColor } from './node-color';
-import { NodeSelectionMode, useNodeSelectionMode } from '../node-selection-mode';
-
-
-// FIXME wtf is this
+import { GRID_MARGIN } from '../grid';
+import { NodeSelectionMode, useNodeSelectionMode } from '../../node-selection-mode';
+import { MouseButton, type Coordinate } from '../../../../util/type';
+import type { Grid } from '../../type';
+import { NodeColor } from '../../type';
 
 export type NodeProps = {
     x: number,
     y: number,
+    nodeSize: number,
     isOrigin: boolean,
     isGoal: boolean,
     setOrigin: Dispatch<SetStateAction<Coordinate>>,
     setGoal: Dispatch<SetStateAction<Coordinate>>,
-    setIsVisitedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
-    setIsHighlightedRef: MutableRefObject<Dispatch<SetStateAction<boolean>>>,
-    obstructionRef: MutableRefObject<[boolean, Dispatch<SetStateAction<boolean>>]>,
-    weightRef: MutableRefObject<[number | null, Dispatch<SetStateAction<number | null>>]>,
-    resetRef: MutableRefObject<() => void>,
-    nodeSize: number
+    nodes: Grid
 };
 
 function useForwardedState<T>(initialState: T) {
@@ -34,36 +29,38 @@ function useForwardedState<T>(initialState: T) {
 const Node = ({
     x,
     y,
-    setIsVisitedRef,
-    setIsHighlightedRef,
-    obstructionRef,
-    weightRef,
-    resetRef,
     nodeSize,
     isOrigin,
     isGoal,
     setOrigin,
-    setGoal
+    setGoal,
+    nodes
 }: NodeProps) => {
-    const [isVisited, setIsVisited] = useState(false);
-    const [isHighlighted, setIsHighlighted] = useState(false);
-    const [obstructionState, isObstruction, setIsObstruction] = useForwardedState(false);
-    const [weightState, weight, setWeight] = useForwardedState<number | null>(null);
-    setIsVisitedRef.current = setIsVisited;
-    setIsHighlightedRef.current = setIsHighlighted;
-    obstructionRef.current = obstructionState;
-    weightRef.current = weightState;
+    const [forwardVisited, isVisited, setIsVisited] = useForwardedState(false);
+    const [forwardActive, isActive, setIsActive] = useForwardedState(false);
+    const [forwardBacktrace, isBacktrace, setIsBacktrace] = useForwardedState(false);
+    const [forwardObstruction, isObstruction, setIsObstruction] = useForwardedState(false);
+    const [forwardWeight, weight, setWeight] = useForwardedState<number | null>(null);
+
+    useEffect(() => {
+        const node = nodes[y]![x]!;
+        node.visited = forwardVisited;
+        node.active = forwardActive;
+        node.backtrace = forwardBacktrace;
+        node.obstruction = forwardObstruction;
+        node.weight = forwardWeight;
+
+        node.reset = () => {
+            setIsVisited(false);
+            setIsActive(false);
+            setIsBacktrace(false);
+            setIsObstruction(false);
+            setWeight(null);
+        };
+        // eslint-disable-next-line max-len
+    }, [forwardVisited, forwardActive, forwardObstruction, forwardWeight, nodes, y, x, setIsVisited, setIsActive, setIsObstruction, setWeight, forwardBacktrace, setIsBacktrace]);
 
     const nodeRef = useRef<Konva.Rect>(null);
-
-    const reset = () => {
-        setIsVisited(false);
-        setIsHighlighted(false);
-        setIsObstruction(false);
-        setWeight(null);
-    };
-
-    resetRef.current = reset;
 
     const setNodeRef = useNodeControlsMenu(state => state.setNodeRef);
     const setNodeSize = useNodeControlsMenu(state => state.setNodeSize);
@@ -98,12 +95,20 @@ const Node = ({
         nodeRef.current?.moveToTop();
     };
 
+    const handleObstruction = useCallback((e: KonvaEventObject<MouseEvent>) => {
+        if (e.evt.buttons === MouseButton.LEFT)
+            setIsObstruction(true);
+        else if (e.evt.buttons === MouseButton.RIGHT)
+            setIsObstruction(false);
+    }, [setIsObstruction]);
+
     const fill = (() => {
-        if (isHighlighted && !isOrigin && !isGoal && !isObstruction) return NodeColor.HIGHLIGHT_BACKTRACE;
-        if (isOrigin) return NodeColor.ORIGIN;
-        if (isGoal) return NodeColor.TARGET;
-        if (isVisited) return NodeColor.VISITED;
-        if (isObstruction) return NodeColor.OBSTRUCTION;
+        if (isBacktrace && !isOrigin && !isGoal && !isObstruction) return NodeColor.HIGHLIGHT_BACKTRACE;
+        else if (isActive && !isOrigin && !isGoal && !isObstruction) return NodeColor.HIGHLIGHT_SELECTED;
+        else if (isOrigin) return NodeColor.ORIGIN;
+        else if (isGoal) return NodeColor.TARGET;
+        else if (isVisited) return NodeColor.VISITED;
+        else if (isObstruction) return NodeColor.OBSTRUCTION;
 
         if (weight !== null) {
             const r = 255 - weight;
@@ -119,6 +124,8 @@ const Node = ({
     return (
         <Rect
             key={`${x}${y}`}
+            ref={nodeRef}
+            id={`${x}-${y}`}
             x={nodeSize * x + GRID_MARGIN}
             y={nodeSize * y + GRID_MARGIN}
             width={nodeSize}
@@ -134,18 +141,14 @@ const Node = ({
                     ? 5
                     : 0.25
             }
+            // The following 3 are performance optimizations.
+            perfectDrawEnabled={false}
+            transformsEnabled={'position'}
+            listening={false}
+            // NOTE: these won't be called directly as `listening=false`,
+            // rather they will be fired from an event listener on `Grid`.
             onClick={updateMenu}
-            onMouseDown={() => {
-                if (getNodeSelectionMode() === NodeSelectionMode.DRAW_OBSTRUCTION) {
-                    setIsObstruction(true);
-                }
-            }}
-            onMouseEnter={(e) => {
-                if (e.evt.buttons > 0 && getNodeSelectionMode() === NodeSelectionMode.DRAW_OBSTRUCTION) {
-                    setIsObstruction(true);
-                }
-            }}
-            ref={nodeRef}
+            onMouseDown={handleObstruction}
         />
     );
 };

@@ -1,11 +1,11 @@
 import type { Dispatch, SetStateAction } from 'react';
-import type { NodeReferences } from '../..';
+import type { Node } from '../..';
 import type { Coordinate } from '../../../../src/util/common';
 import { generateGravitationalWeightPattern, generateRandomWeightPattern, WeightPattern } from './weight-pattern';
 
 type DijkstraOptionsType = {
     weightPattern: WeightPattern,
-    nodeReferences: NodeReferences[][] | null,
+    nodeReferences: Node[][] | null,
     goal: Coordinate | null
 };
 

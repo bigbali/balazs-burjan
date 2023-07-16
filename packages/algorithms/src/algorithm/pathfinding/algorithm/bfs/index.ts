@@ -1,23 +1,22 @@
 import type { MutableRefObject } from 'react';
-import type { NodeReferences } from '../..';
 import type { Direction } from '../../direction';
 import type { BFSDirection } from './direction';
-import type { Coordinate } from '../../../../util/common';
-import type { Entry } from '../../../../util/algorithm';
+import type { Coordinate, Entry } from '../../../../util/type';
 import {
     setupPathfinder,
-    mutateNode,
+    markNode,
     recursiveAsyncGeneratorRunner,
     isObstruction,
     isOutOfBounds
-} from '../../../../util/common';
-import { PathfinderState } from '../../state';
+} from '../../../../util';
 import { Directions } from './direction';
+import type { Grid } from '../../type';
+import { PathfinderState } from '../../type';
 
 type BeginBFSParams = {
     origin: Coordinate,
     goal: Coordinate,
-    grid: NodeReferences[][],
+    grid: Grid,
     delay: MutableRefObject<number>,
     state: MutableRefObject<PathfinderState>,
     resume: boolean,
@@ -59,7 +58,7 @@ export const beginBFS: BeginBFS = async ({ origin, goal, grid, delay, state, res
 
 function* bfsGenerator(
     goal: Coordinate,
-    grid: NodeReferences[][],
+    grid: Grid,
     state: MutableRefObject<PathfinderState>
 ) {
     while (queue.length > 0) {
@@ -78,13 +77,12 @@ function* bfsGenerator(
             continue;
         }
 
-        const setVisited = mutateNode(grid, visited, current.x, current.y);
 
         if (isObstruction(current.x, current.y, grid)) {
             continue;
         }
 
-        setVisited();
+        markNode(grid, visited, current.x, current.y);
 
         for (const [dx, dy] of directions) {
             const x = current.x + dx;
