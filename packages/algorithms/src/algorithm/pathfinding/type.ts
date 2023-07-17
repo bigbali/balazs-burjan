@@ -19,6 +19,11 @@ export const enum Delay {
 };
 
 /**
+ * A tuple describing a pair of directions relative to the current node.
+ */
+export type Direction = [number, number];
+
+/**
  * References to the state and state setters of a node.
  */
 export type Node = {

@@ -1,6 +1,5 @@
 import type { MutableRefObject } from 'react';
-import type { Grid } from '../../type';
-import type { Direction } from '../../direction';
+import type { Direction, Grid } from '../../type';
 import type { RandomOptions } from './options';
 import type { Coordinate } from '../../../../util/type';
 import { setupPathfinder, isOutOfBounds } from '../../../../util';

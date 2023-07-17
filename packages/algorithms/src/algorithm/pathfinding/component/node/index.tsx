@@ -5,7 +5,6 @@ import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { Rect } from 'react-konva';
 import { useNodeControlsMenu } from '../node-controls';
 import { GRID_MARGIN } from '../grid';
-import { NodeSelectionMode, useNodeSelectionMode } from '../../node-selection-mode';
 import { MouseButton, type Coordinate } from '../../../../util/type';
 import type { Grid } from '../../type';
 import { NodeColor } from '../../type';
@@ -72,17 +71,12 @@ const Node = ({
     const setObstructionSetter = useNodeControlsMenu(state => state.setNodeSetObstruction);
     const setNodeHighlightSetter = useNodeControlsMenu(state => state.setNodeSetHighlight);
 
-    const getNodeSelectionMode = useNodeSelectionMode(state => state.getNodeSelectionMode);
-
     const [isHighlightedByMenu, setIsHighlightedByMenu] = useState(false);
 
     const setMenuOriginCallback = () => setOrigin({ x, y });
     const setMenuGoalCallback = () => setGoal({ x, y });
 
     const updateMenu = () => {
-        if (getNodeSelectionMode() !== NodeSelectionMode.MENU)
-            return;
-
         setNodeRef(nodeRef.current);
         setNodeSize(nodeSize);
         setNodeIsOrigin(isOrigin);

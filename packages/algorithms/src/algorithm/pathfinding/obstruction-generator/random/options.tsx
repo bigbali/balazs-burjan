@@ -1,6 +1,6 @@
 import { memo, useCallback } from 'react';
-import type { ObstructionGeneratorOptionsProps } from '../options';
 import FieldRangeInput from 'ui/FieldRangeInput';
+import type { ObstructionGeneratorOptionsProps } from '..';
 
 export type RandomOptions = {
     probability: number
@@ -10,7 +10,7 @@ export const RANDOM_DEFAULT_OPTIONS: RandomOptions = {
     probability: 50
 };
 
-const RandomObstructionGeneratorOptions: React.FC<ObstructionGeneratorOptionsProps<RandomOptions>> = ({ setOptions }) => {
+const RandomObstructionGeneratorOptions = ({ setOptions }: ObstructionGeneratorOptionsProps<RandomOptions>) => {
     const handleChange = useCallback((probability: number) => setOptions({ probability }), [setOptions]);
 
     return (

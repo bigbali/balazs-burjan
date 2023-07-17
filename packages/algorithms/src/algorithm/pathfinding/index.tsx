@@ -19,7 +19,6 @@ import {
 } from './obstruction-generator';
 import { Pathfinder, PATHFINDER_MAP, RESET_MAP, usePathfinderOptions } from './algorithm';
 import Expander from 'ui/expander';
-import { NodeSelectionModeSelector } from './node-selection-mode';
 import useBacktraceHighlight from './component/node/useBacktraceHighlight';
 import type { Coordinate, Entry } from '../../util/type';
 import type { Node } from './type';
@@ -238,7 +237,6 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
                         onChange={(velocity) => (velocityRef.current = velocity)}
                         debounceRange={false}
                     />
-                    <NodeSelectionModeSelector />
                     <div className='flex flex-col justify-between h-full gap-4'>
                         <div className='flex flex-col gap-2'>
                             <Expander

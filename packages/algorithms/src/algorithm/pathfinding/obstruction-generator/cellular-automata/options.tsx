@@ -1,7 +1,7 @@
 import type { MutableRefObject } from 'react';
 import { createRef, memo } from 'react';
 import FieldRangeInput from 'ui/FieldRangeInput';
-import type { ObstructionGeneratorOptionsProps } from '../options';
+import type { ObstructionGeneratorOptionsProps } from '..';
 
 enum CAPreset {
     MAZE = 'Maze',

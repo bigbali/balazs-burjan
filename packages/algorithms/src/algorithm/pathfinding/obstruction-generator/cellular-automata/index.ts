@@ -1,6 +1,4 @@
 import type { MutableRefObject } from 'react';
-import type { Node } from '../..';
-import type { Coordinate } from '../../../../util';
 import type { CellularAutomataOptions } from './options';
 import {
     asyncRecursiveAsyncGeneratorRunner,
@@ -8,11 +6,13 @@ import {
     isObstruction,
     isOutOfBounds
 } from '../../../../util';
+import type { Grid } from '../../type';
+import type { Coordinate } from '../../../../util/type';
 
 type BeginCAObstructionGeneratorParams = {
     origin: Coordinate,
     goal: Coordinate,
-    grid: Node[][],
+    grid: Grid,
     delay: MutableRefObject<number>,
     options: CellularAutomataOptions
 };
@@ -44,7 +44,7 @@ export const beginCAObstructionGenerator: BeginCAObstructionGenerator = async ({
                             ? options.initialPattern.probability / 100
                             : 0)
                     ) {
-                        node.obstruction.current[1](true);
+                        node.obstruction[1](true);
                     }
                 }
             }
@@ -72,14 +72,14 @@ export const beginCAObstructionGenerator: BeginCAObstructionGenerator = async ({
 };
 
 async function* caObstructionGenerator(
-    grid: Node[][],
+    grid: Grid,
     delay: MutableRefObject<number>,
     options: CellularAutomataOptions
 ) {
     function step() {
         for (let y = 0; y < grid.length; y++) {
             for (let x = 0; x < grid[0]!.length; x++) {
-                const [isCurrentObstruction, setCurrentObstruction] = grid[y]![x]!.obstruction.current;
+                const [isCurrentObstruction, setCurrentObstruction] = grid[y]![x]!.obstruction;
 
                 let adjacentPaths = 0;
                 for (const [dx, dy] of directions) {

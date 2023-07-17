@@ -1,17 +1,12 @@
 {
-  "extends": "tsconfig",
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    "**/*.cjs",
-    "**/*.mjs",
-    "src/utils/basepath.mjs"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
-  "compilerOptions": {
-    "isolatedModules": true
-  }
+    "extends": "tsconfig",
+    "include": [
+        "next-env.d.ts",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.cjs",
+        "**/*.mjs",
+        "src/utils/zone.mjs"
+    ],
+    "exclude": ["node_modules"]
 }

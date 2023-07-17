@@ -1,6 +1,6 @@
 // @ts-check
 
-import BASEPATH from './src/utils/basepath.mjs';
+import { PORT, BASEPATH } from './src/utils/zone.mjs';
 
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
@@ -15,7 +15,7 @@ const config = {
     },
     transpilePackages: ['ui', 'util'],
     basePath: BASEPATH,
-    assetPrefix: `http://localhost:3002${BASEPATH}/`
+    assetPrefix: `http://localhost:${PORT}${BASEPATH}/`
 };
 
 export default config;

@@ -1,6 +1,4 @@
 import type { MutableRefObject } from 'react';
-import type { Node } from '../..';
-import type { Coordinate } from '../../../../util';
 import shuffle from 'lodash/shuffle';
 import {
     setupPathfinder,
@@ -8,11 +6,13 @@ import {
     isOutOfBounds,
     recursiveAsyncGeneratorRunner
 } from '../../../../util';
+import type { Coordinate } from '../../../../util/type';
+import type { Grid } from '../../type';
 
 type BeginDFSObstructionGeneratorParams = {
     origin: Coordinate,
     goal: Coordinate,
-    grid: Node[][],
+    grid: Grid,
     delay: MutableRefObject<number>
 };
 
@@ -35,7 +35,7 @@ export const beginDFSObstructionGenerator: BeginDFSObstructionGenerator = async 
     async function setObstructions() {
         for (const row of grid) {
             for (const node of row) {
-                node.obstruction.current[1](true);
+                node.obstruction[1](true);
             }
         }
     }
@@ -53,14 +53,14 @@ export const beginDFSObstructionGenerator: BeginDFSObstructionGenerator = async 
         false
     );
 
-    grid[origin.y]![origin.x]!.obstruction.current[1](false);
-    grid[goal.y]![goal.x]!.obstruction.current[1](false);
+    grid[origin.y]![origin.x]!.obstruction[1](false);
+    grid[goal.y]![goal.x]!.obstruction[1](false);
 
     void recursiveAsyncGeneratorRunner(dfsObstructionGenerator(grid), delay);
 };
 
 function* dfsObstructionGenerator(
-    grid: Node[][]
+    grid: Grid
 ) {
     while (stack.length > 0) {
         const current = stack.pop()!;
@@ -74,14 +74,14 @@ function* dfsObstructionGenerator(
             const y = current.y + dy;
 
             if (!isOutOfBounds(x, y, grid) && !visited[y]![x] && isObstruction(x, y, grid)) {
-                const setObstruction = grid[y]![x]!.obstruction.current[1];
+                const setObstruction = grid[y]![x]!.obstruction[1];
                 setObstruction(false);
 
                 const mx = current.x + (dx / 2);
                 const my = current.y + (dy / 2);
 
                 if (!isOutOfBounds(my, my, grid) && !visited[my]![mx]) {
-                    grid[my]![mx]!.obstruction.current[1](false);
+                    grid[my]![mx]!.obstruction[1](false);
 
                     stack.push({
                         x,
