@@ -11,9 +11,9 @@
 *,
 *::before,
 *::after {
-    font-family: "Raleway";
+    font-family: Raleway, sans-serif;
 }
 
 .font-raleway {
-    font-family: "Raleway";
+    font-family: Raleway, sans-serif;
 }

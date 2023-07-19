@@ -1,0 +1,12 @@
+{
+    "extends": "tsconfig",
+    "include": [
+        "next-env.d.ts",
+        "**/*.ts",
+        "**/*.tsx",
+        "**/*.cjs",
+        "**/*.mjs",
+        "src/utils/zone.mjs"
+    ],
+    "exclude": ["node_modules"]
+}

@@ -1,15 +1,24 @@
+import type {
+    ChangeEvent,
+    Dispatch,
+    HTMLAttributes,
+    SetStateAction,
+    CSSProperties
+} from 'react';
+import { memo, useState } from 'react';
 import { debounce } from 'lodash';
-import type { ChangeEvent, Dispatch, SetStateAction } from 'react';
-import { useState } from 'react';
 import type { Either } from '../util/type';
 
 type BaseFieldRangeInputProps = {
-    min: number,
-    max: number,
-    step: number,
-    defaultValue: number,
+    min?: number,
+    max?: number,
+    step?: number,
+    defaultValue?: number,
     debounceRange?: boolean,
-    label: string
+    label: string,
+    labelStyle?: CSSProperties,
+    fieldStyle?: CSSProperties,
+    rangeStyle?: CSSProperties
 };
 
 type GeneralOnChange = {
@@ -26,7 +35,9 @@ type SpecializedOnChange = {
  * If `onChange` is provided, it will be used. Even if you go around the type checker and provide all three
  * methods, `onChange` will override the other two.
  */
-type FieldRangeInputProps = BaseFieldRangeInputProps & Either<GeneralOnChange, SpecializedOnChange>;
+type FieldRangeInputProps = BaseFieldRangeInputProps
+    & Either<GeneralOnChange, SpecializedOnChange>
+    & Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>;
 
 type FieldRangeInputHandlerOptions = {
     event: ChangeEvent<HTMLInputElement>,
@@ -40,7 +51,7 @@ type FieldRangeInputHandlerOptions = {
 
 /**
  * When user is typing a digit that is smaller than the minimum, we do not know if he is going to type another number or not.\
- * This could mean that the user is intending to type `12`, but our minimum is set to `1`. In usual input validation implementations,
+ * This could mean that the user intends to type `12`, but our minimum is set to `1`. In usual input validation implementations,
  * this would cause `1` to be replaced by `min`. We are using debouncing like so to prevent this from happening.
  */
 const waitForPossibleFieldInput = debounce((callback: () => void) => callback(), 500);
@@ -103,7 +114,7 @@ export const handleFieldRangeInputChange = ({
     }
 };
 
-const FieldRangeInput = ({
+const FieldRangeInput: React.FC<FieldRangeInputProps> = ({
     min = 1,
     max = 100,
     step = 1,
@@ -112,8 +123,12 @@ const FieldRangeInput = ({
     label,
     onFieldChange,
     onRangeChange,
-    onChange
-}: FieldRangeInputProps) => {
+    onChange,
+    labelStyle,
+    fieldStyle,
+    rangeStyle,
+    ...props
+}) => {
     const [value, setValue] = useState<number | null>(defaultValue);
 
     const fieldCallback = !!onChange
@@ -124,14 +139,15 @@ const FieldRangeInput = ({
         : onRangeChange;
 
     return (
-        <div className='flex gap-2'>
+        <div {...props}>
             {label && (
-                <label htmlFor='columns'>
+                <label htmlFor='columns' style={labelStyle}>
                     {label}
                 </label>
             )}
             <input
                 className='border border-slate-300 rounded-md text-center'
+                style={fieldStyle}
                 type='number'
                 id='columns'
                 max={max}
@@ -140,15 +156,16 @@ const FieldRangeInput = ({
                 value={value || ''}
                 onChange={(e) => handleFieldRangeInputChange({
                     event: e,
-                    min: min,
-                    max: max,
-                    defaultValue: defaultValue,
+                    min,
+                    max,
+                    defaultValue,
                     debounce: false,
                     setter: setValue,
                     callback: fieldCallback
                 })}
             />
             <input
+                style={rangeStyle}
                 type='range'
                 max={max}
                 min={min}
@@ -156,9 +173,9 @@ const FieldRangeInput = ({
                 value={value || min}
                 onChange={(e) => handleFieldRangeInputChange({
                     event: e,
-                    min: min,
-                    max: max,
-                    defaultValue: defaultValue,
+                    min,
+                    max,
+                    defaultValue,
                     debounce: debounceRange,
                     setter: setValue,
                     callback: rangeCallback
@@ -168,4 +185,4 @@ const FieldRangeInput = ({
     );
 };
 
-export default FieldRangeInput;
+export default memo(FieldRangeInput);

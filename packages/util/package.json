@@ -1,8 +1,12 @@
 {
-  "name": "util",
-  "version": "0.0.0",
-  "private": true,
-  "files": [
-    "type.ts"
-  ]
+    "name": "util",
+    "version": "0.0.0",
+    "private": true,
+    "files": [
+        "type.ts",
+        "cors.ts"
+    ],
+    "dependencies": {
+        "next": "^13.4.9"
+    }
 }

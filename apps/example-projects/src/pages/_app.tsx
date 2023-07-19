@@ -1,24 +1,19 @@
 import { type AppType } from 'next/app';
-import { type Session } from 'next-auth';
-import { SessionProvider } from 'next-auth/react';
 
-import { api } from '../utils/api';
-import Layout from '../components/layout';
+import Layout from 'ui/layout';
 
 import 'config/tailwind/tailwind.css';
 import '../styles/font.css';
 
-const MyApp: AppType<{ session: Session | null }> = ({
+const MyApp: AppType = ({
     Component,
-    pageProps: { session, ...pageProps }
+    pageProps: { ...pageProps }
 }) => {
     return (
-        <SessionProvider session={session}>
-            <Layout>
-                <Component {...pageProps} />
-            </Layout>
-        </SessionProvider>
+        <Layout title='Projects' description='Projects by Balázs Burján'>
+            <Component {...pageProps} />
+        </Layout>
     );
 };
 
-export default api.withTRPC(MyApp);
+export default MyApp;
