@@ -1,5 +1,4 @@
 import type { MutableRefObject } from 'react';
-import type { Direction } from '../../direction';
 import type { BFSDirection } from '../bfs/direction';
 import { PriorityQueue } from './priority-queue';
 import {
@@ -10,13 +9,13 @@ import {
     isOutOfBounds
 } from '../../../../util';
 import type { Coordinate, Entry } from '../../../../util/type';
-import type { Grid } from '../../type';
+import type { Direction, Grid } from '../../type';
 import { PathfinderState } from '../../type';
 
 
 type BeginDijkstraParams = {
     origin: Coordinate,
-    goal: Coordinate,
+    target: Coordinate,
     grid: Grid,
     delay: MutableRefObject<number>,
     state: MutableRefObject<PathfinderState>,
@@ -45,7 +44,7 @@ export const resetDijkstra = (callback: () => void) => {
     callback();
 };
 
-export const beginDijkstra: BeginDijkstra = async ({ origin, goal, grid, delay, state, resume }) => {
+export const beginDijkstra: BeginDijkstra = async ({ origin, target, grid, delay, state, resume }) => {
     setupPathfinder(
         pq,
         [0, {
@@ -58,11 +57,11 @@ export const beginDijkstra: BeginDijkstra = async ({ origin, goal, grid, delay, 
         resume
     );
 
-    return await recursiveAsyncGeneratorRunner(dijkstraGenerator(goal, grid, state), delay);
+    return await recursiveAsyncGeneratorRunner(dijkstraGenerator(target, grid, state), delay);
 };
 
 function* dijkstraGenerator(
-    goal: Coordinate,
+    target: Coordinate,
     grid: Grid,
     state: MutableRefObject<PathfinderState>
 ) {
@@ -71,7 +70,7 @@ function* dijkstraGenerator(
 
         if (!current) continue;
 
-        if (current.x === goal.x && current.y === goal.y) {
+        if (current.x === target.x && current.y === target.y) {
             return current;
         }
 

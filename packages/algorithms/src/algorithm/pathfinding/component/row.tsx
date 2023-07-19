@@ -13,9 +13,9 @@ export const Row = ({ data }: RowProps) => {
     const {
         columns,
         row,
-        nodes,
+        grid,
         origin,
-        goal,
+        target,
         nodeSize,
         setOrigin,
         setGoal
@@ -32,9 +32,9 @@ export const Row = ({ data }: RowProps) => {
                 nodeSize={nodeSize}
                 isOrigin={column === origin.x && row === origin.y}
                 setOrigin={setOrigin}
-                isGoal={column === goal.x && row === goal.y}
+                isGoal={column === target.x && row === target.y}
                 setGoal={setGoal}
-                nodes={nodes}
+                grid={grid}
             />
         );
     }

@@ -1,18 +1,18 @@
 import type { Dispatch, SetStateAction } from 'react';
-import type { Node } from '../..';
-import type { Coordinate } from '../../../../src/util/common';
 import { generateGravitationalWeightPattern, generateRandomWeightPattern, WeightPattern } from './weight-pattern';
+import type { Coordinate } from '../../../../util/type';
+import type { Grid } from '../../type';
 
 type DijkstraOptionsType = {
     weightPattern: WeightPattern,
-    nodeReferences: Node[][] | null,
-    goal: Coordinate | null
+    grid: Grid | null,
+    target: Coordinate | null
 };
 
 export const dijkstraDefaultOptions: DijkstraOptionsType = {
     weightPattern: WeightPattern.GRAVITATIONAL,
-    nodeReferences: null,
-    goal: null
+    grid: null,
+    target: null
 };
 
 export type DijkstraOptionsProps = {
@@ -47,7 +47,7 @@ export const DijkstraOptions = ({ options, setOptions }: DijkstraOptionsProps) =
             {options.weightPattern === WeightPattern.RANDOM && (
                 <button
                     className='bg-sky-700 text-white font-medium px-4 py-2 rounded-lg w-fit'
-                    onClick={() => generateRandomWeightPattern(options.nodeReferences)}
+                    onClick={() => generateRandomWeightPattern(options.grid)}
                 >
                     Generate Random Weight Pattern
                 </button>
@@ -55,7 +55,7 @@ export const DijkstraOptions = ({ options, setOptions }: DijkstraOptionsProps) =
             {options.weightPattern === WeightPattern.GRAVITATIONAL && (
                 <button
                     className='bg-sky-700 text-white font-medium px-4 py-2 rounded-lg w-fit'
-                    onClick={() => generateGravitationalWeightPattern(options.nodeReferences, options.goal)}
+                    onClick={() => generateGravitationalWeightPattern(options.grid, options.target)}
                 >
                     Generate Gravitational Weight Pattern
                 </button>

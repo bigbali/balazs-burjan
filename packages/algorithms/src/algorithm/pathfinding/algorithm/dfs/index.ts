@@ -1,5 +1,4 @@
 import type { MutableRefObject } from 'react';
-import type { Direction } from '../../direction';
 import type { DFSDirection } from './direction';
 import { Directions } from './direction';
 import {
@@ -10,12 +9,12 @@ import {
     isOutOfBounds
 } from '../../../../util';
 import type { Coordinate, Entry } from '../../../../util/type';
-import type { Grid } from '../../type';
+import type { Direction, Grid } from '../../type';
 import { PathfinderState } from '../../type';
 
 type BeginDFSParams = {
     origin: Coordinate,
-    goal: Coordinate,
+    target: Coordinate,
     grid: Grid,
     delay: MutableRefObject<number>,
     state: MutableRefObject<PathfinderState>,
@@ -27,7 +26,6 @@ type BeginDFSParams = {
 
 export type BeginDFS = (params: BeginDFSParams) => Promise<Entry>;
 
-
 let stack: Entry[] = [];
 let directions: Direction[] = [];
 const visited: boolean[][] = [];
@@ -37,7 +35,7 @@ export const resetDFS = (callback: () => void) => {
     callback();
 };
 
-export const beginDFS: BeginDFS = async ({ origin, goal, grid, delay, state, resume, options }) => {
+export const beginDFS: BeginDFS = async ({ origin, target, grid, delay, state, resume, options }) => {
     const { direction } = options;
 
     directions = Directions[direction];
@@ -54,11 +52,11 @@ export const beginDFS: BeginDFS = async ({ origin, goal, grid, delay, state, res
         resume
     );
 
-    return await recursiveAsyncGeneratorRunner(dfsGenerator(goal, grid, state), delay);
+    return await recursiveAsyncGeneratorRunner(dfsGenerator(target, grid, state), delay);
 };
 
 function* dfsGenerator(
-    goal: Coordinate,
+    target: Coordinate,
     grid: Grid,
     state: MutableRefObject<PathfinderState>
 ) {
@@ -69,7 +67,7 @@ function* dfsGenerator(
 
         const current = stack.pop()!;
 
-        if (current.x === goal.x && current.y === goal.y) {
+        if (current.x === target.x && current.y === target.y) {
             return current;
         }
 

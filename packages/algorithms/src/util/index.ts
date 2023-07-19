@@ -1,7 +1,7 @@
 import type { MutableRefObject } from 'react';
-import type { Grid } from '../algorithm/pathfinding/type';
+import type { Grid, Node } from '../algorithm/pathfinding/type';
 
-export const isOutOfBounds = (x: number, y: number, grid: any[][]) => {
+export const isOutOfBounds = (x: number, y: number, grid: Grid) => {
     if (y >= grid.length || y < 0) return true;
     if (x >= grid[0]!.length || x < 0) return true;
 
@@ -12,7 +12,7 @@ export const isObstruction = (x: number, y: number, grid: Grid) => {
     return grid[y]![x]!.obstruction?.[0];
 };
 
-type ForEachNode = <T>(
+type ForEachNode = <T extends Node>(
     grid: T[][],
     callback: (node: T) => void
 ) => void;

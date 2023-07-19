@@ -7,7 +7,7 @@ const Algorithms: AppType = ({
     pageProps: { ...pageProps }
 }) => {
     return (
-        <Layout title='Algorithms' description='A place where you can see how algorithms work with your own eyes.'>
+        <Layout title='Algorithms' description='See how algorithms work with your own eyes.'>
             <Component {...pageProps} />
         </Layout>
     );

@@ -6,18 +6,8 @@ import {
     isObstruction,
     isOutOfBounds
 } from '../../../../util';
-import type { Grid } from '../../type';
+import type { AsyncObstructionGenerator, Grid } from '../../type';
 import type { Coordinate } from '../../../../util/type';
-
-type BeginCAObstructionGeneratorParams = {
-    origin: Coordinate,
-    goal: Coordinate,
-    grid: Grid,
-    delay: MutableRefObject<number>,
-    options: CellularAutomataOptions
-};
-
-export type BeginCAObstructionGenerator = (params: BeginCAObstructionGeneratorParams) => Promise<void>;
 
 const queue: Coordinate[] = [];
 const directions = [
@@ -32,44 +22,45 @@ const directions = [
 ] as const;
 const visited: boolean[][] = [];
 
-export const beginCAObstructionGenerator: BeginCAObstructionGenerator = async ({ origin, goal, grid, delay, options }) => {
-    if (options.initialPattern.type === 'random') {
-        // async to prevent batching which causes this to run after the rest of the program
-        // eslint-disable-next-line @typescript-eslint/require-await
-        async function generateRandomObstructions() {
-            for (const row of grid) {
-                for (const node of row) {
-                    if (Math.random() <= ( // TS needs a bit of help to realize that at this point, type can only be 'random'
-                        options.initialPattern.type === 'random'
-                            ? options.initialPattern.probability / 100
-                            : 0)
-                    ) {
-                        node.obstruction[1](true);
+export const beginCAObstructionGenerator: AsyncObstructionGenerator<CellularAutomataOptions> =
+    async ({ origin, grid, delay, options }) => {
+        if (options.initialPattern.type === 'random') {
+            // async to prevent batching which causes this to run after the rest of the program
+            // eslint-disable-next-line @typescript-eslint/require-await
+            async function generateRandomObstructions() {
+                for (const row of grid) {
+                    for (const node of row) {
+                        if (Math.random() <= ( // TS needs a bit of help to realize that at this point, type can only be 'random'
+                            options.initialPattern.type === 'random'
+                                ? options.initialPattern.probability / 100
+                                : 0)
+                        ) {
+                            node.obstruction[1](true);
+                        }
                     }
                 }
             }
+
+            await generateRandomObstructions();
         }
 
-        await generateRandomObstructions();
-    }
+        if (options.interrupt) {
+            options.interrupt.current = false;
+        }
 
-    if (options.interrupt) {
-        options.interrupt.current = false;
-    }
+        setupPathfinder(
+            queue,
+            {
+                x: origin.x,
+                y: origin.y
+            },
+            grid,
+            visited,
+            false
+        );
 
-    setupPathfinder(
-        queue,
-        {
-            x: origin.x,
-            y: origin.y
-        },
-        grid,
-        visited,
-        false
-    );
-
-    void asyncRecursiveAsyncGeneratorRunner(caObstructionGenerator(grid, delay, options), { current: 0 });
-};
+        return await asyncRecursiveAsyncGeneratorRunner(caObstructionGenerator(grid, delay, options), { current: 0 });
+    };
 
 async function* caObstructionGenerator(
     grid: Grid,
@@ -97,18 +88,19 @@ async function* caObstructionGenerator(
                     setCurrentObstruction(true);
                 }
                 else if (
-                    (adjacentPaths < options.keepAlive.min || adjacentPaths > options.keepAlive.max)
-                    && isCurrentObstruction) {
+                    (
+                        adjacentPaths < options.keepAlive.min
+                        || adjacentPaths > options.keepAlive.max
+                    ) && isCurrentObstruction) {
                     setCurrentObstruction(false);
                 }
-
             }
         }
     }
 
     for (let i = 0; i < options.steps; i++) {
         if (options.interrupt?.current) {
-            return;
+            return true;
         }
 
         await new Promise(resolve => {
@@ -118,5 +110,7 @@ async function* caObstructionGenerator(
         step();
         yield;
     }
+
+    return true;
 }
 

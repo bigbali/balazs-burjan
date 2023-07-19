@@ -1,17 +1,15 @@
-import { startTransition, useEffect, useMemo, useRef, useState } from 'react';
+import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import PathfinderVisualizer from '../algorithm/pathfinding';
 import { useLoading } from 'ui/store/loading';
 import 'config/tailwind/tailwind.css';
 
 enum Mode {
-    DRAW = 'draw',
     PATHFINDER = 'pathfinder',
     SORT = 'sort'
 }
 
 const ALGORITHM_VISUALIZER_MAP = {
     [Mode.PATHFINDER]: PathfinderVisualizer,
-    [Mode.DRAW]: () => <h1>NOT IMPLEMENTED</h1>,
     [Mode.SORT]: () => <h1>NOT IMPLEMENTED</h1>
 } as const;
 
@@ -30,7 +28,7 @@ const Algorithms = () => {
     }, []);
 
     const Visualizer = useMemo(() => ALGORITHM_VISUALIZER_MAP[mode], [mode]);
-    const ModeSelector = useMemo(() => (
+    const ModeSelector = useCallback(() => (
         <div className='flex gap-4'>
             <label htmlFor='mode'>
                 Mode
@@ -70,7 +68,7 @@ const Algorithms = () => {
                 </div>
             )}
             <Visualizer
-                modeSelector={ModeSelector}
+                ModeSelector={ModeSelector}
                 key={mode}
                 ref={visualizerRef}
                 containedHeight={containedHeight}

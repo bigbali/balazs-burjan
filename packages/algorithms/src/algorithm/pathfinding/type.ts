@@ -1,4 +1,5 @@
-import type { ForwardedState } from '../../util/type';
+import type { MutableRefObject } from 'react';
+import type { Coordinate, ForwardedState } from '../../util/type';
 
 /**
  * The amount of nodes in a column or row.
@@ -55,3 +56,14 @@ export enum PathfinderState {
 };
 
 export type Grid = Node[][];
+
+export type ObstructionGeneratorOptions<T> = {
+    origin: Coordinate,
+    target: Coordinate,
+    grid: Grid,
+    delay: MutableRefObject<number>,
+    options: T
+};
+
+export type ObstructionGenerator<T = void> = (options: ObstructionGeneratorOptions<T>) => boolean | void;
+export type AsyncObstructionGenerator<T = void> = (options: ObstructionGeneratorOptions<T>) => Promise<boolean | void>;

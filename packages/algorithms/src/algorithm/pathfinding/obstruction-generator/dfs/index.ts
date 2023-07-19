@@ -1,4 +1,3 @@
-import type { MutableRefObject } from 'react';
 import shuffle from 'lodash/shuffle';
 import {
     setupPathfinder,
@@ -7,16 +6,7 @@ import {
     recursiveAsyncGeneratorRunner
 } from '../../../../util';
 import type { Coordinate } from '../../../../util/type';
-import type { Grid } from '../../type';
-
-type BeginDFSObstructionGeneratorParams = {
-    origin: Coordinate,
-    goal: Coordinate,
-    grid: Grid,
-    delay: MutableRefObject<number>
-};
-
-export type BeginDFSObstructionGenerator = (params: BeginDFSObstructionGeneratorParams) => Promise<void>;
+import type { AsyncObstructionGenerator, Grid } from '../../type';
 
 const stack: Coordinate[] = [];
 const directions = [
@@ -27,7 +17,7 @@ const directions = [
 ] as const;
 const visited: boolean[][] = [];
 
-export const beginDFSObstructionGenerator: BeginDFSObstructionGenerator = async ({ origin, goal, grid, delay }) => {
+export const beginDFSObstructionGenerator: AsyncObstructionGenerator = async ({ origin, target, grid, delay }) => {
     // since React batches the state updates to the nodes, they are updated only after the following code has run,
     // and to prevent this, we run this in an async function that we await, so we'll have the updated nodes when running
     // the generator
@@ -54,9 +44,9 @@ export const beginDFSObstructionGenerator: BeginDFSObstructionGenerator = async 
     );
 
     grid[origin.y]![origin.x]!.obstruction[1](false);
-    grid[goal.y]![goal.x]!.obstruction[1](false);
+    grid[target.y]![target.x]!.obstruction[1](false);
 
-    void recursiveAsyncGeneratorRunner(dfsObstructionGenerator(grid), delay);
+    return await recursiveAsyncGeneratorRunner(dfsObstructionGenerator(grid), delay);
 };
 
 function* dfsObstructionGenerator(
@@ -95,5 +85,7 @@ function* dfsObstructionGenerator(
 
         yield;
     }
+
+    return true;
 }
 

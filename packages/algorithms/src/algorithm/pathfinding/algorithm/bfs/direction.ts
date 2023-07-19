@@ -1,25 +1,26 @@
-import type { Direction } from '../../direction';
+import type { Direction } from '../../type';
 
 export enum BFSDirection {
     ORTHOGONAL = 'orthogonal',
     DIAGONAL = 'diagonal',
     HYBRID = 'hybrid'
 };
-export const BFSOrthogonalDirections = [
+
+const BFSOrthogonalDirections = [
     [-1, 0],
     [1, 0],
     [0, -1],
     [0, 1]
-]satisfies Direction[];
+] satisfies Direction[];
 
-export const BFSDiagonalDirections = [
+const BFSDiagonalDirections = [
     [-1, -1],
     [1, 1],
     [1, -1],
     [-1, 1]
-]satisfies Direction[];
+] satisfies Direction[];
 
-export const BFSHybridDirections = [
+const BFSHybridDirections = [
     [-1, 0],
     [1, 0],
     [0, -1],
@@ -28,7 +29,7 @@ export const BFSHybridDirections = [
     [1, 1],
     [1, -1],
     [-1, 1]
-]satisfies Direction[];
+] satisfies Direction[];
 
 export const Directions = {
     [BFSDirection.ORTHOGONAL]: BFSOrthogonalDirections,

@@ -17,7 +17,7 @@ export type NodeProps = {
     isGoal: boolean,
     setOrigin: Dispatch<SetStateAction<Coordinate>>,
     setGoal: Dispatch<SetStateAction<Coordinate>>,
-    nodes: Grid
+    grid: Grid
 };
 
 function useForwardedState<T>(initialState: T) {
@@ -33,7 +33,7 @@ const Node = ({
     isGoal,
     setOrigin,
     setGoal,
-    nodes
+    grid
 }: NodeProps) => {
     const [forwardVisited, isVisited, setIsVisited] = useForwardedState(false);
     const [forwardActive, isActive, setIsActive] = useForwardedState(false);
@@ -42,7 +42,7 @@ const Node = ({
     const [forwardWeight, weight, setWeight] = useForwardedState<number | null>(null);
 
     useEffect(() => {
-        const node = nodes[y]![x]!;
+        const node = grid[y]![x]!;
         node.visited = forwardVisited;
         node.active = forwardActive;
         node.backtrace = forwardBacktrace;
@@ -56,8 +56,21 @@ const Node = ({
             setIsObstruction(false);
             setWeight(null);
         };
-        // eslint-disable-next-line max-len
-    }, [forwardVisited, forwardActive, forwardObstruction, forwardWeight, nodes, y, x, setIsVisited, setIsActive, setIsObstruction, setWeight, forwardBacktrace, setIsBacktrace]);
+    }, [
+        forwardVisited,
+        forwardActive,
+        forwardObstruction,
+        forwardWeight,
+        forwardBacktrace,
+        grid,
+        y,
+        x,
+        setIsVisited,
+        setIsActive,
+        setIsObstruction,
+        setWeight,
+        setIsBacktrace
+    ]);
 
     const nodeRef = useRef<Konva.Rect>(null);
 

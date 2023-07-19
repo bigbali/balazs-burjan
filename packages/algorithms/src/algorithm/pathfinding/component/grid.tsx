@@ -13,7 +13,7 @@ import {
     useCallback
 } from 'react';
 import { Layer, Stage } from 'react-konva';
-import type { Grid as Nodes } from '../type';
+import type { Grid as GridType } from '../type';
 import NodeControls, { useNodeControlsMenu } from './node-controls';
 import { MouseButton, type Coordinate } from '../../../util/type';
 import { Row } from './row';
@@ -23,9 +23,9 @@ export const GRID_MARGIN = 3;
 export type GridData = {
     columns: number,
     rows: number,
-    nodes: Nodes,
+    grid: GridType,
     origin: Coordinate,
-    goal: Coordinate,
+    target: Coordinate,
     setOrigin: Dispatch<SetStateAction<Coordinate>>,
     setGoal: Dispatch<SetStateAction<Coordinate>>
 };

@@ -1,5 +1,4 @@
 import type { MutableRefObject } from 'react';
-import type { Direction } from '../../direction';
 import type { BFSDirection } from './direction';
 import type { Coordinate, Entry } from '../../../../util/type';
 import {
@@ -10,12 +9,12 @@ import {
     isOutOfBounds
 } from '../../../../util';
 import { Directions } from './direction';
-import type { Grid } from '../../type';
+import type { Direction, Grid } from '../../type';
 import { PathfinderState } from '../../type';
 
 type BeginBFSParams = {
     origin: Coordinate,
-    goal: Coordinate,
+    target: Coordinate,
     grid: Grid,
     delay: MutableRefObject<number>,
     state: MutableRefObject<PathfinderState>,
@@ -36,7 +35,7 @@ export const resetBFS = (callback: () => void) => {
     callback();
 };
 
-export const beginBFS: BeginBFS = async ({ origin, goal, grid, delay, state, resume, options }) => {
+export const beginBFS: BeginBFS = async ({ origin, target, grid, delay, state, resume, options }) => {
     const { direction } = options;
 
     directions = Directions[direction];
@@ -53,11 +52,11 @@ export const beginBFS: BeginBFS = async ({ origin, goal, grid, delay, state, res
         resume
     );
 
-    return await recursiveAsyncGeneratorRunner(bfsGenerator(goal, grid, state), delay);
+    return await recursiveAsyncGeneratorRunner(bfsGenerator(target, grid, state), delay);
 };
 
 function* bfsGenerator(
-    goal: Coordinate,
+    target: Coordinate,
     grid: Grid,
     state: MutableRefObject<PathfinderState>
 ) {
@@ -68,15 +67,13 @@ function* bfsGenerator(
             return current;
         }
 
-
-        if (current.x === goal.x && current.y === goal.y) {
+        if (current.x === target.x && current.y === target.y) {
             return current;
         }
 
         if (visited[current.y]![current.x]) {
             continue;
         }
-
 
         if (isObstruction(current.x, current.y, grid)) {
             continue;

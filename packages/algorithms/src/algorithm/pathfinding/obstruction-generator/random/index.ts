@@ -1,18 +1,9 @@
-import type { MutableRefObject } from 'react';
-import type { Direction, Grid } from '../../type';
+import type { Direction, ObstructionGenerator, ObstructionGeneratorOptions } from '../../type';
 import type { RandomOptions } from './options';
 import type { Coordinate } from '../../../../util/type';
 import { setupPathfinder, isOutOfBounds } from '../../../../util';
 
-type BeginRandomObstructionGeneratorParams = {
-    origin: Coordinate,
-    goal: Coordinate,
-    grid: Grid,
-    delay: MutableRefObject<number>,
-    options: RandomOptions
-};
-
-export type BeginRandomObstructionGenerator = (params: BeginRandomObstructionGeneratorParams) => void;
+type Options = ObstructionGeneratorOptions<RandomOptions>;
 
 const stack: Coordinate[] = [];
 const directions = [
@@ -23,7 +14,7 @@ const directions = [
 ] satisfies Direction[];
 const visited: boolean[][] = [];
 
-export const beginRandomObstructionGenerator: BeginRandomObstructionGenerator = ({ origin, grid, options }) => {
+export const beginRandomObstructionGenerator: ObstructionGenerator<RandomOptions> = ({ origin, grid, options }) => {
     setupPathfinder(
         stack,
         {
@@ -35,12 +26,12 @@ export const beginRandomObstructionGenerator: BeginRandomObstructionGenerator = 
         false
     );
 
-    generateRandomObstructions(grid, options);
+    return generateRandomObstructions(grid, options);
 };
 
 function generateRandomObstructions(
-    grid: BeginRandomObstructionGeneratorParams['grid'],
-    { probability: p }: BeginRandomObstructionGeneratorParams['options']
+    grid: Options['grid'],
+    { probability: p }: Options['options']
 ) {
     const probability = p / 100;
 
@@ -69,4 +60,6 @@ function generateRandomObstructions(
             }
         }
     }
+
+    return true;
 }
