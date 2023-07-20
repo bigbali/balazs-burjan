@@ -1,10 +1,10 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { useEffect, useState } from 'react';
+import { memo, useEffect, useState } from 'react';
 import { PATHFINDER_MAP, Pathfinder, RESET_MAP, usePathfinderOptions } from '../algorithm';
 import FieldRangeInput from 'ui/FieldRangeInput';
 import type { Grid } from '../type';
 import { Delay, Dimensions, PathfinderState } from '../type';
-import StartButton from './start-button';
+import StartButton from './StartButton';
 import Expander from 'ui/expander';
 import { OBSTRUCTION_GENERATOR_MAP, ObstructionGenerator, useObstructionGeneratorOptions } from '../obstruction-generator';
 import type { Coordinate, Entry } from '../../../util/type';
@@ -12,42 +12,38 @@ import { forEachNode } from '../../../util';
 import { dijkstraDefaultOptions } from '../algorithm/dijkstra/options';
 
 type SettingsMenuProps = {
-    data: {
-        ModeSelector: React.FC,
-        rows: number,
-        columns: number,
-        grid: Grid,
-        origin: Coordinate,
-        target: Coordinate,
-        state: PathfinderState,
-        result: Entry | null,
-        delayRef: MutableRefObject<Delay>,
-        stateRef: MutableRefObject<PathfinderState>,
-        setRowsTransition: (value: number) => void,
-        setColumnsTransition: (value: number) => void,
-        setPathfinderState: (state: PathfinderState) => void,
-        setResult: Dispatch<SetStateAction<Entry>>
-    }
+    ModeSelector: React.FC,
+    rows: number,
+    columns: number,
+    grid: Grid,
+    origin: Coordinate,
+    target: Coordinate,
+    state: PathfinderState,
+    result: Entry | null,
+    delayRef: MutableRefObject<Delay>,
+    stateRef: MutableRefObject<PathfinderState>,
+    setRowsTransition: (value: number) => void,
+    setColumnsTransition: (value: number) => void,
+    setPathfinderState: (state: PathfinderState) => void,
+    setResult: Dispatch<SetStateAction<Entry>>
 };
 
-export default function Menu({ data }: SettingsMenuProps) {
-    const {
-        ModeSelector,
-        rows,
-        columns,
-        grid,
-        origin,
-        target,
-        state,
-        result,
-        delayRef,
-        stateRef,
-        setRowsTransition,
-        setColumnsTransition,
-        setPathfinderState,
-        setResult
-    } = data;
-
+export default memo(function Menu({
+    ModeSelector,
+    rows,
+    columns,
+    grid,
+    origin,
+    target,
+    state,
+    result,
+    delayRef,
+    stateRef,
+    setRowsTransition,
+    setColumnsTransition,
+    setPathfinderState,
+    setResult
+}: SettingsMenuProps) {
     const [isExpanded, setIsExpanded] = useState(true);
     const [pathfinder, setPathfinder] = useState(Pathfinder.BREADTH_FIRST);
     const [pathfinderOptions, PathfinderOptions] = usePathfinderOptions(pathfinder);
@@ -106,7 +102,7 @@ export default function Menu({ data }: SettingsMenuProps) {
         });
     };
 
-    const runOG = async () => {
+    const generateObstructions = async () => {
         return await OBSTRUCTION_GENERATOR_MAP[obstructionGenerator]({
             origin,
             target,
@@ -157,7 +153,6 @@ export default function Menu({ data }: SettingsMenuProps) {
                         <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={1.5} stroke='currentColor' className='w-6 h-6'>
                             <path strokeLinecap='round' strokeLinejoin='round' d='M6 18L18 6M6 6l12 12' />
                         </svg>
-
                     </button>
                 </div>
                 <FieldRangeInput
@@ -225,7 +220,7 @@ export default function Menu({ data }: SettingsMenuProps) {
                                     <ObstructionGeneratorOptions />
                                     <button
                                         className='bg-slate-700 text-white font-medium px-4 py-2 rounded-lg'
-                                        onClick={() => void runOG()}>
+                                        onClick={() => void generateObstructions()}>
                                         Generate maze
                                     </button>
                                 </div>
@@ -277,4 +272,4 @@ export default function Menu({ data }: SettingsMenuProps) {
             </div>
         </div>
     );
-}
+});

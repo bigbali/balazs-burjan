@@ -14,9 +14,9 @@ import {
 } from 'react';
 import { Layer, Stage } from 'react-konva';
 import type { Grid as GridType } from '../type';
-import NodeControls, { useNodeControlsMenu } from './node-controls';
+import NodeControls, { useNodeControlsMenu } from './NodeControls';
 import { MouseButton, type Coordinate } from '../../../util/type';
-import { Row } from './row';
+import { Row } from './Row';
 
 export const GRID_MARGIN = 3;
 
@@ -33,6 +33,10 @@ export type GridData = {
 export type GridProps = {
     data: GridData
 };
+
+/** When `mouseup` event triggers, we need to cancel it if
+ *  when we were actually holding the button to paint */
+let cancelClick = false;
 
 const Grid = ({ data }: GridProps) => {
     const {
@@ -91,11 +95,16 @@ const Grid = ({ data }: GridProps) => {
     }, [nodeAtPosition]);
 
     const fireNodeClick = useCallback((e: KonvaEventObject<MouseEvent>) => {
+        if (cancelClick) {
+            cancelClick = false;
+            return;
+        }
         getNode(e)?._fire('click', null);
     }, [getNode]);
 
     const fireNodeMouseDown = useCallback((e: KonvaEventObject<MouseEvent>) => {
         if (e.evt.buttons === MouseButton.NONE) return;
+        cancelClick = true;
         getNode(e)?._fire('mousedown', e);
     }, [getNode]);
 

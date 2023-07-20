@@ -5,29 +5,27 @@ import {
     useState,
     forwardRef,
     useEffect,
-    useRef,
-    FC
+    useRef
 } from 'react';
 import dynamic from 'next/dynamic';
 import { useLoading } from 'ui/store/loading';
-import useBacktraceHighlight from './component/node/useBacktraceHighlight';
+import useBacktraceHighlight from './component/Node/useBacktraceHighlight';
 import type { Coordinate, Entry } from '../../util/type';
-import type { Node, Grid as GridType } from './type';
 import { Delay, Dimensions, PathfinderState } from './type';
 import SettingsMenu from './component/Menu';
+import useGrid from './hook/useGrid';
 
-const Grid = dynamic(() => import('./component/grid'), {
+const Grid = dynamic(() => import('./component/Grid'), {
     ssr: false
 });
 
 type PathfinderVisualizerProps = {
     ModeSelector: React.FC,
-    containedHeight?: number
+    topOffset?: number
 };
 
-// TODO major refactor
 export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
-    function PathfinderVisualizer({ ModeSelector, containedHeight }, ref) {
+    function PathfinderVisualizer({ ModeSelector, topOffset }, ref) {
         const [rows, setRows] = useState(Dimensions.DEFAULT);
         const [columns, setColumns] = useState(Dimensions.DEFAULT);
 
@@ -53,76 +51,40 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
         useEffect(() => setGlobalLoading(isPending), [isPending, setGlobalLoading]);
         useEffect(() => { stateRef.current = state; }, [state]);
 
-        const grid = useMemo(() => {
-            const refs = new Array<Node[]>(rows);
-            for (let y = 0; y < rows; y++) {
-                const row = new Array<Node>(columns);
-
-                for (let x = 0; x < columns; x++) {
-                    row[x] = {
-                        visited: [false, () => { }],
-                        active: [false, () => { }],
-                        backtrace: [false, () => { }],
-                        obstruction: [false, () => { }],
-                        weight: [null, () => { }],
-                        reset: () => { }
-                    };
-                }
-
-                refs[y] = row;
-            }
-
-            return refs;
-        }, [columns, rows]) as GridType;
-
+        const grid = useGrid(columns, rows);
         useBacktraceHighlight(grid, result);
 
         const gridData = useMemo(() => ({
             columns, rows, grid, origin, target, setOrigin, setGoal: setTarget
         }), [columns, target, grid, origin, rows]);
 
-        const settingsMenuData = useMemo(() => ({
-            ModeSelector,
-            columns,
-            rows,
-            grid,
-            origin,
-            target,
-            state,
-            result,
-            stateRef,
-            delayRef,
-            setRowsTransition,
-            setColumnsTransition,
-            setPathfinderState,
-            setResult
-        }), [
-            ModeSelector,
-            rows,
-            columns,
-            grid,
-            origin,
-            target,
-            state,
-            result,
-            delayRef,
-            stateRef,
-            setRowsTransition,
-            setColumnsTransition,
-            setPathfinderState,
-            setResult
-        ]);
-
-        return ( // strange stuff, but this needs translate(0) so the contained fixed element is not relative to viewport
+        return (
             <div
                 style={{
-                    height: `calc(100vh - ${containedHeight ?? 0}px)`
+                    height: `calc(100vh - ${topOffset ?? 0}px)`
                 }}
+                // NOTE is this still relevant?
+                // this needs translate(0) so the contained fixed element is not relative to viewport
                 className='relative max-w-full p-2 translate-x-0 overflow-hidden'
                 ref={ref}
             >
                 <Grid data={gridData} />
-                <SettingsMenu data={settingsMenuData} />
+                <SettingsMenu
+                    ModeSelector={ModeSelector}
+                    rows={rows}
+                    columns={columns}
+                    grid={grid}
+                    origin={origin}
+                    target={target}
+                    state={state}
+                    result={result}
+                    delayRef={delayRef}
+                    stateRef={stateRef}
+                    setRowsTransition={setRowsTransition}
+                    setColumnsTransition={setColumnsTransition}
+                    setPathfinderState={setPathfinderState}
+                    setResult={setResult}
+                />
             </div>
         );
     });

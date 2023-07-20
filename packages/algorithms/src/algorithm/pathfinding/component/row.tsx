@@ -1,6 +1,6 @@
-import type { GridData } from './grid';
+import type { GridData } from './Grid';
 import { Fragment } from 'react';
-import Node from './node';
+import Node from './Node';
 
 export type RowProps = {
     data: Omit<GridData, 'rows'> & {

@@ -15,13 +15,13 @@ const ALGORITHM_VISUALIZER_MAP = {
 
 const Algorithms = () => {
     const [mode, setMode] = useState(() => Mode.PATHFINDER);
-    const [containedHeight, setContainedHeight] = useState(0);
+    const [topOffset, setTopOffset] = useState(0);
     const isLoading = useLoading(state => state.isLoading);
     const visualizerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         if (visualizerRef.current) {
-            setContainedHeight(
+            setTopOffset(
                 visualizerRef.current.offsetTop
             );
         }
@@ -71,7 +71,7 @@ const Algorithms = () => {
                 ModeSelector={ModeSelector}
                 key={mode}
                 ref={visualizerRef}
-                containedHeight={containedHeight}
+                topOffset={topOffset}
             />
         </>
     );

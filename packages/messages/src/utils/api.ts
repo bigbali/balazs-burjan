@@ -9,9 +9,8 @@ import { httpBatchLink, loggerLink } from '@trpc/client';
 import { createTRPCNext } from '@trpc/next';
 import { type inferRouterInputs, type inferRouterOutputs } from '@trpc/server';
 import superjson from 'superjson';
-
 import { type AppRouter } from '../server/api/root';
-import BASEPATH from './zone.mjs';
+import { BASEPATH } from './zone.mjs';
 
 const getBaseUrl = () => {
     if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // SSR should use vercel url

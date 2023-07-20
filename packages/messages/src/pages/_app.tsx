@@ -6,7 +6,7 @@ import { api } from '../utils/api';
 import Layout from 'ui/layout';
 
 import 'config/tailwind/tailwind.css';
-import BASEPATH from '../utils/zone.mjs';
+import { BASEPATH } from '../utils/zone.mjs';
 
 const MyApp: AppType<{ session: Session | null }> = ({
     Component,
