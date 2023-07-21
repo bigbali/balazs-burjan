@@ -67,3 +67,16 @@ export type ObstructionGeneratorOptions<T> = {
 
 export type ObstructionGenerator<T = void> = (options: ObstructionGeneratorOptions<T>) => boolean | void;
 export type AsyncObstructionGenerator<T = void> = (options: ObstructionGeneratorOptions<T>) => Promise<boolean | void>;
+
+// export type RunAction = <T>(action: () => Promise<T>) => Promise<void>;
+export enum State {
+    IDLE = 'idle',
+    OBSTRUCTION_GENERATOR = 'obstruction generator',
+    OBSTRUCTION_GENERATOR_PAUSED = 'obstruction generator paused',
+    PATHFINDER = 'pathfinder',
+    PATHFINDER_PAUSED = 'pathfinder paused',
+    PATHFINDER_CONTINUE = 'pathfinder continue',
+};
+
+export type RunAction = (action: State) => Promise<void>;
+

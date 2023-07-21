@@ -10,7 +10,7 @@ import {
 } from '../../../../util';
 import type { Coordinate, Entry } from '../../../../util/type';
 import type { Direction, Grid } from '../../type';
-import { PathfinderState } from '../../type';
+import { State } from '../../type';
 
 
 type BeginDijkstraParams = {
@@ -18,7 +18,7 @@ type BeginDijkstraParams = {
     target: Coordinate,
     grid: Grid,
     delay: MutableRefObject<number>,
-    state: MutableRefObject<PathfinderState>,
+    state: MutableRefObject<State>,
     resume: boolean,
     options: {
         direction: BFSDirection
@@ -63,7 +63,7 @@ export const beginDijkstra: BeginDijkstra = async ({ origin, target, grid, delay
 function* dijkstraGenerator(
     target: Coordinate,
     grid: Grid,
-    state: MutableRefObject<PathfinderState>
+    state: MutableRefObject<State>
 ) {
     while (!pq.isEmpty()) {
         const [, current] = pq.pop() || [];
@@ -74,7 +74,7 @@ function* dijkstraGenerator(
             return current;
         }
 
-        if (state.current === PathfinderState.PAUSED) {
+        if (state.current === State.PATHFINDER_PAUSED) {
             return null;
         }
 

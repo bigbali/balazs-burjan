@@ -88,7 +88,7 @@ const CAOptions: React.FC<ObstructionGeneratorOptionsProps<CellularAutomataOptio
                 id='ca-preset'
                 className='border border-slate-3 rounded-md capitalize'
                 value={options.preset}
-                onChange={(e) => {
+                onChange={(e) => { // this does not allow reselecting an option
                     const newPreset = CA_PRESETS_MAP[e.currentTarget.value as CAPreset];
                     setOptions({
                         ...newPreset,

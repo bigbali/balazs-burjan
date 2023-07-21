@@ -10,10 +10,10 @@ import { dijkstraDefaultOptions, DijkstraOptions } from './dijkstra/options';
 import type { Entry } from '../../../util/type';
 
 export enum Pathfinder {
-    BREADTH_FIRST = 'breadth first',
-    DEPTH_FIRST = 'depth first',
-    DIJKSTRA = 'dijkstra',
-    BIDIRECTIONAL = 'bidirectional'
+    BREADTH_FIRST = 'Breadth First Search',
+    DEPTH_FIRST = 'Depth First Search',
+    DIJKSTRA = 'Dijkstra\'s Algorithm',
+    BIDIRECTIONAL = 'Bidirectional'
 }
 
 const DEFAULT_OPTION = {

@@ -11,8 +11,9 @@ import dynamic from 'next/dynamic';
 import { useLoading } from 'ui/store/loading';
 import useBacktraceHighlight from './component/Node/useBacktraceHighlight';
 import type { Coordinate, Entry } from '../../util/type';
-import { Delay, Dimensions, PathfinderState } from './type';
-import SettingsMenu from './component/Menu';
+import type { PathfinderState } from './type';
+import { Delay, Dimensions, State } from './type';
+import Menu from './component/Menu';
 import useGrid from './hook/useGrid';
 
 const Grid = dynamic(() => import('./component/Grid'), {
@@ -29,7 +30,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
         const [rows, setRows] = useState(Dimensions.DEFAULT);
         const [columns, setColumns] = useState(Dimensions.DEFAULT);
 
-        const [state, setState] = useState(PathfinderState.STOPPED);
+        const [state, setState] = useState(State.IDLE);
         const [result, setResult] = useState<Entry>(null);
 
         const [origin, setOrigin] = useState<Coordinate>({ x: 0, y: 0 });
@@ -42,7 +43,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
         const setRowsTransition = useCallback((value: number) => startTransition(() => setRows(value)), []);
         const setColumnsTransition = useCallback((value: number) => startTransition(() => setColumns(value)), []);
 
-        const setPathfinderState = useCallback((state: PathfinderState) => {
+        const setPathfinderState = useCallback((state: State) => {
             stateRef.current = state;
             setState(state);
         }, []);
@@ -69,7 +70,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
                 ref={ref}
             >
                 <Grid data={gridData} />
-                <SettingsMenu
+                <Menu
                     ModeSelector={ModeSelector}
                     rows={rows}
                     columns={columns}
@@ -84,6 +85,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
                     setColumnsTransition={setColumnsTransition}
                     setPathfinderState={setPathfinderState}
                     setResult={setResult}
+                    setState={setPathfinderState}
                 />
             </div>
         );

@@ -10,14 +10,14 @@ import {
 } from '../../../../util';
 import type { Coordinate, Entry } from '../../../../util/type';
 import type { Direction, Grid } from '../../type';
-import { PathfinderState } from '../../type';
+import { State } from '../../type';
 
 type BeginDFSParams = {
     origin: Coordinate,
     target: Coordinate,
     grid: Grid,
     delay: MutableRefObject<number>,
-    state: MutableRefObject<PathfinderState>,
+    state: MutableRefObject<State>,
     resume: boolean,
     options: {
         direction: DFSDirection
@@ -58,10 +58,10 @@ export const beginDFS: BeginDFS = async ({ origin, target, grid, delay, state, r
 function* dfsGenerator(
     target: Coordinate,
     grid: Grid,
-    state: MutableRefObject<PathfinderState>
+    state: MutableRefObject<State>
 ) {
     while (stack.length > 0) {
-        if (state.current === PathfinderState.PAUSED) {
+        if (state.current === State.PATHFINDER_PAUSED) {
             return null;
         }
 

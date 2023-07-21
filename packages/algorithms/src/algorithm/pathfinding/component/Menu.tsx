@@ -2,31 +2,35 @@ import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { memo, useEffect, useState } from 'react';
 import { PATHFINDER_MAP, Pathfinder, RESET_MAP, usePathfinderOptions } from '../algorithm';
 import FieldRangeInput from 'ui/FieldRangeInput';
-import type { Grid } from '../type';
-import { Delay, Dimensions, PathfinderState } from '../type';
-import StartButton from './StartButton';
+import type { Grid, RunAction } from '../type';
+import { State, Delay, Dimensions } from '../type';
+import PathfinderAction from './PathfinderAction';
 import Expander from 'ui/expander';
 import { OBSTRUCTION_GENERATOR_MAP, ObstructionGenerator, useObstructionGeneratorOptions } from '../obstruction-generator';
 import type { Coordinate, Entry } from '../../../util/type';
 import { forEachNode } from '../../../util';
 import { dijkstraDefaultOptions } from '../algorithm/dijkstra/options';
+import ObstructionGeneratorAction from './ObstructionGeneratorAction';
 
-type SettingsMenuProps = {
+type MenuProps = {
     ModeSelector: React.FC,
     rows: number,
     columns: number,
     grid: Grid,
     origin: Coordinate,
     target: Coordinate,
-    state: PathfinderState,
+    state: State,
+    setState: (state: State) => void
     result: Entry | null,
     delayRef: MutableRefObject<Delay>,
-    stateRef: MutableRefObject<PathfinderState>,
+    stateRef: MutableRefObject<State>,
     setRowsTransition: (value: number) => void,
     setColumnsTransition: (value: number) => void,
-    setPathfinderState: (state: PathfinderState) => void,
+    setPathfinderState: (state: State) => void,
     setResult: Dispatch<SetStateAction<Entry>>
 };
+
+const pending: { value: Promise<boolean | void> | null } = { value: null };
 
 export default memo(function Menu({
     ModeSelector,
@@ -36,6 +40,7 @@ export default memo(function Menu({
     origin,
     target,
     state,
+    setState,
     result,
     delayRef,
     stateRef,
@@ -43,7 +48,7 @@ export default memo(function Menu({
     setColumnsTransition,
     setPathfinderState,
     setResult
-}: SettingsMenuProps) {
+}: MenuProps) {
     const [isExpanded, setIsExpanded] = useState(true);
     const [pathfinder, setPathfinder] = useState(Pathfinder.BREADTH_FIRST);
     const [pathfinderOptions, PathfinderOptions] = usePathfinderOptions(pathfinder);
@@ -51,7 +56,7 @@ export default memo(function Menu({
     const [obstructionGeneratorOptions, ObstructionGeneratorOptions] = useObstructionGeneratorOptions(obstructionGenerator);
 
     const runPathfinder = async (resume: boolean) => {
-        return await PATHFINDER_MAP[pathfinder]({
+        const result = await PATHFINDER_MAP[pathfinder]({
             origin,
             target,
             grid,
@@ -61,40 +66,14 @@ export default memo(function Menu({
             // @ts-ignore NOTE move to algo like in case  dijkstra
             options: { direction: pathfinderOptions }
         });
-    };
 
-    const handleStart = async () => {
-        const state = stateRef.current;
-
-        if (state === PathfinderState.STOPPED) {
-            setPathfinderState(PathfinderState.RUNNING);
-
-            const shortestPath = await runPathfinder(false);
-
-            if (stateRef.current !== PathfinderState.PAUSED) {
-                setResult(shortestPath);
-                setPathfinderState(PathfinderState.STOPPED);
-            }
-        }
-
-        if (state === PathfinderState.RUNNING) {
-            setPathfinderState(PathfinderState.PAUSED);
-        }
-
-        if (state === PathfinderState.PAUSED) {
-            setPathfinderState(PathfinderState.RUNNING);
-
-            const shortestPath = await runPathfinder(true);
-
-            if (shortestPath) {
-                setResult(shortestPath);
-                setPathfinderState(PathfinderState.STOPPED);
-            }
+        if (pending.value !== null) {
+            setResult(result);
         }
     };
 
-    const handleReset = () => {
-        setPathfinderState(PathfinderState.STOPPED);
+    const reset = () => {
+        setPathfinderState(State.IDLE);
         setResult(null);
 
         RESET_MAP[pathfinder](() => {
@@ -102,7 +81,7 @@ export default memo(function Menu({
         });
     };
 
-    const generateObstructions = async () => {
+    const runObstructionGenerator = async () => {
         return await OBSTRUCTION_GENERATOR_MAP[obstructionGenerator]({
             origin,
             target,
@@ -111,6 +90,44 @@ export default memo(function Menu({
             options: obstructionGeneratorOptions
         });
     };
+
+    const run: RunAction = async (actionType) => {
+        setState(actionType);
+
+        switch (actionType) {
+            case State.OBSTRUCTION_GENERATOR:
+                pending.value = runObstructionGenerator();
+                await pending.value;
+                break;
+            // case State.OBSTRUCTION_GENERATOR_CONTINUE:
+            //     pending.value = runObstructionGenerator(true);
+            //     await pending.value;
+            //     break;
+            case State.OBSTRUCTION_GENERATOR_PAUSED:
+                pending.value = null;
+                return;
+            case State.PATHFINDER:
+                pending.value = runPathfinder(false);
+                await pending.value;
+                break;
+            case State.PATHFINDER_CONTINUE:
+                pending.value = runPathfinder(true);
+                await pending.value;
+                break;
+            case State.PATHFINDER_PAUSED:
+                pending.value = null;
+                return;
+            default:
+                return;
+        }
+
+        if (pending.value !== null) {
+            setState(State.IDLE);
+            pending.value = null;
+            return;
+        }
+    };
+
 
     // TODO wtf
     useEffect(() => {
@@ -186,6 +203,52 @@ export default memo(function Menu({
                     onChange={(velocity) => (delayRef.current = velocity)}
                     debounceRange={false}
                 />
+                <div className='flex gap-2'>
+                    <label htmlFor='algorithm' className='capitalize'>
+                        Pathfinder Algorithm
+                    </label>
+                    <select
+                        id='algorithm'
+                        className='border border-slate-3 rounded-md capitalize ml-auto'
+                        value={pathfinder}
+                        onChange={(e) => setPathfinder(e.currentTarget.value as Pathfinder)}
+                    >
+                        {Object.values(Pathfinder).map((value) => {
+                            return (
+                                <option
+                                    key={value}
+                                    value={value}
+                                    className='capitalize'
+                                >
+                                    {value}
+                                </option>
+                            );
+                        })}
+                    </select>
+                </div>
+                <div className='flex gap-2'>
+                    <label htmlFor='algorithm' className='capitalize'>
+                        Obstruction Algorithm
+                    </label>
+                    <select
+                        id='obstruction-generator'
+                        className='border border-slate-3 rounded-md capitalize h-fit ml-auto'
+                        value={obstructionGenerator}
+                        onChange={(e) => setObstructionGenerator(e.currentTarget.value as ObstructionGenerator)}
+                    >
+                        {Object.values(ObstructionGenerator).map((value) => {
+                            return (
+                                <option
+                                    key={value}
+                                    value={value}
+                                    className='capitalize'
+                                >
+                                    {value}
+                                </option>
+                            );
+                        })}
+                    </select>
+                </div>
                 <div className='flex flex-col justify-between h-full gap-4'>
                     <div className='flex flex-col gap-2'>
                         <Expander
@@ -193,36 +256,8 @@ export default memo(function Menu({
                             openInitial
                         >
                             <fieldset className='px-4 pt-3 pb-4'>
-                                <legend className='text-center px-4 hidden'>
-                                    Grid Options
-                                </legend>
                                 <div className='flex flex-col gap-4'>
-                                    <div className='grid gap-2'>
-                                    </div>
-                                    <select
-                                        id='obstruction-generator'
-                                        className='border border-slate-3 rounded-md capitalize'
-                                        value={obstructionGenerator}
-                                        onChange={(e) => setObstructionGenerator(e.currentTarget.value as ObstructionGenerator)}
-                                    >
-                                        {Object.values(ObstructionGenerator).map((value) => {
-                                            return (
-                                                <option
-                                                    key={value}
-                                                    value={value}
-                                                    className='capitalize'
-                                                >
-                                                    {value}
-                                                </option>
-                                            );
-                                        })}
-                                    </select>
                                     <ObstructionGeneratorOptions />
-                                    <button
-                                        className='bg-slate-700 text-white font-medium px-4 py-2 rounded-lg'
-                                        onClick={() => void generateObstructions()}>
-                                        Generate maze
-                                    </button>
                                 </div>
                             </fieldset>
                         </Expander>
@@ -231,42 +266,28 @@ export default memo(function Menu({
                                 <legend className='text-center px-4'>
                                     Algorithm Options
                                 </legend>
-                                <div className='flex flex-col gap-4'>
-                                    <div>
-                                        <div className='flex gap-2'>
-                                            <label htmlFor='algorithm' className='capitalize'>
-                                                Algorithm
-                                            </label>
-                                            <select
-                                                id='algorithm'
-                                                className='border border-slate-3 rounded-md capitalize'
-                                                value={pathfinder}
-                                                onChange={(e) => setPathfinder(e.currentTarget.value as Pathfinder)}
-                                            >
-                                                {Object.values(Pathfinder).map((value) => {
-                                                    return (
-                                                        <option
-                                                            key={value}
-                                                            value={value}
-                                                            className='capitalize'
-                                                        >
-                                                            {value}
-                                                        </option>
-                                                    );
-                                                })}
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
                                 <PathfinderOptions />
                             </fieldset>
                         </Expander>
                     </div>
-                    <div className='flex gap-2'>
-                        <StartButton state={state} disable={!!result} onClick={() => void handleStart()} />
-                        <button className='bg-red-700 text-white font-medium px-4 py-2 rounded-lg' onClick={handleReset}>
-                            Reset
-                        </button>
+                    <div className='flex flex-col gap-4'>
+                        <div className='flex gap-2'>
+                            <button
+                                className='bg-slate-700 text-white font-medium px-4 py-2 rounded-lg'
+                                onClick={() => {
+                                    void run(State.OBSTRUCTION_GENERATOR);
+                                }}
+                            >
+                                Generate Obstructions
+                            </button>
+                            <ObstructionGeneratorAction state={state} run={run} />
+                        </div>
+                        <div className='flex gap-2'>
+                            <PathfinderAction state={state} run={run} />
+                            <button className='bg-red-700 text-white font-medium px-4 py-2 rounded-lg' onClick={reset}>
+                                Reset
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

@@ -18,18 +18,16 @@ export type ObstructionGeneratorOptionsProps<T> = {
     setOptions: Dispatch<Partial<T>>
 };
 
-
 export const OBSTRUCTION_GENERATOR_MAP = {
     [ObstructionGenerator.DFS]: beginDFSObstructionGenerator,
     [ObstructionGenerator.RANDOM]: beginRandomObstructionGenerator,
     [ObstructionGenerator.CELLULAR_AUTOMATA]: beginCAObstructionGenerator
 } as const;
 
-
+// TODO remove when ready
 const DFSOpt: React.FC = () => {
     return null;
 };
-
 
 export const OBSTRUCTION_GENERATOR_OPTIONS_MAP = {
     [ObstructionGenerator.DFS]: DFSOpt,

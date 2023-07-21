@@ -10,14 +10,14 @@ import {
 } from '../../../../util';
 import { Directions } from './direction';
 import type { Direction, Grid } from '../../type';
-import { PathfinderState } from '../../type';
+import { PathfinderState, State } from '../../type';
 
 type BeginBFSParams = {
     origin: Coordinate,
     target: Coordinate,
     grid: Grid,
     delay: MutableRefObject<number>,
-    state: MutableRefObject<PathfinderState>,
+    state: MutableRefObject<State>,
     resume: boolean,
     options: {
         direction: BFSDirection
@@ -58,12 +58,12 @@ export const beginBFS: BeginBFS = async ({ origin, target, grid, delay, state, r
 function* bfsGenerator(
     target: Coordinate,
     grid: Grid,
-    state: MutableRefObject<PathfinderState>
+    state: MutableRefObject<State>
 ) {
     while (queue.length > 0) {
         const current = queue.shift()!;
 
-        if (state.current === PathfinderState.PAUSED) {
+        if (state.current === State.PATHFINDER_PAUSED) {
             return current;
         }
 
