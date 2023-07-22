@@ -1,6 +1,5 @@
 <script>
     import Header from './Header.svelte';
-      import { page } from "$app/stores"
 
     import '@fontsource-variable/raleway';
     import './styles.css';

@@ -26,4 +26,4 @@ export default function useGrid(columns: number, rows: number) {
     }, [columns, rows]);
 
     return grid;
-};
+}

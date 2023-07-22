@@ -11,7 +11,6 @@ import dynamic from 'next/dynamic';
 import { useLoading } from 'ui/store/loading';
 import useBacktraceHighlight from './component/Node/useBacktraceHighlight';
 import type { Coordinate, Entry } from '../../util/type';
-import type { PathfinderState } from './type';
 import { Delay, Dimensions, State } from './type';
 import Menu from './component/Menu';
 import useGrid from './hook/useGrid';

@@ -30,7 +30,7 @@ type MenuProps = {
     setResult: Dispatch<SetStateAction<Entry>>
 };
 
-const pending: { value: Promise<boolean | void> | null } = { value: null };
+const pending: { result: Promise<boolean | void> | null } = { result: null };
 
 export default memo(function Menu({
     ModeSelector,
@@ -67,7 +67,7 @@ export default memo(function Menu({
             options: { direction: pathfinderOptions }
         });
 
-        if (pending.value !== null) {
+        if (pending.result !== null) {
             setResult(result);
         }
     };
@@ -96,34 +96,34 @@ export default memo(function Menu({
 
         switch (actionType) {
             case State.OBSTRUCTION_GENERATOR:
-                pending.value = runObstructionGenerator();
-                await pending.value;
+                pending.result = runObstructionGenerator();
+                await pending.result;
                 break;
             // case State.OBSTRUCTION_GENERATOR_CONTINUE:
             //     pending.value = runObstructionGenerator(true);
             //     await pending.value;
             //     break;
             case State.OBSTRUCTION_GENERATOR_PAUSED:
-                pending.value = null;
+                pending.result = null;
                 return;
             case State.PATHFINDER:
-                pending.value = runPathfinder(false);
-                await pending.value;
+                pending.result = runPathfinder(false);
+                await pending.result;
                 break;
             case State.PATHFINDER_CONTINUE:
-                pending.value = runPathfinder(true);
-                await pending.value;
+                pending.result = runPathfinder(true);
+                await pending.result;
                 break;
             case State.PATHFINDER_PAUSED:
-                pending.value = null;
+                pending.result = null;
                 return;
             default:
                 return;
         }
 
-        if (pending.value !== null) {
+        if (pending.result !== null) {
             setState(State.IDLE);
-            pending.value = null;
+            pending.result = null;
             return;
         }
     };

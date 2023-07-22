@@ -39,11 +39,11 @@ export default function PathfinderAction({ state, run }: StartButtonProps) {
             className={`
                 ${className}
                 text-white font-medium px-4 py-2 rounded-lg disabled:opacity-75 disabled:cursor-not-allowed
-             `}
+            `}
             disabled={disabled}
             onClick={onClick}
         >
             {content}
         </button>
     );
-};
+}
