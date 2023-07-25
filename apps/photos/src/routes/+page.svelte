@@ -10,7 +10,6 @@
         katalg
        
     </h1>
-   
 </section>
 
 <style>

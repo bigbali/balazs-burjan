@@ -1,35 +1,98 @@
 <script>
-    import { page } from "$app/stores";
+    import { signIn } from '@auth/sveltekit/client';
+    import Noise from '$lib/component/Noise.svelte';
+    import { writable } from 'svelte/store';
+
+    let show = writable(false);
+    let password;
 </script>
 
 <svelte:head>
-    <title>
-        Fotók
-    </title>
-    <meta name="description" content="Svelte demo app" />
+    <title>Fotók</title>
+    <meta name="description" content="Fotók | bejelentkezés" />
 </svelte:head>
 
-<section class="flex flex-col gap-12 justify-evenly items-center m-auto">
-    <h1 class="text-theme-light-text text-[5rem] text-center leading-[6rem]">
-        burján balázs:
-        <div class="text-[7rem] font-thin">
-            fotók
+<section class="flex m-auto">
+    <Noise
+        className="absolute -z-10 inset-0 opacity-50"
+        frequency={0.3}
+        octaves={10}
+    />
+    <div id="rect" class="relative m-auto bg-dark text-light rounded-[3rem]">
+        <Noise
+            className="absolute inset-0 z-0 h-full w-full opacity-50 invert rounded-[3rem]"
+            frequency={0.3}
+            octaves={10}
+            width={1000}
+            height={1000}
+        />
+        <div
+            class="relative z-10 flex flex-col gap-28 items-center w-full h-full px-96 py-16 pb-24"
+        >
+            <h1 class="text-[5rem] text-center leading-[6rem] italic">
+                burján balázs:
+                <div class="text-[7rem] font-thin">fotók</div>
+            </h1>
+            <div class="flex flex-col gap-12">
+                <div class="flex flex-col gap-4">
+                    <div class="w-full">
+                        <label
+                            class="flex flex-col gap-2 text-[2rem] leading-[3rem] pl-2"
+                            for="password"
+                        >
+                            jelszó:
+                        </label>
+                        <input
+                            class="border-2 rounded-[0.5rem] border-light/50 bg-light text-dark py-1 px-2 text-[1.5rem] leading-[2rem] w-full"
+                            id="password"
+                            name="password"
+                            type={$show ? 'text' : 'password'}
+                            value={$password}
+                            placeholder="jelszó"
+                            on:input={(e) => (password = e.currentTarget.value)}
+                        />
+                    </div>
+                    <label
+                        class="flex gap-2 items-center text-[2rem] leading-[2rem]"
+                    >
+                        <input
+                            class="w-[2rem] h-[2rem] border-[3px] rounded-[1rem] accent-theme-green"
+                            type="checkbox"
+                            checked={$show}
+                            on:change={(e) => {
+                                $show = e.currentTarget.checked;
+                            }}
+                        />
+                        <span> jelszó megjelenítése </span>
+                    </label>
+                </div>
+                <button
+                    class="text-[3rem] font-medium rounded-full leading-12 px-8 w-full bg-theme-green tracking-wide border-[3px] border-light/50"
+                    on:click={() =>
+                        signIn('credentials', { password: $password })}
+                >
+                    bejelentkezés
+                </button>
+            </div>
         </div>
-    </h1>
-    <a 
-        href="/auth/signin/"
-        data-sveltekit-preload-data="off"
-        class="text-[2rem] font-medium px-10 py-4 border rounded-full text-white bg-green-700 hover:bg-green-800 transition-colors" 
-    >
-        Bejelentkezés
-    </a>
+    </div>
 </section>
 
 <style>
     @import '@fontsource-variable/caveat';
 
-    h1 {
+    h1,
+    label,
+    button {
         font-family: 'Caveat Variable', cursive;
-        font-style: italic;
+    }
+
+    label,
+    input {
+        cursor: pointer;
+    }
+
+    #password {
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
     }
 </style>

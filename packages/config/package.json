@@ -9,12 +9,9 @@
         "eslint": "^8.45.0",
         "postcss": "^8.4.21",
         "prettier": "^3.0.0",
-        "prettier-plugin-svelte": "^2.10.1",
         "prettier-plugin-tailwindcss": "^0.4.1",
-        "tailwindcss": "^3.2.7"
-    },
-    "type": "module",
-    "dependencies": {
+        "tailwindcss": "^3.3.3",
         "globals": "^13.20.0"
-    }
+    },
+    "type": "module"
 }
