@@ -1,10 +1,27 @@
-<script>
+<script lang="ts">
     import { signIn } from '@auth/sveltekit/client';
     import Noise from '$lib/component/Noise.svelte';
+    import Error from '$lib/component/Error.svelte';
     import { writable } from 'svelte/store';
 
     let show = writable(false);
-    let password;
+    let password = writable('');
+    let auth_result = writable<Response | null | undefined>();
+
+    const handleSignIn = async () => {
+        try {
+            $auth_result = await signIn('credentials', {
+                password: $password,
+                redirect: false
+            });
+
+            if ($auth_result?.ok) {
+                location.reload();
+            }
+        } catch {
+            $auth_result = null;
+        }
+    };
 </script>
 
 <svelte:head>
@@ -12,7 +29,14 @@
     <meta name="description" content="Fotók | bejelentkezés" />
 </svelte:head>
 
-<section class="flex m-auto">
+<section class="flex flex-1">
+    {#if $auth_result === null}
+        <Error
+            className="text-[1.5rem] font-medium text-light"
+            condition
+            message="bejelentkezés sikertelen"
+        />
+    {/if}
     <Noise
         className="absolute -z-10 inset-0 opacity-50"
         frequency={0.3}
@@ -43,13 +67,14 @@
                             jelszó:
                         </label>
                         <input
-                            class="border-2 rounded-[0.5rem] border-light/50 bg-light text-dark py-1 px-2 text-[1.5rem] leading-[2rem] w-full"
+                            class="cursor-text border-2 rounded-[0.5rem] border-light/50 bg-light text-dark py-1 px-2 text-[1.5rem] leading-[2rem] w-full"
                             id="password"
                             name="password"
                             type={$show ? 'text' : 'password'}
                             value={$password}
                             placeholder="jelszó"
-                            on:input={(e) => (password = e.currentTarget.value)}
+                            on:input={(e) =>
+                                ($password = e.currentTarget.value)}
                         />
                     </div>
                     <label
@@ -68,8 +93,7 @@
                 </div>
                 <button
                     class="text-[3rem] font-medium rounded-full leading-12 px-8 w-full bg-theme-green tracking-wide border-[3px] border-light/50"
-                    on:click={() =>
-                        signIn('credentials', { password: $password })}
+                    on:click={handleSignIn}
                 >
                     bejelentkezés
                 </button>
@@ -88,8 +112,12 @@
     }
 
     label,
-    input {
+    input[type='checkbox'] {
         cursor: pointer;
+    }
+
+    label {
+        user-select: none;
     }
 
     #password {

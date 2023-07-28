@@ -1,5 +1,7 @@
 /// <reference types="@auth/sveltekit" />
 
+import type { DefaultSession } from '@auth/core/types';
+
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces
 declare global {
@@ -8,6 +10,16 @@ declare global {
         // interface Locals {}
         // interface PageData {}
         // interface Platform {}
+    }
+}
+
+declare module '@auth/core/types' {
+    interface Session extends DefaultSession {
+        user: {
+            id: string,
+            name: string,
+            role: 'family_member' | 'admin'
+        }
     }
 }
 

@@ -380,6 +380,41 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@cloudinary-util/url-loader@npm:3.9.0":
+  version: 3.9.0
+  resolution: "@cloudinary-util/url-loader@npm:3.9.0"
+  dependencies:
+    "@cloudinary-util/util": 2.1.0
+    "@cloudinary/url-gen": ^1.10.1
+  checksum: a244f31611b616316fdb2e3a7d66b7582f20dcc18b5e92624eaa497e2116fd26bc7fee17b8bf28cdc4e5c94f1fc8a789b1392d0995793776201909b9043b6296
+  languageName: node
+  linkType: hard
+
+"@cloudinary-util/util@npm:2.1.0":
+  version: 2.1.0
+  resolution: "@cloudinary-util/util@npm:2.1.0"
+  checksum: e7b9cc22eb64d1eed94e839dd43fff003fe24090b83c9776043fa3386c12f18393444290b521812cf65a7d340bebe1adbd61106a20af00a45c43c19bf7308e78
+  languageName: node
+  linkType: hard
+
+"@cloudinary/transformation-builder-sdk@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "@cloudinary/transformation-builder-sdk@npm:1.4.0"
+  dependencies:
+    "@cloudinary/url-gen": ^1.7.0
+  checksum: dd6827ca4a3c080e73991ebdd5261f2c44dd2abd166ec6ecee9fd5490b12825acf004eda2a1da34cb9c440b566331c4ef81109691fb232e131129796260761f0
+  languageName: node
+  linkType: hard
+
+"@cloudinary/url-gen@npm:^1.10.1, @cloudinary/url-gen@npm:^1.7.0":
+  version: 1.11.0
+  resolution: "@cloudinary/url-gen@npm:1.11.0"
+  dependencies:
+    "@cloudinary/transformation-builder-sdk": ^1.4.0
+  checksum: 651b2af8d168470398e139e311232e67def1a741f1812a70afab44c8967699e26d8bf99730ee361abcee2186c5373328f15b08988ccb39705bca58be336d9ed7
+  languageName: node
+  linkType: hard
+
 "@cspotcode/source-map-support@npm:^0.8.0":
   version: 0.8.1
   resolution: "@cspotcode/source-map-support@npm:0.8.1"
@@ -1548,6 +1583,28 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@unpic/core@npm:0.0.24, @unpic/core@npm:^0.0.24":
+  version: 0.0.24
+  resolution: "@unpic/core@npm:0.0.24"
+  dependencies:
+    unpic: ^3.6.1
+  checksum: 889585035f05e3f478bb39b1015ce9464eb0f55f4cb003321e70db5b30775c4513b300e1bbcd43e196da3b24fcda1e42af091978a0d582ebf0add9d28aeb91d0
+  languageName: node
+  linkType: hard
+
+"@unpic/svelte@npm:0.0.25":
+  version: 0.0.25
+  resolution: "@unpic/svelte@npm:0.0.25"
+  dependencies:
+    "@unpic/core": ^0.0.24
+    style-object-to-css-string: ^1.0.1
+    unpic: ^3.6.1
+  peerDependencies:
+    svelte: "*"
+  checksum: 637e1ffaa70893a554292ffadbf4e65bb5484b541b333aba45cb4560bc4f58fb1fc3ca2b523a59b9bf817f70d038098aa5ddfd94810d4892e680a5e51f1e9845
+  languageName: node
+  linkType: hard
+
 "abbrev@npm:^1.0.0":
   version: 1.1.1
   resolution: "abbrev@npm:1.1.1"
@@ -2052,6 +2109,27 @@ __metadata:
   languageName: node
   linkType: hard
 
+"cloudinary-core@npm:^2.13.0":
+  version: 2.13.0
+  resolution: "cloudinary-core@npm:2.13.0"
+  peerDependencies:
+    lodash: ">=4.0"
+  checksum: 5485fbc094b0722f6d4c6becfde431d3042c3c926a69c4bc2f6b373ac059b9b798703845c6cbf4a55ee2eb1c7718f5ec5130772117419755015b04dabd369be5
+  languageName: node
+  linkType: hard
+
+"cloudinary@npm:^1.39.0":
+  version: 1.39.0
+  resolution: "cloudinary@npm:1.39.0"
+  dependencies:
+    cloudinary-core: ^2.13.0
+    core-js: ^3.30.1
+    lodash: ^4.17.21
+    q: ^1.5.1
+  checksum: d15596960f700d1dbef775ded63c50418724d9e324a04fb4b9d3ddb393cb598846be7bb100ffbd1d92e465f72ce0f6999c4a69ed16f03b36f85dbe117101491d
+  languageName: node
+  linkType: hard
+
 "code-red@npm:^1.0.3":
   version: 1.0.3
   resolution: "code-red@npm:1.0.3"
@@ -2090,7 +2168,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"color-name@npm:^1.1.4, color-name@npm:~1.1.4":
+"color-name@npm:~1.1.4":
   version: 1.1.4
   resolution: "color-name@npm:1.1.4"
   checksum: b0445859521eb4021cd0fb0cc1a75cecf67fceecae89b63f62b201cca8d345baf8b952c966862a9d9a2632987d4f6581f0ec8d957dfacece86f0a7919316f610
@@ -2131,9 +2209,8 @@ __metadata:
     globals: ^13.20.0
     postcss: ^8.4.21
     prettier: ^3.0.0
-    prettier-plugin-svelte: ^3.0.0
     prettier-plugin-tailwindcss: ^0.4.1
-    tailwindcss: ^3.2.7
+    tailwindcss: ^3.3.3
   languageName: unknown
   linkType: soft
 
@@ -2164,6 +2241,13 @@ __metadata:
   dependencies:
     is-what: ^4.1.8
   checksum: d456dc5ec98dee7c7cf87d809eac30dc2ac942acd4cf970fab394e280ceb6dd7a8a7a5a44fcbcc50e0206658de3cc20b92863562f5797930bb2619f164f4c182
+  languageName: node
+  linkType: hard
+
+"core-js@npm:^3.30.1":
+  version: 3.32.0
+  resolution: "core-js@npm:3.32.0"
+  checksum: 52921395028550e4c9d21d47b9836439bb5b6b9eefc34d45a3948a68d81fdd093acc0fadf69f9cf632b82f01f95f22f484408a93dd9e940b19119ac204cd2925
   languageName: node
   linkType: hard
 
@@ -3871,15 +3955,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jiti@npm:^1.17.2":
-  version: 1.18.2
-  resolution: "jiti@npm:1.18.2"
-  bin:
-    jiti: bin/jiti.js
-  checksum: 46c41cd82d01c6efdee3fc0ae9b3e86ed37457192d6366f19157d863d64961b07982ab04e9d5879576a1af99cc4d132b0b73b336094f86a5ce9fb1029ec2d29f
-  languageName: node
-  linkType: hard
-
 "jiti@npm:^1.18.2":
   version: 1.19.1
   resolution: "jiti@npm:1.19.1"
@@ -4028,7 +4103,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lilconfig@npm:^2.0.5, lilconfig@npm:^2.0.6, lilconfig@npm:^2.1.0":
+"lilconfig@npm:^2.0.5, lilconfig@npm:^2.1.0":
   version: 2.1.0
   resolution: "lilconfig@npm:2.1.0"
   checksum: 8549bb352b8192375fed4a74694cd61ad293904eee33f9d4866c2192865c44c4eb35d10782966242634e0cbc1e91fe62b1247f148dc5514918e3a966da7ea117
@@ -4908,6 +4983,7 @@ __metadata:
     "@types/cookie": ^0.5.1
     "@types/eslint": ^8.44.0
     autoprefixer: ^10.4.14
+    cloudinary: ^1.39.0
     config: "workspace:*"
     eslint: ^8.45.0
     eslint-plugin-svelte3: ^4.0.0
@@ -4917,6 +4993,7 @@ __metadata:
     prettier-plugin-tailwindcss: ^0.4.1
     svelte: ^4.1.1
     svelte-check: ^3.4.6
+    svelte-cloudinary: ^1.0.3
     tailwindcss: ^3.3.3
     tslib: ^2.4.1
     typescript: ^5.1.6
@@ -4952,19 +5029,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-import@npm:^14.1.0":
-  version: 14.1.0
-  resolution: "postcss-import@npm:14.1.0"
-  dependencies:
-    postcss-value-parser: ^4.0.0
-    read-cache: ^1.0.0
-    resolve: ^1.1.7
-  peerDependencies:
-    postcss: ^8.0.0
-  checksum: cd45d406e90f67cdab9524352e573cc6b4462b790934a05954e929a6653ebd31288ceebc8ce3c3ed7117ae672d9ebbec57df0bceec0a56e9b259c2e71d47ca86
-  languageName: node
-  linkType: hard
-
 "postcss-import@npm:^15.1.0":
   version: 15.1.0
   resolution: "postcss-import@npm:15.1.0"
@@ -4978,7 +5042,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-js@npm:^4.0.0, postcss-js@npm:^4.0.1":
+"postcss-js@npm:^4.0.1":
   version: 4.0.1
   resolution: "postcss-js@npm:4.0.1"
   dependencies:
@@ -4986,24 +5050,6 @@ __metadata:
   peerDependencies:
     postcss: ^8.4.21
   checksum: 5c1e83efeabeb5a42676193f4357aa9c88f4dc1b3c4a0332c132fe88932b33ea58848186db117cf473049fc233a980356f67db490bd0a7832ccba9d0b3fd3491
-  languageName: node
-  linkType: hard
-
-"postcss-load-config@npm:^3.1.4":
-  version: 3.1.4
-  resolution: "postcss-load-config@npm:3.1.4"
-  dependencies:
-    lilconfig: ^2.0.5
-    yaml: ^1.10.2
-  peerDependencies:
-    postcss: ">=8.0.9"
-    ts-node: ">=9.0.0"
-  peerDependenciesMeta:
-    postcss:
-      optional: true
-    ts-node:
-      optional: true
-  checksum: 1c589504c2d90b1568aecae8238ab993c17dba2c44f848a8f13619ba556d26a1c09644d5e6361b5784e721e94af37b604992f9f3dc0483e687a0cc1cc5029a34
   languageName: node
   linkType: hard
 
@@ -5039,17 +5085,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-nested@npm:6.0.0":
-  version: 6.0.0
-  resolution: "postcss-nested@npm:6.0.0"
-  dependencies:
-    postcss-selector-parser: ^6.0.10
-  peerDependencies:
-    postcss: ^8.2.14
-  checksum: 2105dc52cd19747058f1a46862c9e454b5a365ac2e7135fc1015d67a8fe98ada2a8d9ee578e90f7a093bd55d3994dd913ba5ff1d5e945b4ed9a8a2992ecc8f10
-  languageName: node
-  linkType: hard
-
 "postcss-nested@npm:^6.0.1":
   version: 6.0.1
   resolution: "postcss-nested@npm:6.0.1"
@@ -5061,7 +5096,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-selector-parser@npm:^6.0.10, postcss-selector-parser@npm:^6.0.11":
+"postcss-selector-parser@npm:^6.0.11":
   version: 6.0.11
   resolution: "postcss-selector-parser@npm:6.0.11"
   dependencies:
@@ -5089,7 +5124,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss@npm:^8.0.9, postcss@npm:^8.4.14, postcss@npm:^8.4.21":
+"postcss@npm:^8.4.14, postcss@npm:^8.4.21":
   version: 8.4.21
   resolution: "postcss@npm:8.4.21"
   dependencies:
@@ -5304,17 +5339,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"q@npm:^1.5.1":
+  version: 1.5.1
+  resolution: "q@npm:1.5.1"
+  checksum: 147baa93c805bc1200ed698bdf9c72e9e42c05f96d007e33a558b5fdfd63e5ea130e99313f28efc1783e90e6bdb4e48b67a36fcc026b7b09202437ae88a1fb12
+  languageName: node
+  linkType: hard
+
 "queue-microtask@npm:^1.2.2":
   version: 1.2.3
   resolution: "queue-microtask@npm:1.2.3"
   checksum: b676f8c040cdc5b12723ad2f91414d267605b26419d5c821ff03befa817ddd10e238d22b25d604920340fd73efd8ba795465a0377c4adf45a4a41e4234e42dc4
-  languageName: node
-  linkType: hard
-
-"quick-lru@npm:^5.1.1":
-  version: 5.1.1
-  resolution: "quick-lru@npm:5.1.1"
-  checksum: a516faa25574be7947969883e6068dbe4aa19e8ef8e8e0fd96cddd6d36485e9106d85c0041a27153286b0770b381328f4072aa40d3b18a19f5f7d2b78b94b5ed
   languageName: node
   linkType: hard
 
@@ -5922,6 +5957,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"style-object-to-css-string@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "style-object-to-css-string@npm:1.0.1"
+  checksum: 39338e7c8800e97d4b5c994772604356e1d8f50d91c738b3f7358189107fe6fc7aae76ad72bdaf6bb2ef724c265c4ec6e39adf6126eb4f7c9aba12cecfca4714
+  languageName: node
+  linkType: hard
+
 "styled-jsx@npm:5.1.1":
   version: 5.1.1
   resolution: "styled-jsx@npm:5.1.1"
@@ -5935,23 +5977,6 @@ __metadata:
     babel-plugin-macros:
       optional: true
   checksum: 523a33b38603492547e861b98e29c873939b04e15fbe5ef16132c6f1e15958126647983c7d4675325038b428a5e91183d996e90141b18bdd1bbadf6e2c45b2fa
-  languageName: node
-  linkType: hard
-
-"sucrase@npm:^3.29.0":
-  version: 3.31.0
-  resolution: "sucrase@npm:3.31.0"
-  dependencies:
-    commander: ^4.0.0
-    glob: 7.1.6
-    lines-and-columns: ^1.1.6
-    mz: ^2.7.0
-    pirates: ^4.0.1
-    ts-interface-checker: ^0.1.9
-  bin:
-    sucrase: bin/sucrase
-    sucrase-node: bin/sucrase-node
-  checksum: 333990b1bca57acc010ae07c763dddfd34f01fd38afe9e53cf43f4a5096bd7a66f924fed65770288fba475f914f3aa5277cc4490ed9e74c50b4cea7f147e9e63
   languageName: node
   linkType: hard
 
@@ -6024,6 +6049,20 @@ __metadata:
   bin:
     svelte-check: bin/svelte-check
   checksum: d2baa7dc91f09ae726c76f174038411871c800dc1d8134a177390cc4f0d0f31a6da49f020d9d58f4211a3b7020209fc804884081ce9fc0a3870a25d345b0fc9e
+  languageName: node
+  linkType: hard
+
+"svelte-cloudinary@npm:^1.0.3":
+  version: 1.0.3
+  resolution: "svelte-cloudinary@npm:1.0.3"
+  dependencies:
+    "@cloudinary-util/url-loader": 3.9.0
+    "@cloudinary-util/util": 2.1.0
+    "@unpic/core": 0.0.24
+    "@unpic/svelte": 0.0.25
+  peerDependencies:
+    svelte: ^3.0.0 || ^4.0.0
+  checksum: b00819ddf859952790873398107ade6c4372deb3e70750530f8e54c0cc16bd56780d999d3c57210404e7b0c7cae204114a8272864bdb2bce2dc2ecec5ff5959c
   languageName: node
   linkType: hard
 
@@ -6110,43 +6149,6 @@ __metadata:
     "@pkgr/utils": ^2.3.1
     tslib: ^2.5.0
   checksum: 8a9560e5d8f3d94dc3cf5f7b9c83490ffa30d320093560a37b88f59483040771fd1750e76b9939abfbb1b5a23fd6dfbae77f6b338abffe7cae7329cd9b9bb86b
-  languageName: node
-  linkType: hard
-
-"tailwindcss@npm:^3.2.7":
-  version: 3.3.1
-  resolution: "tailwindcss@npm:3.3.1"
-  dependencies:
-    arg: ^5.0.2
-    chokidar: ^3.5.3
-    color-name: ^1.1.4
-    didyoumean: ^1.2.2
-    dlv: ^1.1.3
-    fast-glob: ^3.2.12
-    glob-parent: ^6.0.2
-    is-glob: ^4.0.3
-    jiti: ^1.17.2
-    lilconfig: ^2.0.6
-    micromatch: ^4.0.5
-    normalize-path: ^3.0.0
-    object-hash: ^3.0.0
-    picocolors: ^1.0.0
-    postcss: ^8.0.9
-    postcss-import: ^14.1.0
-    postcss-js: ^4.0.0
-    postcss-load-config: ^3.1.4
-    postcss-nested: 6.0.0
-    postcss-selector-parser: ^6.0.11
-    postcss-value-parser: ^4.2.0
-    quick-lru: ^5.1.1
-    resolve: ^1.22.1
-    sucrase: ^3.29.0
-  peerDependencies:
-    postcss: ^8.0.9
-  bin:
-    tailwind: lib/cli.js
-    tailwindcss: lib/cli.js
-  checksum: 966ba175486fb65ef3dd76aa8ec6929ff1d168531843ca7d5faf680b7097c36bf5f9ca385b563cdfdff935bb2bd37ac5998e877491407867503cc129d118bf93
   languageName: node
   linkType: hard
 
@@ -6578,6 +6580,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"unpic@npm:^3.6.1":
+  version: 3.9.0
+  resolution: "unpic@npm:3.9.0"
+  checksum: 1695e29a47bd2abe0737fa47815fe9d7d3a29595b1d1fd332e36ca4f99f328340f0a784b6cf07d24f1a8caf22f694957c5979467fa903d619c0be936c803108a
+  languageName: node
+  linkType: hard
+
 "unplugin@npm:^1.3.1":
   version: 1.3.1
   resolution: "unplugin@npm:1.3.1"
@@ -6816,13 +6825,6 @@ __metadata:
   version: 4.0.0
   resolution: "yallist@npm:4.0.0"
   checksum: 343617202af32df2a15a3be36a5a8c0c8545208f3d3dfbc6bb7c3e3b7e8c6f8e7485432e4f3b88da3031a6e20afa7c711eded32ddfb122896ac5d914e75848d5
-  languageName: node
-  linkType: hard
-
-"yaml@npm:^1.10.2":
-  version: 1.10.2
-  resolution: "yaml@npm:1.10.2"
-  checksum: ce4ada136e8a78a0b08dc10b4b900936912d15de59905b2bf415b4d33c63df1d555d23acb2a41b23cf9fb5da41c256441afca3d6509de7247daa062fd2c5ea5f
   languageName: node
   linkType: hard
 

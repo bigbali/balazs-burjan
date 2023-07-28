@@ -1,6 +1,7 @@
 import { SvelteKitAuth } from '@auth/sveltekit';
-import { AUTH_SECRET, PASSWORD } from '$env/static/private';
+import { ADMIN_PASSWORD, AUTH_SECRET, PASSWORD } from '$env/static/private';
 import Credentials from '@auth/core/providers/credentials';
+import type { Session } from '@auth/core/types';
 
 export const handle = SvelteKitAuth({
     providers: [
@@ -10,17 +11,49 @@ export const handle = SvelteKitAuth({
                 password: { label: 'Jelszó', type: 'password' }
             },
             async authorize(credentials) {
-                const user = { id: '1', name: 'Családtag' };
+                if (credentials.password === ADMIN_PASSWORD) {
+                    return { id: '0', name: 'Admin', role: 'admin' };
+                }
 
-                return credentials.password === PASSWORD ? user : null;
+                if (credentials.password === PASSWORD) {
+                    return { id: '1', name: 'Családtag', role: 'family_member' };
+                }
+
+                return null;
             }
         })
     ],
+    callbacks: {
+        async jwt({ token, account, profile, user }) {
+            if (account) {
+                token.accessToken = account.access_token;
+                token.id = profile?.id;
+            }
+
+            if (user) {
+                token = {
+                    ...token,
+                    ...user
+                };
+            }
+
+            return token;
+        },
+        async session({ session, token }) {
+            const { id, name, role } = token as Session['user'];
+
+            session.user = {
+                id, name, role
+            };
+
+            return session;
+        }
+    },
     secret: AUTH_SECRET,
     pages: {
         signIn: '/bejelentkezes',
         signOut: '/kijelentkezes',
-        error: '/hiba'
+        error: '/zokni'
     },
     trustHost: true
 });
