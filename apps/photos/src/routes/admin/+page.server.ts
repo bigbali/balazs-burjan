@@ -10,12 +10,24 @@ export const load: PageServerLoad = async ({ locals }) => {
     if (session?.user.role !== 'admin') {
         throw redirect(302, '/');
     }
+
+    const albums = await prisma.album.findMany({
+        take: 25,
+        include: {
+            thumbnail: true
+        }
+    });
+
+    return {
+        albums
+    };
 };
 
 export const actions = {
     create: async ({ request }) => {
         const data = await request.formData();
         const title = data.get('title') as string || 'Névtelen';
+        const slug = data.get('slug') as string;
         const description = data.get('description') as string || '';
         const thumbnail = data.get('thumbnail') as File;
         const images = data.getAll('images') as File[];
@@ -87,6 +99,7 @@ export const actions = {
                     title,
                     description,
                     path: folder.path,
+                    slug,
                     images: {
                         create: imagePaths.map(image => ({ path: image }))
                     },
