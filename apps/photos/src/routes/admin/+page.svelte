@@ -24,21 +24,30 @@
         {#if data.albums.length === 0}
             <p class="text-[1.25rem] my-4">Nincsenek elérhető albumok.</p>
         {:else}
-            <div class="grid grid-flow-col auto-cols-max py-[2rem]">
+            <div class="grid grid-flow-col auto-cols-auto gap-8 py-[2rem]">
                 {#each data.albums as album}
-                    <a href={`/admin/edit/${album.slug}`}>
-                        <div class="relative">
-                            <p
-                                class="absolute z-10 p-[1.5rem] top-0 left-0 right-0 bg-dark/50 text-light text-[1.5rem]"
+                    <div
+                        class="c-card relative rounded-[2rem] border border-theme-red hover:brightness-75"
+                    >
+                        <a href={`admin/edit/${album.slug}`}>
+                            <div
+                                class="absolute z-10 rounded-t-[2rem] text-light text-[1.5rem] text-center bg-dark/80 p-4 top-0 left-0 right-0"
                             >
-                                {album.title}
-                            </p>
+                                <p>
+                                    {album.title}
+                                </p>
+                                <hr />
+                                <p>
+                                    {album.date || '-'}
+                                </p>
+                            </div>
                             <img
+                                class="rounded-[2rem] w-full h-full object-cover aspect-square"
                                 src={album.thumbnail?.path}
                                 alt={album.title}
                             />
-                        </div>
-                    </a>
+                        </a>
+                    </div>
                 {/each}
             </div>
         {/if}
@@ -127,5 +136,9 @@
     @import url('@fontsource-variable/caveat');
     h1 {
         font-family: 'Caveat Variable';
+    }
+
+    .c-card {
+        transition: filter 0.2s;
     }
 </style>

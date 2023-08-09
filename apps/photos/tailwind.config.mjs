@@ -7,6 +7,10 @@ export default {
             'theme-red': '#eb4034',
             light: '#f5f5f5',
             dark: '#10141a'
+        },
+        fontFamily: {
+            raleway: 'Raleway Variable',
+            caveat: 'Caveat Variable'
         }
     }
 };

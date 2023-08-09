@@ -36,6 +36,8 @@ model Album {
     description String?
     path        String
     slug        String
+    archive     String?
+    date        DateTime?
     createdAt   DateTime   @default(now())
     updatedAt   DateTime   @updatedAt
     images      Image[]

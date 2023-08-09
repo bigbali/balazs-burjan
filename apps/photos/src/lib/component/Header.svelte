@@ -9,8 +9,14 @@
     class="flex justify-between items-center p-3 px-6 border-b border-b-dark/25 bg-light/25 backdrop-blur-[3rem]"
 >
     <a href="/" class="text-[2.5rem] text-dark leading-none"> Fotók </a>
-    <nav class="flex">
+    <nav class="flex gap-[1rem]">
         {#if session}
+            {#if session.user.role === 'admin'}
+                <a
+                    class="text-[2rem] p-2 px-6 ml-auto text-white rounded-full text-dark border border-theme-green leading-none"
+                    href="/admin">Admin</a
+                >
+            {/if}
             <button
                 class="text-[2rem] p-2 px-6 ml-auto text-white rounded-full text-dark border border-theme-red leading-none"
                 on:click={() => signOut()}

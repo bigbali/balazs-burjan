@@ -1,6 +1,9 @@
 <script lang="ts">
-    let title = '';
-    let description = '';
+    import type { AlbumWithThumbnail } from '$lib/type';
+
+    export let data;
+    let { title, description } = data.album || {};
+    // let description = data.album?.description;
 
     let edit_title = false;
     let edit_description = false;

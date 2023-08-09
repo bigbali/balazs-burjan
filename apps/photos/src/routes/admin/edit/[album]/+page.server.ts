@@ -1,7 +1,8 @@
 import prisma from '$lib/prisma';
-import type { PageServerLoad } from './$types';
 
 export const load = async ({ params }) => {
+    // if((await locals.getSession())?.user)
+
     const album = await prisma.album.findFirst({
         where: {
             slug: {
