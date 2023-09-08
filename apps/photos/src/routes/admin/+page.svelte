@@ -2,6 +2,8 @@
     import { enhance } from '$app/forms';
     import type { ActionData } from './$types';
     import Error from '$lib/component/Error.svelte';
+    import Heading from '$lib/component/Heading.svelte';
+    import Button from '$lib/component/Button.svelte';
 
     let create = false;
 
@@ -15,12 +17,9 @@
         condition={form?.success === false}
         message="album létrehozása sikertelen"
     />
-    <h1 class="text-center text-[4rem]">Admin</h1>
+    <Heading>Admin</Heading>
     <hr />
     <section>
-        <h1 class="text-[4rem]">Albumok</h1>
-        <hr />
-        <div></div>
         {#if data.albums.length === 0}
             <p class="text-[1.25rem] my-4">Nincsenek elérhető albumok.</p>
         {:else}
@@ -52,16 +51,15 @@
             </div>
         {/if}
         {#if !create}
-            <button
-                class="bg-theme-green text-light px-6 py-2 text-[1.5rem] font-medium rounded-full border border-light/25 mt-[2rem]"
-                on:click={() => (create = true)}
-            >
+            <Button on:click={() => (create = true)}>
                 Új album létrehozása
-            </button>
+            </Button>
         {/if}
     </section>
     {#if create}
-        <section class="border-dark/25 rounded-[2rem] p-[3rem] w-fit border">
+        <section
+            class="border-dark/25 rounded-[2rem] p-[3rem] w-fit border font-raleway"
+        >
             <form
                 class="flex flex-col gap-[2rem]"
                 action="?/create"
@@ -76,6 +74,7 @@
                         placeholder="Cím"
                         name="title"
                         type="text"
+                        required
                     />
                 </label>
                 <label class="text-[1.25rem]">
@@ -85,6 +84,7 @@
                         placeholder="album-azonosito"
                         name="slug"
                         type="text"
+                        required
                     />
                 </label>
                 <label class="text-[1.25rem]">
@@ -94,6 +94,16 @@
                         placeholder="Lorem ipsum, dolor sit amet..."
                         cols="50"
                         name="description"
+                    />
+                </label>
+                <label class="text-[1.25rem]">
+                    <p>Elrejtés</p>
+                    <input
+                        class="border border-dark/25 py-1 px-2 rounded-[0.5rem]"
+                        name="hidden"
+                        type="checkbox"
+                        value="hidden"
+                        checked
                     />
                 </label>
                 <label class="text-[1.25rem]">
@@ -134,9 +144,6 @@
 
 <style>
     @import url('@fontsource-variable/caveat');
-    h1 {
-        font-family: 'Caveat Variable';
-    }
 
     .c-card {
         transition: filter 0.2s;

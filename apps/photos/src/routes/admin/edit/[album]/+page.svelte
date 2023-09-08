@@ -1,29 +1,41 @@
 <script lang="ts">
+    import { enhance } from '$app/forms';
+    import Heading from '$lib/component/Heading.svelte';
     import type { AlbumWithThumbnail } from '$lib/type';
 
     export let data;
-    let { title, description } = data.album || {};
-    // let description = data.album?.description;
+    const { title: original_title, description: original_description } =
+        data.album || {};
 
-    let edit_title = false;
-    let edit_description = false;
+    let title = original_title;
+    let description = original_description;
+
+    let edit = false;
 
     let images: unknown[] = [];
 </script>
 
 <section>
     <div>
-        <h1>{title}</h1>
-        {#if edit_title}
-            <input type="text" bind:value={title} />
-            <button> Mentés </button>
-        {/if}
+        <Heading>
+            {original_title}
+        </Heading>
+        <p>{original_description}</p>
     </div>
     <div>
-        <p>{description}</p>
-        {#if edit_description}
-            <input type="text" bind:value={description} />
-            <button> Mentés </button>
+        {#if edit}
+            <form
+                action="?/edit"
+                method="POST"
+                enctype="multipart/form-data"
+                use:enhance
+            >
+                <input type="text" bind:value={title} />
+                <textarea bind:value={description} />
+                <button on:click={() => (edit = false)}> Mentés </button>
+            </form>
+        {:else}
+            <button on:click={() => (edit = true)}> Szerkesztés </button>
         {/if}
     </div>
     {#each images as image}

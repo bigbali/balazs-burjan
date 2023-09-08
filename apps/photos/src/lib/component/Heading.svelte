@@ -1,0 +1,17 @@
+<script>
+    export let level = 1;
+</script>
+
+{#if level === 1}
+    <h1 class="text-[3rem] text-center text-dark">
+        <slot />
+    </h1>
+{:else if level === 2}
+    <h2 class="text-[2.5rem] text-center text-dark">
+        <slot />
+    </h2>
+{:else if level === 3}
+    <h3 class="text-[2rem] text-center text-dark">
+        <slot />
+    </h3>
+{/if}

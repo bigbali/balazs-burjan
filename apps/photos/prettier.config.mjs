@@ -5,5 +5,6 @@ export default {
     ...config,
     plugins: ['prettier-plugin-svelte', 'prettier-plugin-tailwindcss'],
     svelteSelfCloseElements: 'always',
-    svelteBracketNewLine: true
+    svelteBracketNewLine: true,
+    htmlWhitespaceSensitivity: 'strict'
 };

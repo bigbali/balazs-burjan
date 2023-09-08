@@ -1,6 +1,7 @@
 <script lang="ts">
     import type { Session } from '@auth/core/types';
     import { signOut } from '@auth/sveltekit/client';
+    import Button from './Button.svelte';
 
     export let session: Session | null;
 </script>
@@ -12,25 +13,10 @@
     <nav class="flex gap-[1rem]">
         {#if session}
             {#if session.user.role === 'admin'}
-                <a
-                    class="text-[2rem] p-2 px-6 ml-auto text-white rounded-full text-dark border border-theme-green leading-none"
-                    href="/admin">Admin</a
-                >
+                <Button color="green" link href="/admin">Admin</Button>
             {/if}
-            <button
-                class="text-[2rem] p-2 px-6 ml-auto text-white rounded-full text-dark border border-theme-red leading-none"
-                on:click={() => signOut()}
+            <Button color="red" on:click={() => signOut()}>Kijelentkezés</Button
             >
-                Kijelentkezés
-            </button>
         {/if}
     </nav>
 </header>
-
-<style>
-    @import '@fontsource-variable/caveat';
-
-    header {
-        font-family: 'Caveat Variable', cursive;
-    }
-</style>

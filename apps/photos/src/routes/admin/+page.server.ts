@@ -48,9 +48,10 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions = {
     create: async ({ request }) => {
         const data = await request.formData();
-        const title = data.get('title') as string || 'Névtelen';
+        const title = data.get('title') as string;
         const slug = data.get('slug') as string;
-        const description = data.get('description') as string || '';
+        const description = data.get('description') as string;
+        const hidden = data.get('hidden') as 'hidden' | '';
         const thumbnail = data.get('thumbnail') as File;
         const images = data.getAll('images') as File[];
 
@@ -119,7 +120,7 @@ export const actions = {
                 return { success: true, album: newAlbum };
             }
         } catch (e) {
-            return { success: false };
+            return { success: false, error: true };
         }
 
         return { success: false };

@@ -32,7 +32,8 @@ model Thumbnail {
 
 model Album {
     id          Int        @id @default(autoincrement())
-    title       String
+    hidden      Boolean    @default(false)
+    title       String     @default("Névtelen")
     description String?
     path        String
     slug        String

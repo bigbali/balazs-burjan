@@ -52,8 +52,7 @@ export const handle = SvelteKitAuth({
     secret: AUTH_SECRET,
     pages: {
         signIn: '/bejelentkezes',
-        signOut: '/kijelentkezes',
-        error: '/zokni'
+        signOut: '/kijelentkezes'
     },
     trustHost: true
 });
