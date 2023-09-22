@@ -6,6 +6,9 @@ export const load: PageServerLoad = async () => {
         take: 25,
         include: {
             thumbnail: true
+        },
+        where: {
+            hidden: false
         }
     });
 

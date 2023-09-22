@@ -1,25 +1,37 @@
 <script lang="ts">
+    import { page } from '$app/stores';
+    import { browser } from '$app/environment';
+    import { prevPageStore } from '$lib/loginfix';
     import { signIn } from '@auth/sveltekit/client';
     import Noise from '$lib/component/Noise.svelte';
     import Error from '$lib/component/Error.svelte';
-    import { writable } from 'svelte/store';
 
-    let show = writable(false);
-    let password = writable('');
-    let auth_result = writable<Response | null | undefined>();
+    let show = false;
+    let password: string | undefined;
 
-    const handleSignIn = async () => {
+    // unused till bug in auth.js gets fixed officially
+    let auth_result: Response | null | undefined = undefined;
+
+    // if we reloaded manually and path is the same, we've got a problem
+    const prevPage = browser && $prevPageStore;
+    const error = !!(prevPage && prevPage === $page.url.pathname);
+
+    $: handleSignIn = async () => {
         try {
-            $auth_result = await signIn('credentials', {
-                password: $password,
+            auth_result = await signIn('credentials', {
+                password: password,
                 redirect: false
             });
 
-            if ($auth_result?.ok) {
+            // auth.js has a bug where it returns 'ok' for invalid credentials as well,
+            // but if we reload manually and the login succeeded, it will redirect to the appropriate page,
+            // or stay here if login failed
+            if (auth_result?.ok) {
+                $prevPageStore = $page.url.pathname;
                 location.reload();
             }
         } catch {
-            $auth_result = null;
+            auth_result = null;
         }
     };
 </script>
@@ -30,7 +42,7 @@
 </svelte:head>
 
 <section class="flex flex-1">
-    {#if $auth_result === null}
+    {#if auth_result === null || error}
         <Error
             className="text-[1.5rem] font-medium text-light"
             condition
@@ -70,11 +82,10 @@
                             class="cursor-text border-2 rounded-[0.5rem] border-light/50 bg-light text-dark py-1 px-2 text-[1.5rem] leading-[2rem] w-full"
                             id="password"
                             name="password"
-                            type={$show ? 'text' : 'password'}
-                            value={$password}
+                            type={show ? 'text' : 'password'}
+                            value={password}
                             placeholder="jelszó"
-                            on:input={(e) =>
-                                ($password = e.currentTarget.value)}
+                            on:input={(e) => (password = e.currentTarget.value)}
                         />
                     </div>
                     <label
@@ -83,9 +94,9 @@
                         <input
                             class="w-[2rem] h-[2rem] border-[3px] rounded-[1rem] accent-theme-green"
                             type="checkbox"
-                            checked={$show}
+                            checked={show}
                             on:change={(e) => {
-                                $show = e.currentTarget.checked;
+                                show = e.currentTarget.checked;
                             }}
                         />
                         <span> jelszó megjelenítése </span>

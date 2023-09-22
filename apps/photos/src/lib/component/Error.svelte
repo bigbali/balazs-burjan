@@ -35,7 +35,9 @@
         >
             x
         </button>
-        {message}
+        <p class="font-roboto">
+            {message}
+        </p>
     </div>
 {/if}
 

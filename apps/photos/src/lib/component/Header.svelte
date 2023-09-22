@@ -1,9 +1,15 @@
 <script lang="ts">
-    import type { Session } from '@auth/core/types';
+    // import type { Session } from '@auth/sveltekit';
+    // import type {Session} from ''
     import { signOut } from '@auth/sveltekit/client';
     import Button from './Button.svelte';
+    import { browser } from '$app/environment';
+    import { page } from '$app/stores';
+    import type { Session } from '@auth/core/types';
 
     export let session: Session | null;
+
+    $: active = browser && $page.url.pathname === '/admin';
 </script>
 
 <header
@@ -13,7 +19,7 @@
     <nav class="flex gap-[1rem]">
         {#if session}
             {#if session.user.role === 'admin'}
-                <Button color="green" link href="/admin">Admin</Button>
+                <Button color="green" href="/admin" {active}>Admin</Button>
             {/if}
             <Button color="red" on:click={() => signOut()}>Kijelentkezés</Button
             >

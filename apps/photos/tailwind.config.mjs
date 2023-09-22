@@ -9,7 +9,7 @@ export default {
             dark: '#10141a'
         },
         fontFamily: {
-            raleway: 'Raleway Variable',
+            roboto: 'Roboto',
             caveat: 'Caveat Variable'
         }
     }
