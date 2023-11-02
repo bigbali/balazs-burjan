@@ -1,6 +1,4 @@
 <script lang="ts">
-    // import type { Session } from '@auth/sveltekit';
-    // import type {Session} from ''
     import { signOut } from '@auth/sveltekit/client';
     import Button from './Button.svelte';
     import { browser } from '$app/environment';
@@ -13,10 +11,15 @@
 </script>
 
 <header
-    class="flex justify-between items-center p-3 px-6 border-b border-b-dark/25 bg-light/25 backdrop-blur-[3rem]"
+    class="flex justify-between items-center px-2 py-2 lg:py-3 lg:px-6 border-b border-b-dark/25 bg-light/25 backdrop-blur-[3rem]"
 >
-    <a href="/" class="text-[2.5rem] text-dark leading-none"> Fotók </a>
-    <nav class="flex gap-[1rem]">
+    <a
+        href="/"
+        class="text-[2rem] lg:text-[2.5rem] text-dark leading-none hover:text-theme-red transition-colors"
+    >
+        Fotók
+    </a>
+    <nav class="flex gap-[0.5rem] lg:gap-[1rem]">
         {#if session}
             {#if session.user.role === 'admin'}
                 <Button color="green" href="/admin" {active}>Admin</Button>

@@ -1,37 +1,22 @@
 <script lang="ts">
-    import { page } from '$app/stores';
-    import { browser } from '$app/environment';
-    import { prevPageStore } from '$lib/loginfix';
     import { signIn } from '@auth/sveltekit/client';
     import Noise from '$lib/component/Noise.svelte';
     import Error from '$lib/component/Error.svelte';
+    import { redirect } from '@sveltejs/kit';
 
     let show = false;
     let password: string | undefined;
 
-    // unused till bug in auth.js gets fixed officially
     let auth_result: Response | null | undefined = undefined;
 
-    // if we reloaded manually and path is the same, we've got a problem
-    const prevPage = browser && $prevPageStore;
-    const error = !!(prevPage && prevPage === $page.url.pathname);
-
     $: handleSignIn = async () => {
-        try {
-            auth_result = await signIn('credentials', {
-                password: password,
-                redirect: false
-            });
+        auth_result = await signIn('credentials', {
+            password: password,
+            redirect: false
+        });
 
-            // auth.js has a bug where it returns 'ok' for invalid credentials as well,
-            // but if we reload manually and the login succeeded, it will redirect to the appropriate page,
-            // or stay here if login failed
-            if (auth_result?.ok) {
-                $prevPageStore = $page.url.pathname;
-                location.reload();
-            }
-        } catch {
-            auth_result = null;
+        if (auth_result?.ok) {
+            location.reload();
         }
     };
 </script>
@@ -42,12 +27,14 @@
 </svelte:head>
 
 <section class="flex flex-1">
-    {#if auth_result === null || error}
+    {#if auth_result && !auth_result.ok}
         <Error
             className="text-[1.5rem] font-medium text-light"
             condition
-            message="bejelentkezés sikertelen"
-        />
+            onClose={() => (auth_result = null)}
+        >
+            Bejelentkezés sikertelen: hibás jelszó.
+        </Error>
     {/if}
     <Noise
         className="absolute -z-10 inset-0 opacity-50"
@@ -83,7 +70,7 @@
                             id="password"
                             name="password"
                             type={show ? 'text' : 'password'}
-                            value={password}
+                            value={password ?? null}
                             placeholder="jelszó"
                             on:input={(e) => (password = e.currentTarget.value)}
                         />

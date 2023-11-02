@@ -1,80 +1,104 @@
 <script lang="ts">
-    import type { AlbumWithThumbnail } from '$lib/type';
+    import type { Album } from '$lib/type';
     import Button from './Button.svelte';
-    export let album: AlbumWithThumbnail;
+    export let album: Album;
+
+    export let is_admin = false;
+
+    $: href_prefix = is_admin ? 'admin/edit/' : 'album/';
+    $: href = `${href_prefix}${album.slug}`;
 </script>
 
-<div class="c-container relative rounded-[1rem]">
-    <a href={`/album/${album.slug}`}>
-        <div
-            class="absolute z-10 flex flex-col gap-2 rounded-t-[1rem] text-light text-[2rem] text-center bg-dark/80 px-4 py-2 top-0 left-0 right-0"
-        >
-            <p>
-                {album.title}
-            </p>
-            <hr />
-            <p>
-                {album.date || '-'}
-            </p>
-        </div>
-        <img
-            class="rounded-[1rem] w-full h-full object-cover aspect-square"
-            src={album.thumbnail?.path}
-            alt={album.title}
-        />
-    </a>
-    {#if album.archive}
-        <div class="absolute left-0 right-0 bottom-0 flex justify-stretch">
-            <Button
-                class="flex-1 open border-r-[1px]"
-                href={`/album/${album.slug}`}
+{#if !album.hidden}
+    <div
+        class="c-card relative rounded-[1rem] border border-dark/20 hover:scale-[1.05] transition-transform"
+    >
+        <a {href}>
+            <div
+                class="absolute z-10 flex flex-col gap-2 rounded-t-[1rem] text-light text-[2rem] text-center bg-dark/80 px-4 py-2 top-0 left-0 right-0"
             >
-                Megnyitás
-            </Button>
+                <p>
+                    {album.title}
+                </p>
+                {#if album.date}
+                    <hr class="text-light/25 w-3/4" />
+                    <p>
+                        {album.date}
+                    </p>
+                {/if}
+            </div>
+            {#if album.thumbnail}
+                <img
+                    class="rounded-[1rem] w-full h-full object-cover aspect-square"
+                    src={album.thumbnail?.path}
+                    alt={album.title}
+                />
+            {:else}
+                <p
+                    class="w-full h-full grid place-items-center text-[2rem] p-[2rem] aspect-square"
+                >
+                    Borító nem található
+                </p>
+            {/if}
+            {#if !is_admin}
+                <p
+                    class="absolute bottom-[4.375rem] lg:bottom-[5.125rem] left-[1rem] p-[0.5rem] rounded-[0.5rem] justify-self-end bg-dark/80 text-light text-[1.25rem]"
+                >
+                    {album.images.length} kép
+                </p>
+            {:else}
+                <p
+                    class="absolute bottom-[1rem] left-[1rem] p-[0.5rem] rounded-[0.5rem] justify-self-end bg-dark/80 text-light text-[1.25rem]"
+                >
+                    {album.images.length} kép
+                </p>
+            {/if}
+        </a>
+        {#if !is_admin && album.archive}
+            <div class="absolute left-0 right-0 bottom-0 flex justify-stretch">
+                <Button
+                    class="flex-1 open border-r-[1px]"
+                    href={`/album/${album.slug}`}
+                >
+                    Megnyitás
+                </Button>
+                <Button
+                    class="flex-1 download border-l-0"
+                    href="{album?.archive}}"
+                    download
+                    target="_blank"
+                >
+                    Letöltés
+                </Button>
+            </div>
+        {:else if !is_admin}
             <Button
-                class="flex-1 download border-l-0"
-                href="{album?.archive}}"
-                download
-                target="_blank"
+                class="absolute left-0 right-0 bottom-0 open"
+                href={`/album/${album.slug}`}>Megnyitás</Button
             >
-                Letöltés
-            </Button>
-        </div>
-    {:else}
-        <Button
-            class="absolute left-0 right-0 bottom-0 open"
-            href={`/album/${album.slug}`}>Megnyitás</Button
-        >
-    {/if}
-</div>
+        {/if}
+    </div>
+{/if}
 
 <style>
-    .c-container :global(.open) {
+    .c-card :global(.open) {
         border-top-left-radius: 0;
         border-top-right-radius: 0;
         border-bottom-left-radius: 1rem;
         border-bottom-right-radius: 1rem;
     }
 
-    .c-container :global(.open:has(+ .download)) {
+    .c-card :global(.open:has(+ .download)) {
         border-top-left-radius: 0;
         border-top-right-radius: 0;
         border-bottom-left-radius: 1rem;
         border-bottom-right-radius: 0;
     }
 
-    .c-container :global(.download) {
+    .c-card :global(.download) {
         border-top-left-radius: 0;
         border-top-right-radius: 0;
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 1rem;
-    }
-
-    .c-container > a > img {
-        transition: filter 0.2s;
-    }
-
-    .c-container:hover > a > img {
-        filter: brightness(0.75);
     }
 </style>

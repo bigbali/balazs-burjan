@@ -23,9 +23,9 @@
     } as const;
 
     const sizeMap = {
-        large: ' text-[2.5rem] py-3 px-8',
-        medium: ' text-[2rem] py-2 px-6',
-        small: ' text-[1.5rem] py-1 px-4'
+        large: ' text-[1.5rem] lg:text-[2.5rem] py-3 px-8',
+        medium: ' text-[1.5rem] lg:text-[2rem] py-2 px-6',
+        small: ' text-[1rem] lg:text-[1rem] py-1 px-4'
     } as const;
 
     const activeMap = {

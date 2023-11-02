@@ -36,7 +36,8 @@ export const load: PageServerLoad = async ({ locals }) => {
     const albums = await prisma.album.findMany({
         take: 25,
         include: {
-            thumbnail: true
+            thumbnail: true,
+            images: true
         }
     });
 
@@ -51,7 +52,7 @@ export const actions = {
         const title = data.get('title') as string;
         const slug = data.get('slug') as string;
         const description = data.get('description') as string;
-        const hidden = data.get('hidden') as 'hidden' | '';
+        const hidden = !!data.get('hidden');
         const thumbnail = data.get('thumbnail') as File;
         const images = data.getAll('images') as File[];
 
@@ -103,6 +104,7 @@ export const actions = {
                         description,
                         path: folder.path,
                         archive: download_url,
+                        hidden,
                         slug,
                         images: {
                             create: imagePaths.map(image => ({ path: image }))

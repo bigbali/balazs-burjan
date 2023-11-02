@@ -34,8 +34,8 @@
     },
     "type": "module",
     "dependencies": {
-        "@auth/core": "^0.15.1",
-        "@auth/sveltekit": "^0.3.7",
+        "@auth/core": "^0.18.0",
+        "@auth/sveltekit": "^0.3.11",
         "@prisma/client": "^5.0.0",
         "cloudinary": "^1.39.0",
         "svelte-cloudinary": "^1.0.3"

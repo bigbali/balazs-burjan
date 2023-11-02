@@ -1,41 +1,74 @@
 <script lang="ts">
     import { enhance } from '$app/forms';
-    import type { ActionData } from './$types';
     import Error from '$lib/component/Error.svelte';
     import Heading from '$lib/component/Heading.svelte';
+    import Separator from '$lib/component/Separator.svelte';
     import Button from '$lib/component/Button.svelte';
     import Wrap from '$lib/component/Wrap.svelte';
+    import Album from '$lib/component/Album.svelte';
+    import Page from '$lib/component/Page.svelte';
+    import type { ActionData } from './$types';
 
     let create = false;
+    let awaiting_action = false;
 
     let thumbnail: FileList | undefined = undefined;
     let images: FileList | undefined = undefined;
 
     export let data;
     export let form: ActionData;
+
+    $: error = form?.error;
+
+    $: {
+        if (form?.success) {
+            thumbnail = undefined;
+            images = undefined;
+        }
+    }
 </script>
 
-<div class="px-[8rem] py-[4rem]">
-    <Error
-        className="text-[1.5rem] font-medium text-light"
-        condition={form?.success === false}
-        message="album létrehozása sikertelen"
-    />
+<svelte:head>
+    <title>Admin</title>
+    <meta name="description" content="Admin" />
+</svelte:head>
+
+<Page>
+    <Error className="text-[1.5rem] font-medium text-light" condition={error}>
+        Album létrehozása sikertelen.
+    </Error>
     <Heading>Adminisztráció</Heading>
-    <hr class="text-dark/20 mb-[4rem]" />
+    <Separator />
     {#if create}
         <section
-            class="mx-auto border-dark/25 rounded-[1rem] p-[1.5rem] w-fit min-w-[75%] border font-roboto text-dark/80"
+            class="relative mx-auto border-dark/25 rounded-[1rem] p-[1.5rem] w-fit min-w-[75%] border font-roboto text-dark/80"
         >
+            {#if awaiting_action}
+                <div
+                    class="absolute grid place-items-center inset-0 bg-dark/10 rounded-[1rem]"
+                >
+                    <p class="text-[2rem]"> Album létrehozása... </p>
+                </div>
+            {/if}
             <div>
                 <form
                     class="flex flex-col gap-[1.5rem]"
                     action="?/create"
                     method="POST"
                     enctype="multipart/form-data"
-                    use:enhance
+                    use:enhance={() => {
+                        awaiting_action = true;
+
+                        return async ({ update }) => {
+                            awaiting_action = false;
+
+                            update();
+                        };
+                    }}
                 >
-                    <div class="flex justify-between gap-[1rem]">
+                    <div
+                        class="flex flex-col lg:flex-row justify-between gap-[1rem]"
+                    >
                         <Wrap class="flex-1">
                             <label class="text-[1.25rem]">
                                 <p>Album címe</p>
@@ -65,9 +98,8 @@
                         <label class="text-[1.25rem]">
                             <p>Leírás</p>
                             <textarea
-                                class="border border-dark/25 py-1 px-2 rounded-[0.5rem]"
+                                class="border border-dark/25 py-1 px-2 rounded-[0.5rem] max-w-full"
                                 placeholder="Lorem ipsum, dolor sit amet..."
-                                cols="50"
                                 rows="5"
                                 name="description"
                             />
@@ -85,49 +117,55 @@
                             />
                         </label>
                     </Wrap>
-                    <div class="flex justify-between flex-grow gap-[1rem]">
-                        <div class="flex-1">
-                            <label
-                                class="text-[1.25rem] bg-light text-dark border-dark hover:bg-dark hover:text-light text-center rounded-[0.8rem] border transition-colors py-2 px-6"
-                                for="thumbnail"
-                            >
-                                Borító feltöltése
-                            </label>
-                            <input
-                                class="hidden"
-                                name="thumbnail"
-                                id="thumbnail"
-                                type="file"
-                                accept=".jpg, .jpeg, .png"
-                                bind:files={thumbnail}
-                            />
+                    <div
+                        class="flex flex-col justify-between flex-grow gap-[1rem]"
+                    >
+                        <div class="flex">
+                            <div>
+                                <label
+                                    class="text-[1.25rem] bg-light text-dark border-dark hover:bg-dark hover:text-light text-center rounded-[0.8rem] border transition-colors py-2 px-6"
+                                    for="thumbnail"
+                                >
+                                    <input
+                                        class="hidden"
+                                        name="thumbnail"
+                                        id="thumbnail"
+                                        type="file"
+                                        accept=".jpg, .jpeg, .png"
+                                        bind:files={thumbnail}
+                                    />
+                                    Borító feltöltése
+                                </label>
+                            </div>
                             {#if thumbnail}
                                 <p
-                                    class="c-monospace p-[1rem] text-[1.25rem] font-medium"
+                                    class="c-monospace p-[0.5rem] text-[1.25rem] font-medium"
                                 >
                                     {thumbnail[0].name}
                                 </p>
                             {/if}
                         </div>
-                        <div class="flex-1">
-                            <label
-                                class="text-[1.25rem] bg-light text-dark border-dark hover:bg-dark hover:text-light text-center rounded-[0.8rem] border transition-colors py-2 px-6"
-                                for="images"
-                            >
-                                Fotók feltöltése
-                            </label>
-                            <input
-                                class="hidden"
-                                name="images"
-                                id="images"
-                                type="file"
-                                accept=".jpg, .jpeg, .png"
-                                multiple
-                                bind:files={images}
-                            />
+                        <div class="flex">
+                            <div>
+                                <label
+                                    class="text-[1.25rem] bg-light text-dark border-dark hover:bg-dark hover:text-light text-center rounded-[0.8rem] border transition-colors py-2 px-6"
+                                    for="images"
+                                >
+                                    <input
+                                        class="hidden"
+                                        name="images"
+                                        id="images"
+                                        type="file"
+                                        accept=".jpg, .jpeg, .png"
+                                        multiple
+                                        bind:files={images}
+                                    />
+                                    Fotók feltöltése
+                                </label>
+                            </div>
                             {#if images}
                                 <div
-                                    class="c-monospace flex flex-col gap-[0.25rem] p-[1rem]"
+                                    class="c-monospace flex flex-col gap-[0.25rem] p-[0.5rem]"
                                 >
                                     <p class="text-[1.25rem] font-bold">
                                         {images.length} kiválasztott fotó:
@@ -181,38 +219,14 @@
         {#if data.albums.length === 0}
             <p class="text-[1.25rem] my-4">Nincsenek elérhető albumok.</p>
         {:else}
-            <div class="grid grid-flow-col auto-cols-auto gap-8 py-[2rem]">
+            <div class="c-cards grid gap-8 py-[2rem]">
                 {#each data.albums as album}
-                    <div
-                        class="c-card relative rounded-[2rem] border border-theme-red hover:brightness-75"
-                    >
-                        <a href={`admin/edit/${album.slug}`}>
-                            <div
-                                class="flex flex-col items-center gap-2 py-2 absolute z-10 rounded-t-[2rem] text-light text-[1.5rem] text-center bg-dark/80 top-0 left-0 right-0"
-                            >
-                                <p>
-                                    {album.title}
-                                </p>
-                                <hr class="text-light/25 w-3/4" />
-                                <p>
-                                    {album.date || '-'}
-                                </p>
-                                {#if album.hidden}
-                                    <p> Rejtett </p>
-                                {/if}
-                            </div>
-                            <img
-                                class="rounded-[2rem] w-full h-full object-cover aspect-square"
-                                src={album.thumbnail?.path}
-                                alt={album.title}
-                            />
-                        </a>
-                    </div>
+                    <Album {album} is_admin />
                 {/each}
             </div>
         {/if}
     </section>
-</div>
+</Page>
 
 <style>
     input::placeholder,
@@ -226,8 +240,32 @@
         cursor: pointer;
     }
 
-    .c-card {
-        transition: filter 0.2s;
+    .c-cards {
+        grid-template-columns: repeat(5, 1fr);
+    }
+
+    @media (max-width: 1900px) {
+        .c-cards {
+            grid-template-columns: repeat(4, 1fr);
+        }
+    }
+
+    @media (max-width: 1600px) {
+        .c-cards {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (max-width: 1024px) {
+        .c-cards {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .c-cards {
+            grid-template-columns: 1fr;
+        }
     }
 
     .c-monospace {

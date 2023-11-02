@@ -1,15 +1,11 @@
-<script>
-    import { onMount } from 'svelte';
+<script lang="ts">
     import { fade, fly } from 'svelte/transition';
 
     export let className = '';
-    export let message = '';
     export let condition = false;
-    let open = false;
-
-    onMount(() => {
-        open = condition;
-    });
+    export let onClose: (() => void) | null = null;
+    $: open = condition;
+    $: !open && onClose && onClose();
 </script>
 
 {#if open}
@@ -36,7 +32,7 @@
             x
         </button>
         <p class="font-roboto">
-            {message}
+            <slot />
         </p>
     </div>
 {/if}

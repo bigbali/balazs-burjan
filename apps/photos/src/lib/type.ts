@@ -1,3 +1,4 @@
-import type { Album, Thumbnail } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
-export type AlbumWithThumbnail = Album & { thumbnail: Thumbnail | null };
+export type Album = Prisma.AlbumGetPayload<{ include: { images: true, thumbnail: true } }>;
+export type Image = Prisma.ImageGetPayload<{}>;
