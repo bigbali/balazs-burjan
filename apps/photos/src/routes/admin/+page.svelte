@@ -219,7 +219,7 @@
         {#if data.albums.length === 0}
             <p class="text-[1.25rem] my-4">Nincsenek elérhető albumok.</p>
         {:else}
-            <div class="c-cards grid gap-8 py-[2rem]">
+            <div class="c-cards-grid py-[2rem]">
                 {#each data.albums as album}
                     <Album {album} is_admin />
                 {/each}
@@ -233,39 +233,12 @@
     textarea::placeholder {
         font-weight: 300;
     }
+
     label {
         display: flex;
         flex-direction: column;
         gap: 0.5rem;
         cursor: pointer;
-    }
-
-    .c-cards {
-        grid-template-columns: repeat(5, 1fr);
-    }
-
-    @media (max-width: 1900px) {
-        .c-cards {
-            grid-template-columns: repeat(4, 1fr);
-        }
-    }
-
-    @media (max-width: 1600px) {
-        .c-cards {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-
-    @media (max-width: 1024px) {
-        .c-cards {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-
-    @media (max-width: 768px) {
-        .c-cards {
-            grid-template-columns: 1fr;
-        }
     }
 
     .c-monospace {

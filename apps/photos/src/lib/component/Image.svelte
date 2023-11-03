@@ -1,8 +1,12 @@
 <script lang="ts">
     import type { Image } from '$lib/type';
+    import { createEventDispatcher } from 'svelte';
     import Button from './Button.svelte';
 
     export let image: Image;
+
+    const dispatch = createEventDispatcher();
+    const click = () => dispatch('click');
 </script>
 
 <div
@@ -17,21 +21,31 @@
             </p>
         </div>
     {/if}
-    {#if image.path}
-        <img
-            class="rounded-[1rem] w-full h-full object-cover aspect-square"
-            src={image.path}
-            alt={image.title}
-        />
-    {:else}
-        <p
-            class="w-full h-full grid place-items-center text-[2rem] p-[2rem] aspect-square"
-        >
-            Borító nem található
-        </p>
-    {/if}
+    <div
+        on:click={click}
+        on:keydown={click}
+        role="button"
+        tabindex="0"
+        class="w-full h-full"
+    >
+        {#if image.path}
+            <img
+                class="rounded-[1rem] w-full h-full object-cover aspect-square"
+                src={image.path}
+                alt={image.title}
+            />
+        {:else}
+            <p
+                class="w-full h-full grid place-items-center text-[2rem] p-[2rem] aspect-square"
+            >
+                Kép nem található
+            </p>
+        {/if}
+    </div>
     <div class="absolute left-0 right-0 bottom-0 flex justify-stretch">
-        <Button class="c-enlarge flex-1 border-r-[1px]">Nagyítás</Button>
+        <Button class="c-enlarge flex-1 border-r-[1px]" on:click={click}>
+            Nagyítás
+        </Button>
         <Button
             class="c-download flex-1 border-l-0"
             href={image.path}
