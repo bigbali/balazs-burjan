@@ -10,7 +10,7 @@
 
 {#if open}
     <div
-        class={`fixed p-8 z-10 bg-theme-red inset-0 m-auto mt-[15rem] w-fit h-fit rounded-[1rem] border border-light/25${
+        class={`fixed p-8 z-50 bg-theme-red text-light inset-0 m-auto mt-[15rem] w-fit h-fit rounded-[1rem] border border-light/25${
             (className && ' ') || ''
         }${className}`}
         in:fly={{

@@ -18,8 +18,8 @@
         <a class="ml-auto hover:text-theme-green transition-colors" href="/">
             burján balázs: fotók
         </a>
-        <a class="mr-auto hover:text-theme-green transition-colors" href="info"
-            >információ</a
-        >
+        <a class="mr-auto hover:text-theme-green transition-colors" href="info">
+            információ
+        </a>
     </footer>
 </div>

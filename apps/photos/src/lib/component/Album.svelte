@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Album } from '$lib/type';
+    import { createEventDispatcher } from 'svelte';
     import Button from './Button.svelte';
     export let album: Album;
 
@@ -7,6 +8,9 @@
 
     $: href_prefix = is_admin ? 'admin/edit/' : 'album/';
     $: href = `${href_prefix}${album.slug}`;
+
+    const dispatch = createEventDispatcher();
+    const download_failed = () => dispatch('download_failed');
 </script>
 
 {#if !album.hidden}
@@ -64,9 +68,10 @@
                 </Button>
                 <Button
                     class="flex-1 download border-l-0"
-                    href="{album?.archive}}"
+                    href={album?.archive}
                     download
-                    target="_blank"
+                    downloadName={album.title}
+                    {download_failed}
                 >
                     Letöltés
                 </Button>

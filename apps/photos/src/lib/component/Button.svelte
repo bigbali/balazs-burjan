@@ -2,10 +2,18 @@
     import { createEventDispatcher } from 'svelte';
 
     export let href: string | undefined = undefined;
-    export let download: boolean | undefined = undefined;
     export let target: string | undefined = undefined;
     export let type: 'button' | 'submit' | 'reset' | null | undefined =
         undefined;
+    export let download: string | boolean | undefined = undefined;
+    export let downloadName: string | null | undefined = 'névtelen';
+
+    /**
+     * A callback for when the download fails for whatever reason
+     */
+    export let download_failed: (() => void) | undefined = undefined;
+
+    export let name: string | undefined = undefined;
 
     export let color: 'green' | 'red' | 'default' = 'default';
     export let size: 'large' | 'medium' | 'small' = 'medium';
@@ -34,10 +42,44 @@
         default: ' bg-darktext-light'
     } as const;
 
-    $: _class = (className && ` ${className}`) || '';
-    $: _color = colorMap[color];
-    $: _size = sizeMap[size];
-    $: _active = (active && activeMap[color]) || '';
+    const _class = (className && ` ${className}`) || '';
+    const _color = colorMap[color];
+    const _size = sizeMap[size];
+    const _active = (active && activeMap[color]) || '';
+
+    const downloadFile = async () => {
+        if (!href) return;
+        try {
+            const response = await fetch(href);
+
+            if (!response.ok) {
+                download_failed && download_failed();
+                return;
+            }
+
+            const contentType = response.headers.get('content-type');
+
+            let extension = '.zip';
+
+            if (contentType) {
+                if (contentType.includes('image/png')) extension = '.png';
+                else if (contentType.includes('image/jpeg'))
+                    extension = '.jpeg';
+                else if (contentType.includes('image/jpg')) extension = '.jpg';
+                else if (contentType.includes('image/gif')) extension = '.gif';
+            }
+
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = (downloadName ?? 'névtelen') + extension;
+            a.click();
+        } catch (error) {
+            console.error('Kép letöltése sikertelen:', error);
+        }
+    };
 
     const dispatch = createEventDispatcher();
     const click = () => dispatch('click');
@@ -49,7 +91,13 @@
         {href}
         {download}
         {target}
-        on:click={click}
+        on:click={(e) => {
+            if (download) {
+                e.preventDefault();
+                downloadFile();
+            }
+            click();
+        }}
     >
         <slot />
     </a>
@@ -57,6 +105,7 @@
     <button
         class={`text-center rounded-full border transition-colors ${_color}${_size}${_active}${_class}`}
         {type}
+        {name}
         on:click={click}
     >
         <slot />

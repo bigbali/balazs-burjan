@@ -32,7 +32,8 @@
             <img
                 class="rounded-[1rem] w-full h-full object-cover aspect-square"
                 src={image.path}
-                alt={image.title}
+                alt={image.title ?? 'Kép'}
+                loading="lazy"
             />
         {:else}
             <p
@@ -43,14 +44,19 @@
         {/if}
     </div>
     <div class="absolute left-0 right-0 bottom-0 flex justify-stretch">
-        <Button class="c-enlarge flex-1 border-r-[1px]" on:click={click}>
+        <Button
+            name="Nagyítás"
+            class="c-enlarge flex-1 border-r-[1px]"
+            on:click={click}
+        >
             Nagyítás
         </Button>
         <Button
+            name="Letöltés"
             class="c-download flex-1 border-l-0"
             href={image.path}
             download
-            target="_blank"
+            downloadName={image.title}
         >
             Letöltés
         </Button>

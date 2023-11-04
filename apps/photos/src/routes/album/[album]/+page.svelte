@@ -1,6 +1,9 @@
 <script lang="ts">
     import { browser } from '$app/environment';
+    import Album from '$lib/component/Album.svelte';
+    import Button from '$lib/component/Button.svelte';
     import CarouselImage from '$lib/component/CarouselImage.svelte';
+    import Error from '$lib/component/Error.svelte';
     import Heading from '$lib/component/Heading.svelte';
     import Image from '$lib/component/Image.svelte';
     import Page from '$lib/component/Page.svelte';
@@ -23,7 +26,22 @@
         current_image = index;
         carousel.goTo(index, { animated: animate });
     };
+
+    $: if (browser)
+        window.document.body.style.overflow = carousel_open ? 'hidden' : 'auto';
 </script>
+
+<svelte:head>
+    <title>
+        {data?.album?.title ? `Album: ${data.album.title}` : 'Album'}
+    </title>
+    <meta
+        name="description"
+        content={data?.album?.title
+            ? `Album megtekintése: ${data.album.title}`
+            : 'Album megtekintése'}
+    />
+</svelte:head>
 
 <Page>
     {#if !data.album}
@@ -41,16 +59,33 @@
                 class:c-show={carousel_open}
                 on:click={() => (carousel_open = false)}
             >
+                {#if carousel_open}
+                    <button
+                        class="absolute right-[1rem] top-[1rem] lg:p-[1rem] text-[5rem] lg:text-[8rem] leading-[0] text-light z-10 hover:text-theme-green transition-colors"
+                        on:click={() => (carousel_open = false)}
+                    >
+                        x
+                    </button>
+                {/if}
                 <div
-                    class="flex flex-col justify-center items-center max-w-full max-h-full"
+                    class="flex flex-col justify-center items-center max-w-full max-h-full gap-[1rem]"
                     on:click={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
                     }}
                 >
+                    <div class="sm:hidden">
+                        <Button
+                            name="Letöltés"
+                            href={data.album.images[current_image].path}
+                            download
+                            target="_blank"
+                        >
+                            Letöltés
+                        </Button>
+                    </div>
                     <Carousel
                         let:loaded
-                        let:showNextPage
                         bind:this={carousel}
                         on:pageChange={carousel_change}
                     >
@@ -84,12 +119,12 @@
                             on:click={() => showPrevPage()}
                         >
                             <div
-                                class="w-[2rem] h-[2rem] p-[0.25rem] border-[2px] border-light rounded-full"
+                                class="group/btn w-[2rem] h-[2rem] p-[0.25rem] border-[2px] border-light rounded-full hover:border-theme-green transition-colors"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 320 512"
-                                    class="h-full w-full fill-light"
+                                    class="h-full w-full fill-light transition-colors group-hover/btn:fill-theme-green"
                                 >
                                     <path
                                         d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"
@@ -104,12 +139,12 @@
                             on:click={() => showNextPage()}
                         >
                             <div
-                                class="w-[2rem] h-[2rem] p-[0.25rem] border-[2px] border-light rounded-full"
+                                class="group/btn w-[2rem] h-[2rem] p-[0.25rem] border-[2px] border-light rounded-full hover:border-theme-green transition-colors"
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 320 512"
-                                    class="h-full w-full fill-light"
+                                    class="h-full w-full fill-light transition-colors group-hover/btn:fill-theme-green"
                                 >
                                     <path
                                         d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"

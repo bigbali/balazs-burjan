@@ -26,7 +26,7 @@
         <img
             class="rounded-[1rem] max-w-full max-h-full object-cover border border-dark/20"
             src={image.path}
-            alt={image.title}
+            alt={image.title ?? 'Kinagyított kép'}
         />
     {:else}
         <p
@@ -35,7 +35,15 @@
             Kép nem található
         </p>
     {/if}
-    <div class="absolute hidden lg:block sm:right-[1rem] sm:bottom-[1rem]">
-        <Button href={image.path} download target="_blank">Letöltés</Button>
+    <div class="absolute hidden sm:block sm:right-[1rem] sm:bottom-[1rem]">
+        <Button
+            name="Letöltés"
+            href={image.path}
+            download
+            downloadName={image.title}
+            target="_self"
+        >
+            Letöltés
+        </Button>
     </div>
 </div>
