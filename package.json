@@ -10,7 +10,7 @@
         "build": "turbo build",
         "dev": "turbo dev",
         "lint": "turbo lint",
-        "install:all": "yarn workspaces foreach install",
+        "install:all": "yarn workspaces foreach --all install",
         "format": "prettier --write \"**/*.{ts,tsx,md}\""
     },
     "devDependencies": {
@@ -24,6 +24,6 @@
     "engines": {
         "node": ">=18.0.0"
     },
-    "packageManager": "yarn@3.5.0",
-    "type": "module"
+    "type": "module",
+    "packageManager": "yarn@4.0.1"
 }
