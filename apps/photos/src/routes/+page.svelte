@@ -23,7 +23,7 @@
         <Heading>Katalógus</Heading>
         <Separator />
     </div>
-    {#if data.albums}
+    {#if data.albums.length > 0}
         <Error condition={download_failed}>Album letöltése sikertelen</Error>
         <div class="c-cards grid gap-8 py-[2rem]">
             {#each data.albums as album}
@@ -32,6 +32,10 @@
                     on:download_failed={() => (download_failed = true)}
                 />
             {/each}
+        </div>
+    {:else}
+        <div class="grid place-items-center">
+            <Heading level={2}>Még nincsenek feltöltött albumok :(</Heading>
         </div>
     {/if}
 </Page>

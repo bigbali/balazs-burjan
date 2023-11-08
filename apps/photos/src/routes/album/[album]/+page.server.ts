@@ -1,4 +1,4 @@
-import prisma from '$lib/prisma';
+import prisma from '$lib/server/prisma';
 
 export const load = async ({ params }) => {
     const album = await prisma.album.findFirst({

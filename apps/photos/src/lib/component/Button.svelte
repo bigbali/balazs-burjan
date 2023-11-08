@@ -23,6 +23,8 @@
     let className = '';
     export { className as class };
 
+    const { ...props } = $$restProps;
+
     const colorMap = {
         green: ' bg-light text-dark border-theme-green hover:bg-theme-green hover:text-light',
         red: ' bg-light text-dark border-theme-red hover:bg-theme-red hover:text-light',
@@ -87,6 +89,7 @@
 
 {#if href}
     <a
+        {...props}
         class={`text-center rounded-full border transition-colors${_color}${_size}${_active}${_class}`}
         {href}
         {download}
@@ -103,6 +106,7 @@
     </a>
 {:else}
     <button
+        {...props}
         class={`text-center rounded-full border transition-colors ${_color}${_size}${_active}${_class}`}
         {type}
         {name}

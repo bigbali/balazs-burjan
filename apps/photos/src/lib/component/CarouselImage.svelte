@@ -25,6 +25,7 @@
     {:else if image.path}
         <img
             class="rounded-[1rem] max-w-full max-h-full object-cover border border-dark/20"
+            draggable="false"
             src={image.path}
             alt={image.title ?? 'Kinagyított kép'}
         />

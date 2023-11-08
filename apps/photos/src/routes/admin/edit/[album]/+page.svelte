@@ -4,6 +4,8 @@
     import Wrap from '$lib/component/Wrap.svelte';
     import Page from '$lib/component/Page.svelte';
     import Separator from '$lib/component/Separator.svelte';
+    import Button from '$lib/component/Button.svelte';
+    import Album from '$lib/component/Album.svelte';
 
     export let data;
     const {
@@ -14,11 +16,11 @@
         slug: original_slug
     } = data.album || {};
 
-    let title = original_title;
-    let description = original_description;
+    let title = original_title ?? '';
+    let description = original_description ?? '';
     let hidden = original_hidden;
     let slug = original_slug;
-    let date = original_date;
+    let date = original_date?.toISOString().split('T')[0];
 </script>
 
 <svelte:head>
@@ -37,17 +39,51 @@
             </Heading>
             <Wrap>
                 <form
-                    action=""
-                    class="font-roboto flex flex-col sm:flex-row gap-[1rem]"
+                    action="?/edit-album"
+                    method="POST"
+                    enctype="multipart/form-data"
+                    class="font-roboto flex flex-col lg:flex-row gap-[1rem]"
                 >
-                    <div>
+                    <input
+                        type="text"
+                        name="id"
+                        id="id"
+                        class="hidden"
+                        value={data.album.id}
+                    />
+                    <input
+                        type="text"
+                        name="path"
+                        id="path"
+                        class="hidden"
+                        value={data.album.path}
+                    />
+                    <input
+                        type="text"
+                        name="thumbid"
+                        id="thumbid"
+                        class="hidden"
+                        value={data.album.thumbnail?.id}
+                    />
+                    <input
+                        type="text"
+                        name="thumbpid"
+                        id="thumbpid"
+                        class="hidden"
+                        value={data.album.thumbnail?.cloudinaryPublicId}
+                    />
+                    <div
+                        class="min-w-full sm:min-w-0 lg:max-w-[40vw] min-h-[30rem]"
+                    >
                         <img
                             src={data.album.thumbnail?.path}
                             alt={data.album.title}
-                            class="rounded-[0.5rem]"
+                            class="rounded-[0.5rem] w-full hfull"
                         />
                     </div>
-                    <div class="flex flex-col justify-between gap-[1rem]">
+                    <div
+                        class="flex flex-col flex-1 justify-between gap-[1rem]"
+                    >
                         <div>
                             <label for="thumbnail" class="text-[1.25rem]">
                                 Borítókép
@@ -56,7 +92,7 @@
                                 type="file"
                                 name="thumbnail"
                                 id="thumbnail"
-                                class="block"
+                                class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] w-full"
                             />
                         </div>
                         <div>
@@ -72,7 +108,7 @@
                                 type="text"
                                 name="title"
                                 id="title"
-                                class="border border-dark/20 rounded-[0.5rem] px-[0.5rem]"
+                                class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] w-full"
                                 bind:value={title}
                             />
                         </div>
@@ -88,7 +124,7 @@
                             <textarea
                                 name="description"
                                 id="description"
-                                class="border border-dark/20 rounded-[0.5rem] px-[0.5rem]"
+                                class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] w-full"
                                 bind:value={description}
                             />
                         </div>
@@ -103,8 +139,25 @@
                                 type="text"
                                 name="slug"
                                 id="slug"
-                                class="border border-dark/20 rounded-[0.5rem] px-[0.5rem]"
+                                class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] w-full"
                                 bind:value={slug}
+                            />
+                        </div>
+                        <div>
+                            <label for="date" class="text-[1.25rem]">
+                                Dátum
+                            </label>
+                            {#if original_date}
+                                <p class="text-dark/50 font-medium pl-[0.5rem]">
+                                    {original_date.toLocaleDateString()}
+                                </p>
+                            {/if}
+                            <input
+                                type="date"
+                                name="date"
+                                id="date"
+                                class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] w-full"
+                                bind:value={date}
                             />
                         </div>
                         <div>
@@ -120,54 +173,165 @@
                             />
                         </div>
                     </div>
+                    <div class="flex flex-col">
+                        <Button
+                            type="submit"
+                            size="medium"
+                            class="!text-[1.5rem] mt-auto"
+                        >
+                            Mentés
+                        </Button>
+                    </div>
                 </form>
             </Wrap>
             <Separator />
         </div>
-        <!-- {#if edit}
+        <div class="flex flex-col gap-[1rem]">
+            <Wrap>
+                <Heading level={2}>
+                    <span class="font-roboto sm:text-[1.75rem]">
+                        Új kép feltöltése
+                    </span>
+                </Heading>
                 <form
-                    action="?/edit"
+                    action="?/add-image"
                     method="POST"
+                    class="font-roboto flex flex-col gap-[1rem]"
                     enctype="multipart/form-data"
-                    use:enhance
                 >
-                    <input type="text" bind:value={title} />
-                    <textarea bind:value={description} />
-                    <button on:click={() => (edit = false)}> Mentés </button>
-                </form>
-            {:else}
-                <button on:click={() => (edit = true)}> Szerkesztés </button>
-            {/if} -->
-        {#if data.album}
-            <div class="flex flex-col gap-[2rem] font-roboto">
-                {#each data.album.images as image}
-                    <div class="c-image flex gap-[1rem]">
-                        <img
-                            class="w-[20rem] h-[20rem] object-cover"
-                            src={image.path}
-                            alt={image.title}
+                    <input
+                        name="album-id"
+                        type="text"
+                        class="hidden"
+                        value={data.album.id}
+                    />
+                    <input
+                        name="album-path"
+                        type="text"
+                        class="hidden"
+                        value={data.album.path}
+                    />
+                    <label>
+                        Kép
+                        <input
+                            name="image"
+                            type="file"
+                            accept=".jpg, .jpeg, .png"
+                            class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] block w-full"
                         />
-                        <Wrap class="flex-1">
-                            <div class="flex flex-col gap-[1rem] w-full h-full">
-                                <label class="flex flex-col gap-[1rem]">
-                                    Cím
+                    </label>
+                    <label>
+                        Cím
+                        <input
+                            name="title"
+                            type="text"
+                            class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] block w-full"
+                        />
+                    </label>
+                    <label>
+                        Leírás
+                        <textarea
+                            name="description"
+                            class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] block w-full"
+                        />
+                    </label>
+                    <Button color="green" class="w-fit !text-[1.55rem]">
+                        Feltöltés
+                    </Button>
+                </form>
+            </Wrap>
+            <Separator />
+        </div>
+        {#if data.album.images.length > 0}
+            <div class="flex flex-col gap-[2rem] font-roboto">
+                {#each data.album.images as image, index}
+                    <Wrap>
+                        <div class="c-image flex gap-[1rem]">
+                            <img
+                                class="w-[20rem] h-[20rem] object-cover"
+                                src={image.path}
+                                alt={image.title}
+                            />
+                            <div class="flex flex-col flex-1 gap-[1rem]">
+                                <form
+                                    id={`$edit-${index}`}
+                                    action="?/edit-image"
+                                    method="POST"
+                                    class="flex gap-[2rem] w-full h-full"
+                                >
                                     <input
-                                        class="border"
                                         type="text"
-                                        value={image.title ?? ''}
+                                        name="img-id"
+                                        value={image.id}
+                                        class="hidden"
                                     />
-                                </label>
-                                <label class="flex flex-col gap-[1rem] flex-1">
-                                    Leírás
-                                    <textarea
-                                        class="flex-1 border"
-                                        value={image.description ?? ''}
-                                    />
-                                </label>
+                                    <div
+                                        class="flex flex-1 flex-col gap-[1rem]"
+                                    >
+                                        <label class="flex flex-col gap-[1rem]">
+                                            Cím
+                                            {#if image.title}
+                                                <p
+                                                    class="text-dark/50 font-medium pl-[0.5rem]"
+                                                >
+                                                    {image.title}
+                                                </p>
+                                            {/if}
+                                            <input
+                                                class="border border-dark/20 rounded-[0.5rem] px-[0.5rem]"
+                                                type="text"
+                                                name="title"
+                                                value={image.title}
+                                            />
+                                        </label>
+                                        <label
+                                            class="flex flex-col gap-[1rem] flex-1"
+                                        >
+                                            Leírás
+                                            {#if image.description}
+                                                <p
+                                                    class="text-dark/50 font-medium pl-[0.5rem]"
+                                                >
+                                                    {image.description}
+                                                </p>
+                                            {/if}
+                                            <textarea
+                                                class="flex-1 border border-dark/20 rounded-[0.5rem] px-[0.5rem]"
+                                                name="description"
+                                                value={image.description}
+                                            />
+                                        </label>
+                                    </div>
+                                </form>
+                                <form
+                                    id={`$delete-${index}`}
+                                    action="?/delete-image"
+                                    method="POST"
+                                    class="hidden"
+                                >
+                                    <input type="text" value={image.id} />
+                                </form>
+                                <div class="flex gap-[1rem]">
+                                    <Button
+                                        form={`$edit-${index}`}
+                                        type="submit"
+                                        color="green"
+                                        class="!text-[1.5rem]"
+                                    >
+                                        Mentés
+                                    </Button>
+                                    <Button
+                                        form={`$delete-${index}`}
+                                        type="submit"
+                                        color="red"
+                                        class="!text-[1.5rem]"
+                                    >
+                                        Törlés
+                                    </Button>
+                                </div>
                             </div>
-                        </Wrap>
-                        <hr class="c-separator-mobile hidden" />
-                    </div>
+                        </div>
+                    </Wrap>
                 {/each}
             </div>
         {:else}
@@ -180,10 +344,6 @@
     @media (max-width: 1024px) {
         .c-image {
             flex-direction: column;
-        }
-
-        .c-separator-mobile {
-            display: initial;
         }
     }
 </style>

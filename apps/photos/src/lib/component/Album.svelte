@@ -13,13 +13,13 @@
     const download_failed = () => dispatch('download_failed');
 </script>
 
-{#if !album.hidden}
+{#if !album.hidden || is_admin}
     <div
         class="c-card relative rounded-[1rem] border border-dark/20 hover:scale-[1.05] transition-transform"
     >
         <a {href}>
             <div
-                class="absolute z-10 flex flex-col gap-2 rounded-t-[1rem] text-light text-[2rem] text-center bg-dark/80 px-4 py-2 top-0 left-0 right-0"
+                class="absolute z-10 flex flex-col items-center gap-2 rounded-t-[1rem] text-light text-[2rem] text-center bg-dark/80 px-4 py-2 top-0 left-0 right-0"
             >
                 <p>
                     {album.title}
@@ -27,7 +27,7 @@
                 {#if album.date}
                     <hr class="text-light/25 w-3/4" />
                     <p>
-                        {album.date}
+                        {album.date.toLocaleDateString()}
                     </p>
                 {/if}
             </div>

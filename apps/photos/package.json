@@ -38,6 +38,7 @@
         "@auth/core": "^0.18.0",
         "@auth/sveltekit": "^0.3.11",
         "@prisma/client": "^5.0.0",
+        "@vercel/postgres": "^0.5.1",
         "cloudinary": "^1.39.0",
         "svelte-cloudinary": "^1.0.3"
     }

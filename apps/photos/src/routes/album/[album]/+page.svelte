@@ -1,9 +1,7 @@
 <script lang="ts">
     import { browser } from '$app/environment';
-    import Album from '$lib/component/Album.svelte';
     import Button from '$lib/component/Button.svelte';
     import CarouselImage from '$lib/component/CarouselImage.svelte';
-    import Error from '$lib/component/Error.svelte';
     import Heading from '$lib/component/Heading.svelte';
     import Image from '$lib/component/Image.svelte';
     import Page from '$lib/component/Page.svelte';
@@ -55,7 +53,7 @@
             <!-- svelte-ignore a11y-click-events-have-key-events -->
             <!-- svelte-ignore a11y-no-static-element-interactions -->
             <section
-                class="c-hide flex flex-col justify-center fixed inset-0 w-full h-full bg-dark/80 z-10 py-[0.5rem] lg:p-[5rem] backdrop-blur-md"
+                class="c-hide flex flex-col justify-center fixed z-30 inset-0 w-full h-full bg-dark/80 py-[0.5rem] lg:p-[5rem] backdrop-blur-md"
                 class:c-show={carousel_open}
                 on:click={() => (carousel_open = false)}
             >

@@ -217,7 +217,9 @@
             </div>
         {/if}
         {#if data.albums.length === 0}
-            <p class="text-[1.25rem] my-4">Nincsenek elérhető albumok.</p>
+            <div class="grid place-items-center">
+                <Heading level={2}>Még nincsenek feltöltött albumok :(</Heading>
+            </div>
         {:else}
             <div class="c-cards-grid py-[2rem]">
                 {#each data.albums as album}

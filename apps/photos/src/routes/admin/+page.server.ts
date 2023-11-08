@@ -1,30 +1,8 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import cloudinary from '$lib/cloudinary';
-import prisma from '$lib/prisma';
-import { CLOUDINARY_API_KEY, CLOUDINARY_CLOUD_NAME, CLOUDINARY_SECRET } from '$env/static/private';
-
-const URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
-
-const form = (image: File, timestamp: string, folder: string, thumbnail: boolean = false) => {
-    const tag = thumbnail ? 'thumbnail' : 'image';
-
-    const signature = cloudinary.utils.api_sign_request({
-        timestamp: timestamp,
-        folder: folder,
-        tags: tag
-    }, CLOUDINARY_SECRET);
-
-    const form = new FormData();
-    form.append('file', image);
-    form.append('api_key', CLOUDINARY_API_KEY);
-    form.append('timestamp', timestamp);
-    form.append('signature', signature);
-    form.append('folder', folder);
-    form.append('tags', tag);
-
-    return form;
-};
+import type { ImageData } from '$lib/type';
+import prisma from '$lib/server/prisma';
+import cloudinary, { signedImageForm, signedThumbnailForm, timestamp as getTimestamp, UPLOAD_URL } from '$lib/server/cloudinary';
 
 export const load: PageServerLoad = async ({ locals }) => {
     const session = await locals.getSession();
@@ -49,7 +27,7 @@ export const load: PageServerLoad = async ({ locals }) => {
 export const actions = {
     create: async ({ request }) => {
         const data = await request.formData();
-        const title = data.get('title') as string;
+        const title = (data.get('title') as string).replace(/ /g, '_');
         const slug = data.get('slug') as string;
         const description = data.get('description') as string;
         const hidden = !!data.get('hidden');
@@ -65,21 +43,30 @@ export const actions = {
             const folder = await cloudinary.api.create_folder(`photos/${title}`) as Response;
 
             if (folder.success) {
-                const timestamp = Math.round((new Date).getTime() / 1000).toString();
+                const timestamp = getTimestamp();
 
-                const imagePaths: string[] = [];
-                let thumbnail_path;
+                const imagesData: ImageData[] = [];
+                let cloudinary_res;
 
                 for (const image of images) {
-                    if (!image) return;
+                    if (image.size === 0) return;
 
-                    const response = await fetch(URL, {
+                    const response = await fetch(UPLOAD_URL, {
                         method: 'POST',
-                        body: form(image, timestamp, folder.path)
+                        body: signedImageForm(image, timestamp, folder.path)
                     });
 
-                    const url = await response.json();
-                    imagePaths.push(url.secure_url as string);
+                    const res = await response.json();
+
+                    imagesData.push({
+                        path: res.secure_url as string,
+                        cloudinaryAssetId: res.asset_id as string,
+                        cloudinaryPublicId: res.public_id as string,
+                        width: res.width as number,
+                        height: res.height as number,
+                        format: res.format as string,
+                        size: res.bytes as number
+                    });
                 }
 
                 const download_url = (await cloudinary.uploader.create_zip({
@@ -87,15 +74,15 @@ export const actions = {
                     flatten_folders: true
                 })).secure_url as string;
 
-                if (thumbnail) {
+                if (thumbnail.size > 0) {
                     const folderPath = `${folder.path}/thumbnail`;
 
-                    const response = await fetch(URL, {
+                    const response = await fetch(UPLOAD_URL, {
                         method: 'POST',
-                        body: form(thumbnail, timestamp, folderPath, true)
+                        body: signedThumbnailForm(thumbnail, timestamp, folderPath)
                     });
 
-                    thumbnail_path = (await response.json()).secure_url as string;
+                    cloudinary_res = await response.json();
                 }
 
                 const newAlbum = await prisma.album.create({
@@ -107,12 +94,18 @@ export const actions = {
                         hidden,
                         slug,
                         images: {
-                            create: imagePaths.map(image => ({ path: image }))
+                            create: imagesData
                         },
-                        thumbnail: thumbnail_path
+                        thumbnail: cloudinary_res
                             ? {
                                 create: {
-                                    path: thumbnail_path
+                                    path: cloudinary_res.secure_url as string,
+                                    cloudinaryAssetId: cloudinary_res.asset_id as string,
+                                    cloudinaryPublicId: cloudinary_res.public_id as string,
+                                    width: cloudinary_res.width as number,
+                                    height: cloudinary_res.height as number,
+                                    format: cloudinary_res.format as string,
+                                    size: cloudinary_res.bytes as number
                                 }
                             }
                             : {}
@@ -122,6 +115,7 @@ export const actions = {
                 return { success: true, album: newAlbum };
             }
         } catch (e) {
+            console.error(e);
             return { success: false, error: true };
         }
 
