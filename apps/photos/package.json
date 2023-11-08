@@ -41,5 +41,6 @@
         "@vercel/postgres": "^0.5.1",
         "cloudinary": "^1.39.0",
         "svelte-cloudinary": "^1.0.3"
-    }
+    },
+    "packageManager": "yarn@3.5.0"
 }
