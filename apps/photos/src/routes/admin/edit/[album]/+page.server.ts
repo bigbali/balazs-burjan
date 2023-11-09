@@ -1,6 +1,6 @@
 import cloudinary, { UPLOAD_URL, signedImageForm, signedThumbnailForm, timestamp } from '$lib/server/cloudinary';
 import prisma from '$lib/server/prisma';
-import type { CloudinaryImageResponse } from '$lib/type.js';
+import type { Album, AlbumOnly, AlbumWithImages, CloudinaryImageResponse, Image } from '$lib/type.js';
 import { redirect } from '@sveltejs/kit';
 
 export const load = async ({ params, locals }) => {
@@ -38,6 +38,14 @@ const replaceThumbnail = async (thumbId: string, newThumbnail: File, albumId: nu
     });
 
     return await response.json() as CloudinaryImageResponse;
+};
+
+const deleteImages = async (ids: string[], folder?: string) => {
+    await cloudinary.api.delete_resources(ids);
+
+    if (folder) {
+        await cloudinary.api.delete_folder(folder);
+    }
 };
 
 export const actions = {
@@ -109,16 +117,37 @@ export const actions = {
                 });
             }
 
-            return {
-                ok: true,
-                album
-            };
-
-
+            return { ok: true, message: `Album with ID ${id} edited successfully.`, album }
         } catch (err) {
             console.error(err);
-            return { ok: false };
+
+            return { ok: false, message: `Failed to edit album with ID ${id}.` }
         }
+    },
+    'delete-album': async ({ request }) => {
+        const data = await request.formData();
+        const id = data.get('id') as string;
+
+        let album: Album;
+
+        try {
+            album = await prisma.album.delete({
+                where: { id: Number.parseInt(id) },
+                include: { images: true, thumbnail: true }
+            });
+
+            if (album.thumbnail) {
+                await deleteImages([album.thumbnail.cloudinaryPublicId], `${album.path}/thumbnail`);
+            }
+
+            await deleteImages(album.images.map((entry) => entry.cloudinaryPublicId), album.path);
+        } catch (err) {
+            console.error(err);
+
+            return { ok: false, message: `Failed to delete album with ID ${id}.` }
+        }
+
+        throw redirect(300, '/admin')
     },
     'edit-image': async ({ request }) => {
         const data = await request.formData();
@@ -127,9 +156,10 @@ export const actions = {
         const title = data.get('title') as string;
         const description = data.get('description') as string;
 
-        // todo if new image then delete old from cloudinary and db then create new
+        let image: Image;
+
         try {
-            await prisma.image.update({
+            image = await prisma.image.update({
                 where: { id: Number.parseInt(id) },
                 data: {
                     title,
@@ -138,19 +168,31 @@ export const actions = {
             });
         } catch (err) {
             console.error(err);
+
+            return { ok: false, message: `Failed to edit image with ID ${id}.` }
         }
+
+        return { ok: true, message: `Image with ID ${id} edited successfully.`, image }
     },
     'delete-image': async ({ request }) => {
         const data = await request.formData();
         const id = data.get('img-id') as string;
 
+        let image: Image;
+
         try {
-            await prisma.image.delete({
+            image = await prisma.image.delete({
                 where: { id: Number.parseInt(id) }
             });
+
+            await deleteImages([image.cloudinaryPublicId]);
         } catch (err) {
             console.error(err);
+
+            return { ok: false, message: `Failed to delete image with ID ${id}.` }
         }
+
+        return { ok: true, message: `Image with ID ${id} deleted successfully.`, image }
     },
     'add-image': async ({ request }) => {
         const data = await request.formData();
@@ -163,6 +205,8 @@ export const actions = {
 
         if (image.size === 0) return;
 
+        let newImage: Image;
+
         const response = await fetch(UPLOAD_URL, {
             method: 'POST',
             body: signedImageForm(image, timestamp(), albumPath)
@@ -170,12 +214,17 @@ export const actions = {
 
         const res = await response.json();
 
-        console.log(image);
-
         try {
-            await prisma.album.update({
+            const album = await prisma.album.update({
                 where: {
                     id: Number.parseInt(albumId)
+                },
+                include: {
+                    images: {
+                        orderBy: {
+                            createdAt: 'desc'
+                        }
+                    }
                 },
                 data: {
                     images: {
@@ -193,8 +242,14 @@ export const actions = {
                     }
                 }
             });
+
+            newImage = album.images[0];
         } catch (err) {
             console.error(err);
+
+            return { ok: false, message: 'Failed to create image.' }
         }
+
+        return { ok: true, message: `Image with ID ${albumId} created successfully.`, image }
     }
 };

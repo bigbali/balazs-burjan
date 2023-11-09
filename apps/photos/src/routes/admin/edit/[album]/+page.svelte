@@ -39,10 +39,12 @@
             </Heading>
             <Wrap>
                 <form
+                    id="edit-album"
                     action="?/edit-album"
                     method="POST"
                     enctype="multipart/form-data"
                     class="font-roboto flex flex-col lg:flex-row gap-[1rem]"
+                    use:enhance
                 >
                     <input
                         type="text"
@@ -173,17 +175,37 @@
                             />
                         </div>
                     </div>
-                    <div class="flex flex-col">
-                        <Button
-                            type="submit"
-                            size="medium"
-                            class="!text-[1.5rem] mt-auto"
-                        >
-                            Mentés
-                        </Button>
-                    </div>
                 </form>
             </Wrap>
+            <div class="flex gap-[1rem] font-roboto">
+                <form
+                    id="delete-album"
+                    action="?/delete-album"
+                    method="POST"
+                    class="hidden"
+                    use:enhance
+                >
+                    <input type="text" name="id" value={data.album.id} />
+                </form>
+                <Button
+                    form="edit-album"
+                    type="submit"
+                    size="medium"
+                    color="green"
+                    class="!text-[1.5rem] mt-auto"
+                >
+                    Mentés
+                </Button>
+                <Button
+                    form="delete-album"
+                    type="submit"
+                    size="medium"
+                    color="red"
+                    class="!text-[1.5rem] mt-auto"
+                >
+                    Törlés
+                </Button>
+            </div>
             <Separator />
         </div>
         <div class="flex flex-col gap-[1rem]">
@@ -198,6 +220,7 @@
                     method="POST"
                     class="font-roboto flex flex-col gap-[1rem]"
                     enctype="multipart/form-data"
+                    use:enhance
                 >
                     <input
                         name="album-id"
@@ -309,7 +332,11 @@
                                     method="POST"
                                     class="hidden"
                                 >
-                                    <input type="text" value={image.id} />
+                                    <input
+                                        type="text"
+                                        name="img-id"
+                                        value={image.id}
+                                    />
                                 </form>
                                 <div class="flex gap-[1rem]">
                                     <Button
