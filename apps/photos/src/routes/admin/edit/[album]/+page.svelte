@@ -5,7 +5,6 @@
     import Page from '$lib/component/Page.svelte';
     import Separator from '$lib/component/Separator.svelte';
     import Button from '$lib/component/Button.svelte';
-    import Album from '$lib/component/Album.svelte';
 
     export let data;
     const {

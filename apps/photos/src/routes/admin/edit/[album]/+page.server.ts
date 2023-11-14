@@ -1,6 +1,6 @@
 import cloudinary, { UPLOAD_URL, signedImageForm, signedThumbnailForm, timestamp } from '$lib/server/cloudinary';
 import prisma from '$lib/server/prisma';
-import type { Album, AlbumOnly, AlbumWithImages, CloudinaryImageResponse, Image } from '$lib/type.js';
+import type { Album, CloudinaryImageResponse, Image } from '$lib/type.js';
 import { redirect } from '@sveltejs/kit';
 
 export const load = async ({ params, locals }) => {

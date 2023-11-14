@@ -1,31 +1,29 @@
 <script lang="ts">
     import { enhance } from '$app/forms';
-    import Error from '$lib/component/Error.svelte';
     import Heading from '$lib/component/Heading.svelte';
     import Separator from '$lib/component/Separator.svelte';
     import Button from '$lib/component/Button.svelte';
     import Wrap from '$lib/component/Wrap.svelte';
     import Album from '$lib/component/Album.svelte';
     import Page from '$lib/component/Page.svelte';
-    import type { ActionData } from './$types';
+    import api from '$lib/client/api';
+    import { notify } from '$lib/client/notification';
+    import type { CreateAlbumForm } from '$lib/type';
 
     let create = false;
     let awaiting_action = false;
 
-    let thumbnail: FileList | undefined = undefined;
-    let images: FileList | undefined = undefined;
+    const createAlbumForm: CreateAlbumForm = {
+        title: '',
+        slug: '',
+        thumbnail: undefined,
+        images: undefined,
+        description: undefined,
+        date: undefined,
+        hidden: false
+    };
 
     export let data;
-    export let form: ActionData;
-
-    $: error = form?.error;
-
-    $: {
-        if (form?.success) {
-            thumbnail = undefined;
-            images = undefined;
-        }
-    }
 </script>
 
 <svelte:head>
@@ -34,9 +32,6 @@
 </svelte:head>
 
 <Page>
-    <Error className="text-[1.5rem] font-medium text-light" condition={error}>
-        Album létrehozása sikertelen.
-    </Error>
     <Heading>Adminisztráció</Heading>
     <Separator />
     {#if create}
@@ -53,16 +48,31 @@
             <div>
                 <form
                     class="flex flex-col gap-[1.5rem]"
-                    action="?/create"
                     method="POST"
+                    action="?/create"
                     enctype="multipart/form-data"
-                    use:enhance={() => {
+                    use:enhance={async () => {
                         awaiting_action = true;
+
+                        const album = await api.album.create(createAlbumForm);
+
+                        if (album.ok && album.message) {
+                            notify({
+                                title: 'Album létrehozva',
+                                message: album.message,
+                                timeout: 7500
+                            });
+                        } else if (!album.ok) {
+                            notify({
+                                title: 'Album létrehozása sikertelen',
+                                message: album.message,
+                                timeout: 7500
+                            });
+                        }
 
                         return async ({ update }) => {
                             awaiting_action = false;
-
-                            update();
+                            await update();
                         };
                     }}
                 >
@@ -78,6 +88,7 @@
                                     name="title"
                                     type="text"
                                     required
+                                    bind:value={createAlbumForm.title}
                                 />
                             </label>
                         </Wrap>
@@ -90,6 +101,7 @@
                                     name="slug"
                                     type="text"
                                     required
+                                    bind:value={createAlbumForm.slug}
                                 />
                             </label>
                         </Wrap>
@@ -102,6 +114,7 @@
                                 placeholder="Lorem ipsum, dolor sit amet..."
                                 rows="5"
                                 name="description"
+                                bind:value={createAlbumForm.description}
                             />
                         </label>
                     </Wrap>
@@ -113,7 +126,7 @@
                                 name="hidden"
                                 type="checkbox"
                                 value="hidden"
-                                checked
+                                bind:checked={createAlbumForm.hidden}
                             />
                         </label>
                     </Wrap>
@@ -132,16 +145,16 @@
                                         id="thumbnail"
                                         type="file"
                                         accept=".jpg, .jpeg, .png"
-                                        bind:files={thumbnail}
+                                        bind:files={createAlbumForm.thumbnail}
                                     />
                                     Borító feltöltése
                                 </label>
                             </div>
-                            {#if thumbnail}
+                            {#if createAlbumForm.thumbnail?.length && createAlbumForm.thumbnail.length > 0}
                                 <p
                                     class="c-monospace p-[0.5rem] text-[1.25rem] font-medium"
                                 >
-                                    {thumbnail[0].name}
+                                    {createAlbumForm.thumbnail[0].name}
                                 </p>
                             {/if}
                         </div>
@@ -158,22 +171,23 @@
                                         type="file"
                                         accept=".jpg, .jpeg, .png"
                                         multiple
-                                        bind:files={images}
+                                        bind:files={createAlbumForm.images}
                                     />
                                     Fotók feltöltése
                                 </label>
                             </div>
-                            {#if images}
+                            {#if createAlbumForm.images}
                                 <div
                                     class="c-monospace flex flex-col gap-[0.25rem] p-[0.5rem]"
                                 >
                                     <p class="text-[1.25rem] font-bold">
-                                        {images.length} kiválasztott fotó:
+                                        {createAlbumForm.images.length} kiválasztott
+                                        fotó:
                                     </p>
                                     <ul
                                         class="flex flex-col gap-[0.25rem] text-[1rem]"
                                     >
-                                        {#each images as image}
+                                        {#each createAlbumForm.images as image}
                                             <li>
                                                 {image.name}
                                             </li>
@@ -196,8 +210,8 @@
                             color="red"
                             on:click={(e) => {
                                 e.preventDefault();
-                                thumbnail = undefined;
-                                images = undefined;
+                                // thumbnail = undefined;
+                                // images = undefined;
                                 create = false;
                             }}
                         >

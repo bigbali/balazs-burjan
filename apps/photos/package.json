@@ -37,6 +37,7 @@
     "dependencies": {
         "@auth/core": "^0.18.0",
         "@auth/sveltekit": "^0.3.11",
+        "@formkit/auto-animate": "^0.8.1",
         "@prisma/client": "^5.0.0",
         "@vercel/postgres": "^0.5.1",
         "cloudinary": "^1.39.0",
