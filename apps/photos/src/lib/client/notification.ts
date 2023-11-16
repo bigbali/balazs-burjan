@@ -1,20 +1,24 @@
+import { dev } from "$app/environment";
 import { writable } from "svelte/store";
 
 interface Notification {
+    timeout?: number,
     title?: string,
     message?: string,
-    timeout: number
+    type?: 'info' | 'warn' | 'error'
 }
 
 interface NotificationMeta extends Notification {
     id: string,
-    timeoutId: NodeJS.Timeout
+    timeout: number,
+    timeoutId: NodeJS.Timeout,
+    type: Exclude<Notification['type'], undefined>
 }
 
 export const notifications = writable<NotificationMeta[]>([]);
 
-export const notify = ({ timeout, title, message }: Notification) => {
-    if (timeout === 0 || (!title && !message)) return;
+export const notify = ({ timeout = 5000, title, message, type = 'info' }: Notification) => {
+    if (!title && !message) return;
 
     const id = `${title}${message}${timeout}${new Date().getTime()}`;
     let timeoutId: NodeJS.Timeout;
@@ -24,7 +28,16 @@ export const notify = ({ timeout, title, message }: Notification) => {
         clearTimeout(timeoutId);
     }, timeout);
 
-    notifications.update(store => [{ timeout, title, message, id, timeoutId }, ...store]);
+    notifications.update(store => [{ timeout, title, message, id, timeoutId, type }, ...store]);
+
+    type WindowWithNotificationHistory = Window & typeof globalThis & { notificationHistory: NotificationMeta[] }
+    if (dev) {
+        if (!(window as WindowWithNotificationHistory).notificationHistory) {
+            (window as WindowWithNotificationHistory).notificationHistory = [];
+        }
+
+        (window as WindowWithNotificationHistory).notificationHistory.push({ timeout, title, message, id, timeoutId, type });
+    }
 }
 
 export const cancel = (id: string) => {

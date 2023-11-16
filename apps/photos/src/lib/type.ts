@@ -1,4 +1,5 @@
 import type { Prisma } from '@prisma/client';
+import type { ClientImageCreateParams } from './client/api/image';
 
 export type Album = Prisma.AlbumGetPayload<{ include: { images: true, thumbnail: true } }>;
 export type AlbumOnly = Prisma.AlbumGetPayload<{}>;
@@ -43,18 +44,20 @@ export type ActionFailure = {
     message?: string
 }
 
-export type CloudinarySuccess<T extends {} = {}> = {
+export type Success<T extends {} = {}> = {
     ok: true,
     message?: string,
     data: T
 };
 
-export type CloudinaryFailure = {
+export type Failure = {
     ok: false,
-    message?: string
+    message?: string,
+    reason?: string,
+    source: 'client' | 'server'
 };
 
-export type CloudinaryApiResponse<T extends {} = {}> = CloudinarySuccess<T> | CloudinaryFailure;
+export type ApiResponse<T extends {} = {}> = Success<T> | Failure;
 
 export type CreateAlbumForm = {
     title: string;
@@ -66,13 +69,24 @@ export type CreateAlbumForm = {
     images?: FileList;
 };
 
+export type CreateImageForm = {
+    title?: string;
+    description?: string;
+    image?: FileList;
+};
+
+
+export type ServerImageCreateParams = Omit<ClientImageCreateParams, 'image' | 'albumPath'> & {
+    data: CloudinaryImageResponse,
+}
+
 export type Signature = {
     timestamp: string,
     signature: string
 }
 export type ImageResult = {
     name: string,
-    result: ImageCreatedResponse | Failure
+    result: ApiResponse<ImageCreatedResponse>
 }
 export type ImageCreatedResponse = {
     secure_url: string,
@@ -94,7 +108,7 @@ export type ActionResponse = ActionSuccess | ActionFailure;
 
 export type ApiData = CreateAlbumData | DeleteAlbumData;
 
-export type ApiResponse<T> = T | Failure;
+export type CloudinaryApiResponse<T> = T | CloudinaryFailure;
 
 export const enum DbActionType {
     CREATE_ALBUM,
@@ -109,7 +123,7 @@ export type CreateAlbumData = {
     data: {
         form: CreateAlbumForm,
         images: ImageResult[],
-        thumbnail: ImageCreatedResponse | Failure | null,
+        thumbnail: ImageCreatedResponse | CloudinaryFailure | null,
         folder: string
     }
 }
@@ -123,21 +137,13 @@ export type DeleteAlbumData = {
     }
 }
 
-export type Failure = {
+export type CloudinaryFailure = {
     success: false
 }
 
-export type FolderCreatedResponse = {
-    success: true,
-    path: string,
-    name: string
-};
-
 export type FolderDeletedResponse = {
-    success: true,
+    deleted: string[]
 };
-
-
 
 export type Tag = 'thumbnail' | 'image';
 

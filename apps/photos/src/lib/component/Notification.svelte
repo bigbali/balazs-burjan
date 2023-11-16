@@ -2,8 +2,6 @@
     import { cancel, notifications } from '$lib/client/notification';
     import autoAnimate from '@formkit/auto-animate';
 
-    export let type: 'info' | 'warn' | 'error' = 'info';
-
     const color = {
         info: ' bg-theme-green',
         warn: ' bg-[rgb(200, 100, 100)]',
@@ -11,10 +9,15 @@
     } as const;
 </script>
 
-<ul class="fixed inset-0 top-[10%] pointer-events-none" use:autoAnimate>
+<ul
+    class="c-notifications fixed inset-0 top-[10%] pointer-events-none"
+    use:autoAnimate
+>
     {#each $notifications as notification}
         <li
-            class={`c-notification relative mx-auto w-fit h-fit min-w-[40rem] min-h-[10rem] rounded-[1rem] border border-light/25${color[type]}`}
+            class={`c-notification relative mx-auto w-fit h-fit min-w-[40rem] min-h-[10rem] rounded-[1rem] border border-light/25${
+                color[notification.type]
+            }`}
         >
             <button
                 class="absolute top-1 right-1 grid place-items-center text-[1.5rem] leading-[1.5rem] h-[1.5rem] w-[1.5rem] font-bold text-light"
@@ -41,8 +44,10 @@
 </ul>
 
 <style>
-    .c-notification {
+    .c-notifications {
         z-index: 1000;
+    }
+    .c-notification {
         pointer-events: all;
     }
 

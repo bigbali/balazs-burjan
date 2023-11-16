@@ -11,8 +11,6 @@ export const signedForm = (image: File, timestamp: string, signature: string, fo
     form.append('tags', tag);
     form.append('timestamp', timestamp);
 
-    console.log(form)
-
     return form;
 };
 
@@ -23,8 +21,6 @@ export const signedFolderForm = (timestamp: string, signature: string, folder: s
     form.append('timestamp', timestamp);
     form.append('signature', signature);
     form.append('folder', folder);
-
-    console.log(form)
 
     return form;
 };

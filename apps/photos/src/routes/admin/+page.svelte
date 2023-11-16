@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { enhance } from '$app/forms';
     import Heading from '$lib/component/Heading.svelte';
     import Separator from '$lib/component/Separator.svelte';
     import Button from '$lib/component/Button.svelte';
@@ -9,6 +8,9 @@
     import api from '$lib/client/api';
     import { notify } from '$lib/client/notification';
     import type { CreateAlbumForm } from '$lib/type';
+    import type { FormEventHandler } from 'svelte/elements';
+
+    export let data;
 
     let create = false;
     let awaiting_action = false;
@@ -23,7 +25,34 @@
         hidden: false
     };
 
-    export let data;
+    const onCreate: FormEventHandler<HTMLFormElement> = async (e) => {
+        awaiting_action = true;
+
+        const album = await api.album.create(createAlbumForm);
+
+        if (album.ok) {
+            data = {
+                ...data,
+                albums: [album.data, ...data.albums]
+            };
+
+            notify({
+                title: 'Album létrehozva',
+                message: album.message ?? '',
+                timeout: 7500
+            });
+        } else if (!album.ok) {
+            notify({
+                title: 'Album létrehozása sikertelen',
+                type: 'error',
+                message: album.message,
+                timeout: 7500
+            });
+        }
+
+        (e.target as HTMLFormElement)?.reset();
+        awaiting_action = false;
+    };
 </script>
 
 <svelte:head>
@@ -46,36 +75,7 @@
                 </div>
             {/if}
             <div>
-                <form
-                    class="flex flex-col gap-[1.5rem]"
-                    method="POST"
-                    action="?/create"
-                    enctype="multipart/form-data"
-                    use:enhance={async () => {
-                        awaiting_action = true;
-
-                        const album = await api.album.create(createAlbumForm);
-
-                        if (album.ok && album.message) {
-                            notify({
-                                title: 'Album létrehozva',
-                                message: album.message,
-                                timeout: 7500
-                            });
-                        } else if (!album.ok) {
-                            notify({
-                                title: 'Album létrehozása sikertelen',
-                                message: album.message,
-                                timeout: 7500
-                            });
-                        }
-
-                        return async ({ update }) => {
-                            awaiting_action = false;
-                            await update();
-                        };
-                    }}
-                >
+                <form class="flex flex-col gap-[1.5rem]" on:submit={onCreate}>
                     <div
                         class="flex flex-col lg:flex-row justify-between gap-[1rem]"
                     >
@@ -210,8 +210,6 @@
                             color="red"
                             on:click={(e) => {
                                 e.preventDefault();
-                                // thumbnail = undefined;
-                                // images = undefined;
                                 create = false;
                             }}
                         >

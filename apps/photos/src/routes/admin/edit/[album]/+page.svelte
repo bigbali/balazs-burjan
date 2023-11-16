@@ -5,8 +5,14 @@
     import Page from '$lib/component/Page.svelte';
     import Separator from '$lib/component/Separator.svelte';
     import Button from '$lib/component/Button.svelte';
+    import type { CreateAlbumForm, CreateImageForm } from '$lib/type.js';
+    import api from '$lib/client/api';
+    import { notify } from '$lib/client/notification';
+    import { goto } from '$app/navigation';
+    import { log } from '$lib/apihelper.js';
 
     export let data;
+
     const {
         title: original_title,
         description: original_description,
@@ -15,11 +21,58 @@
         slug: original_slug
     } = data.album || {};
 
-    let title = original_title ?? '';
-    let description = original_description ?? '';
-    let hidden = original_hidden;
-    let slug = original_slug;
-    let date = original_date?.toISOString().split('T')[0];
+    const form: CreateAlbumForm = {
+        title: original_title!,
+        description: original_description!,
+        slug: original_slug!,
+        hidden: original_hidden!,
+        date: original_date?.toISOString().split('T')[0]
+    };
+
+    const imageForm: CreateImageForm = {
+        title: '',
+        description: '',
+        image: undefined
+    };
+
+    const album = {
+        delete: async (id: number) => {
+            const response = await api.album.delete(id);
+
+            log(response);
+
+            notify({
+                message: response.message,
+                type: response.ok ? 'info' : 'error'
+            });
+
+            if (response.ok) {
+                goto('/admin');
+            }
+        }
+    };
+
+    const image = {
+        create: async (e: Event) => {
+            if (imageForm.image && imageForm.image.length > 0) {
+                const response = await api.image.create({
+                    albumId: data.album!.id.toString(),
+                    albumPath: data.album!.path,
+                    ...imageForm,
+                    image: imageForm.image[0]
+                });
+
+                log(response);
+
+                notify({
+                    message: response.message,
+                    type: response.ok ? 'info' : 'error'
+                });
+            }
+
+            (e.target as HTMLFormElement).reset();
+        }
+    };
 </script>
 
 <svelte:head>
@@ -39,11 +92,7 @@
             <Wrap>
                 <form
                     id="edit-album"
-                    action="?/edit-album"
-                    method="POST"
-                    enctype="multipart/form-data"
                     class="font-roboto flex flex-col lg:flex-row gap-[1rem]"
-                    use:enhance
                 >
                     <input
                         type="text"
@@ -110,7 +159,7 @@
                                 name="title"
                                 id="title"
                                 class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] w-full"
-                                bind:value={title}
+                                bind:value={form.title}
                             />
                         </div>
                         <div>
@@ -126,7 +175,7 @@
                                 name="description"
                                 id="description"
                                 class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] w-full"
-                                bind:value={description}
+                                bind:value={form.description}
                             />
                         </div>
                         <div>
@@ -141,7 +190,7 @@
                                 name="slug"
                                 id="slug"
                                 class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] w-full"
-                                bind:value={slug}
+                                bind:value={form.slug}
                             />
                         </div>
                         <div>
@@ -158,7 +207,7 @@
                                 name="date"
                                 id="date"
                                 class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] w-full"
-                                bind:value={date}
+                                bind:value={form.date}
                             />
                         </div>
                         <div>
@@ -170,22 +219,13 @@
                                 name="hidden"
                                 id="hidden"
                                 class="border border-dark/20 rounded-[0.5rem] block"
-                                bind:value={hidden}
+                                bind:value={form.hidden}
                             />
                         </div>
                     </div>
                 </form>
             </Wrap>
             <div class="flex gap-[1rem] font-roboto">
-                <form
-                    id="delete-album"
-                    action="?/delete-album"
-                    method="POST"
-                    class="hidden"
-                    use:enhance
-                >
-                    <input type="text" name="id" value={data.album.id} />
-                </form>
                 <Button
                     form="edit-album"
                     type="submit"
@@ -196,11 +236,11 @@
                     Mentés
                 </Button>
                 <Button
-                    form="delete-album"
-                    type="submit"
                     size="medium"
                     color="red"
                     class="!text-[1.5rem] mt-auto"
+                    on:click={() =>
+                        data.album?.id && album.delete(data.album.id)}
                 >
                     Törlés
                 </Button>
@@ -215,24 +255,9 @@
                     </span>
                 </Heading>
                 <form
-                    action="?/add-image"
-                    method="POST"
                     class="font-roboto flex flex-col gap-[1rem]"
-                    enctype="multipart/form-data"
-                    use:enhance
+                    on:submit={(e) => image.create(e)}
                 >
-                    <input
-                        name="album-id"
-                        type="text"
-                        class="hidden"
-                        value={data.album.id}
-                    />
-                    <input
-                        name="album-path"
-                        type="text"
-                        class="hidden"
-                        value={data.album.path}
-                    />
                     <label>
                         Kép
                         <input
@@ -240,6 +265,7 @@
                             type="file"
                             accept=".jpg, .jpeg, .png"
                             class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] block w-full"
+                            bind:files={imageForm.image}
                         />
                     </label>
                     <label>
@@ -248,6 +274,7 @@
                             name="title"
                             type="text"
                             class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] block w-full"
+                            bind:value={imageForm.title}
                         />
                     </label>
                     <label>
@@ -255,6 +282,7 @@
                         <textarea
                             name="description"
                             class="border border-dark/20 rounded-[0.5rem] px-[0.5rem] block w-full"
+                            bind:value={imageForm.description}
                         />
                     </label>
                     <Button color="green" class="w-fit !text-[1.55rem]">
