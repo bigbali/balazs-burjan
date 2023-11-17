@@ -123,7 +123,7 @@ export type CreateAlbumData = {
     data: {
         form: CreateAlbumForm,
         images: ImageResult[],
-        thumbnail: ImageCreatedResponse | CloudinaryFailure | null,
+        thumbnail: ApiResponse<ImageCreatedResponse>,
         folder: string
     }
 }

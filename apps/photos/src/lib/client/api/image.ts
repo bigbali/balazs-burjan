@@ -2,7 +2,7 @@ import type { ApiResponse as ApiResponse, CloudinaryApiResponse, CloudinaryFailu
 import { fetchSignature } from "../signature"
 import { CLOUDINARY } from '$lib/cloudinary';
 import { signedForm } from "$lib/form";
-import { failure, ok, pretty, unwrap } from "$lib/apihelper";
+import { failure, log, ok, pretty, unwrap } from "$lib/apihelper";
 
 export type ClientImageInitializeParams = {
     image: File,
@@ -20,8 +20,7 @@ export type ClientImageCreateParams = {
 }
 
 type ClientImageDeleteParams = {
-    id: string,
-    publicId: string,
+    id: number
 }
 
 export type ClientImageApi = {
@@ -127,10 +126,10 @@ export const image: ClientImageApi = {
             });
         }
     },
-    delete: async ({ id, publicId }) => {
+    delete: async ({ id }) => {
         const response = await fetch('/api/image', {
             method: 'DELETE',
-            body: JSON.stringify(publicId)
+            body: JSON.stringify(id)
         });
 
         return await response.json();

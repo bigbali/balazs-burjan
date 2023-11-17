@@ -4,7 +4,7 @@
     import '@fontsource/roboto/300.css';
     import '@fontsource-variable/caveat';
     import './styles.css';
-    import Notification from '$lib/component/Notification.svelte';
+    import Notifications from '$lib/component/Notifications.svelte';
 
     export let data;
     const { session } = data;
@@ -12,7 +12,7 @@
 
 <div class="app flex flex-col min-h-screen font-caveat text-dark">
     <Header {session} />
-    <Notification />
+    <Notifications />
     <main class="contents">
         <slot />
     </main>

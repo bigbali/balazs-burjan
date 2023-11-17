@@ -5,30 +5,61 @@ interface Notification {
     timeout?: number,
     title?: string,
     message?: string,
-    type?: 'info' | 'warn' | 'error'
+    type?: 'info' | 'warn' | 'error',
 }
 
-interface NotificationMeta extends Notification {
+type ExtendFn = () => number | void;
+
+export interface NotificationMeta extends Notification {
     id: string,
     timeout: number,
     timeoutId: NodeJS.Timeout,
-    type: Exclude<Notification['type'], undefined>
+    type: Exclude<Notification['type'], undefined>,
+    extend: (cb: ExtendFn) => void,
+    extendFnRef: { fn: ExtendFn },
+    extendedBy: number,
+    cancel: () => void
+}
+
+type NotifyReturn = {
+    notification: NotificationMeta,
+    /** This promise resolves when the notification is closed by the user or automatically. */
+    done: Promise<true>
 }
 
 export const notifications = writable<NotificationMeta[]>([]);
 
-export const notify = ({ timeout = 5000, title, message, type = 'info' }: Notification) => {
+export const notify = ({ timeout = 5000, title, message, type = 'info' }: Notification): NotifyReturn | undefined => {
     if (!title && !message) return;
 
+    let resolveDone: (value: true) => void;
+    const done = new Promise<true>((resolve) => resolveDone = resolve);
+
     const id = `${title}${message}${timeout}${new Date().getTime()}`;
-    let timeoutId: NodeJS.Timeout;
+    const cancelFn = () => {
+        if (cancel(id)) {
+            resolveDone(true);
+        };
+    }
+    const timeoutId = setTimeout(cancelFn, timeout);
 
-    timeoutId = setTimeout(() => {
-        notifications.update(store => store.filter(notif => notif.id !== id));
-        clearTimeout(timeoutId);
-    }, timeout);
+    const extendFnRef = { fn: () => { } }
+    const extend = (cb: () => void) => extendFnRef.fn = cb
 
-    notifications.update(store => [{ timeout, title, message, id, timeoutId, type }, ...store]);
+    const newNotification = {
+        id,
+        timeout,
+        title,
+        message,
+        timeoutId,
+        type,
+        cancel: cancelFn,
+        extend,
+        extendFnRef,
+        extendedBy: 0
+    };
+
+    notifications.update(store => [newNotification, ...store]);
 
     type WindowWithNotificationHistory = Window & typeof globalThis & { notificationHistory: NotificationMeta[] }
     if (dev) {
@@ -36,13 +67,42 @@ export const notify = ({ timeout = 5000, title, message, type = 'info' }: Notifi
             (window as WindowWithNotificationHistory).notificationHistory = [];
         }
 
-        (window as WindowWithNotificationHistory).notificationHistory.push({ timeout, title, message, id, timeoutId, type });
+        (window as WindowWithNotificationHistory).notificationHistory.push(newNotification);
     }
-}
 
-export const cancel = (id: string) => {
+    return {
+        notification: newNotification,
+        done
+    }
+};
+
+const cancel = (id: string) => {
+    let done = false;
+
     notifications.update(store => {
-        clearTimeout(store.find(meta => meta.id === id)?.timeoutId);
+        const notification = store.find(meta => meta.id === id);
+
+        if (!notification) {
+            return store;
+        }
+
+        if (notification.extendFnRef.fn) {
+            const extendedTimeout = notification.extendFnRef.fn();
+
+            if (extendedTimeout) {
+                clearTimeout(notification?.timeoutId);
+                notification.timeoutId = setTimeout(() => notification.cancel(), extendedTimeout);
+
+                notification.extendedBy += extendedTimeout;
+
+                return store;
+            }
+        }
+
+        done = true;
+        clearTimeout(notification?.timeoutId);
         return store.filter(notif => notif.id !== id);
     });
+
+    return done;
 }

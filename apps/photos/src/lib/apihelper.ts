@@ -25,8 +25,24 @@ export const unwrap = (error: unknown): string => {
     return (error as Error).message;
 }
 
-export const log = (params: any) => {
+export const log = (params: any, ...rest: any[]) => {
     if (dev) {
-        console.log(params);
+        console.log(params, ...rest);
     }
+}
+
+import { writable } from 'svelte/store';
+
+export const transition = (init = false) => {
+    const store = writable(init);
+
+    const suspend = async (when: Promise<any>) => {
+        store.set(true);
+        await when;
+        store.set(false);
+
+        return (e: any) => { };
+    }
+
+    return [store, suspend] as const;
 }

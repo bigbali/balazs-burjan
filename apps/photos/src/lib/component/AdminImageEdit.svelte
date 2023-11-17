@@ -1,0 +1,75 @@
+<script lang="ts">
+    import { transition } from '$lib/apihelper';
+    import type { Image } from '$lib/type';
+    import Button from './Button.svelte';
+    import Suspense from './Suspense.svelte';
+    import Wrap from './Wrap.svelte';
+
+    export let image: Image;
+    export let ondelete: (id: number) => any;
+
+    let [pending, suspend] = transition();
+</script>
+
+<Suspense pending={$pending}>
+    <Wrap>
+        <div class="flex flex-col lg:flex-row gap-[1rem]">
+            <img
+                class="w-[20rem] h-[20rem] object-cover"
+                src={image.path}
+                alt={image.title}
+            />
+            <div class="flex flex-col flex-1 gap-[1rem]">
+                <form class="flex gap-[2rem] w-full h-full">
+                    <input
+                        type="text"
+                        name="img-id"
+                        value={image.id}
+                        class="hidden"
+                    />
+                    <div class="flex flex-1 flex-col gap-[1rem]">
+                        <label class="flex flex-col gap-[1rem]">
+                            Cím
+                            {#if image.title}
+                                <p class="text-dark/50 font-medium pl-[0.5rem]">
+                                    {image.title}
+                                </p>
+                            {/if}
+                            <input
+                                class="border border-dark/20 rounded-[0.5rem] px-[0.5rem]"
+                                type="text"
+                                name="title"
+                                value={image.title}
+                            />
+                        </label>
+                        <label class="flex flex-col gap-[1rem] flex-1">
+                            Leírás
+                            {#if image.description}
+                                <p class="text-dark/50 font-medium pl-[0.5rem]">
+                                    {image.description}
+                                </p>
+                            {/if}
+                            <textarea
+                                class="flex-1 border border-dark/20 rounded-[0.5rem] px-[0.5rem]"
+                                name="description"
+                                value={image.description}
+                            />
+                        </label>
+                    </div>
+                </form>
+                <div class="flex gap-[1rem]">
+                    <Button type="submit" color="green" class="!text-[1.5rem]">
+                        Mentés
+                    </Button>
+                    <Button
+                        on:click={() => suspend(ondelete(image.id))}
+                        color="red"
+                        class="!text-[1.5rem]"
+                    >
+                        Törlés
+                    </Button>
+                </div>
+            </div>
+        </div>
+    </Wrap>
+</Suspense>

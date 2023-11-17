@@ -25,6 +25,8 @@
         hidden: false
     };
 
+    $: console.log(createAlbumForm.thumbnail);
+
     const onCreate: FormEventHandler<HTMLFormElement> = async (e) => {
         awaiting_action = true;
 

@@ -1,8 +1,8 @@
-import { failure, ok, unwrap } from "$lib/apihelper";
+import { failure, ok, pretty, unwrap } from "$lib/apihelper";
 import type { Album, ApiResponse, CreateAlbumData } from "$lib/type";
 import cloudinary from "../cloudinary";
 import prisma from "../prisma";
-import { convertImageResults } from "$lib/api/image";
+import { convertImageResults, formatImageResponse } from "$lib/api/image";
 
 export default {
     create: async ({ form, images, thumbnail }: CreateAlbumData['data']): Promise<ApiResponse<Album>> => {
@@ -15,8 +15,7 @@ export default {
                 hidden
             } = form;
 
-            // only error response contains the 'success' field
-            const hasThumbnail = !!thumbnail && !('success' in thumbnail)
+            const hasThumbnail = !!thumbnail && thumbnail.ok
 
             const album = await prisma.album.create({
                 include: {
@@ -34,15 +33,7 @@ export default {
                         create: convertImageResults(images)
                     },
                     thumbnail: hasThumbnail ? {
-                        create: {
-                            cloudinaryPublicId: thumbnail.public_id,
-                            cloudinaryAssetId: thumbnail.asset_id,
-                            format: thumbnail.format,
-                            size: thumbnail.bytes,
-                            width: thumbnail.width,
-                            height: thumbnail.height,
-                            path: thumbnail.secure_url
-                        }
+                        create: formatImageResponse(thumbnail.data)
                     } : undefined
                 }
             });
@@ -58,6 +49,8 @@ export default {
         }
     },
     delete: async (id: string | number): Promise<ApiResponse<Album>> => {
+        const errors = [];
+
         try {
             if (typeof id === 'string') {
                 id = Number.parseInt(id);
@@ -74,13 +67,37 @@ export default {
             })
 
             if (album.thumbnail) {
-                await cloudinary.api.delete_resources([album.thumbnail.cloudinaryPublicId]);
-                await cloudinary.api.delete_folder(album.path + '/thumbnail');
+                const res = await cloudinary.api.delete_resources([album.thumbnail.cloudinaryPublicId]);
+                const folder = await cloudinary.api.delete_folder(album.path + '/thumbnail');
+
+                if (res.error) {
+                    errors.push(res);
+                }
+
+                if (folder.error) {
+                    errors.push(folder);
+                }
             }
 
             if (album.images.length > 0) {
-                await cloudinary.api.delete_resources(album.images.map(image => image.cloudinaryPublicId));
-                await cloudinary.api.delete_folder(album.path);
+                const res = await cloudinary.api.delete_resources(album.images.map(image => image.cloudinaryPublicId));
+                const folder = await cloudinary.api.delete_folder(album.path);
+
+                if (res.error) {
+                    errors.push(res);
+                }
+
+                if (folder.error) {
+                    errors.push(folder);
+                }
+            }
+
+            if (errors.length > 0) {
+                return failure({
+                    message: 'Cloudinary hiba.',
+                    source: 'server',
+                    reason: pretty(errors)
+                })
             }
 
             return ok({
@@ -89,7 +106,7 @@ export default {
         } catch (error) {
             return failure({
                 message: unwrap(error),
-                source: 'server'
+                source: 'server',
             })
         }
     },

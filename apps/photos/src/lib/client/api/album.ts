@@ -11,7 +11,7 @@ export const album = {
     create: async (form: CreateAlbumForm) => {
         try {
             const images: { name: string, result: ApiResponse<ImageCreatedResponse> }[] = [];
-            let thumbnail: ApiResponse<ImageCreatedResponse> | null = null;
+            let thumbnail!: ApiResponse<ImageCreatedResponse>;
 
             if (form.images) {
                 for (const img of form.images) {
@@ -24,7 +24,6 @@ export const album = {
                 }
             }
 
-            log(images)
 
             if (form.thumbnail?.length) {
                 thumbnail = await image.initialize({ albumTitle: form.title, image: form.thumbnail[0], thumbnail: true })
@@ -69,6 +68,8 @@ export const album = {
             if (!album.ok) {
                 return failure({ ...album });
             }
+
+            console.log(album)
 
             return ok({
                 message: `Album '${album.data.title}' sikeresen törölve.`,

@@ -4,9 +4,9 @@
 
     let c = 'border border-dark/10 rounded-[1rem] p-[1rem]';
 
-    className && (c += ` ${className}`);
+    $: className && (c += ` ${className}`);
 </script>
 
-<div class={c}>
+<div class={c} {...$$restProps}>
     <slot />
 </div>
