@@ -1,12 +1,12 @@
 <script lang="ts">
-    import type { CreateImageForm, Image } from '$lib/type';
+    import type { ImageCreateForm, Image } from '$lib/type';
     import { transition } from '$lib/apihelper';
     import Button from './Button.svelte';
     import Heading from './Heading.svelte';
     import Suspense from './Suspense.svelte';
     import Wrap from './Wrap.svelte';
 
-    export let imageForm: CreateImageForm;
+    export let imageForm: ImageCreateForm;
     export let oncreate: (e: Event) => any;
 
     let [pending, suspend] = transition();

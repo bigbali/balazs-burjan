@@ -34,7 +34,7 @@
             {#if album.thumbnail}
                 <img
                     class="rounded-[1rem] w-full h-full object-cover aspect-square"
-                    src={album.thumbnail?.path}
+                    src={album.thumbnail?.source}
                     alt={album.title}
                 />
             {:else}

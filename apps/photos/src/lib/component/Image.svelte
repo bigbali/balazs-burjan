@@ -28,10 +28,10 @@
         tabindex="0"
         class="w-full h-full"
     >
-        {#if image.path}
+        {#if image.source}
             <img
                 class="rounded-[1rem] w-full h-full object-cover aspect-square"
-                src={image.path}
+                src={image.source}
                 alt={image.title ?? 'Kép'}
                 loading="lazy"
             />
@@ -54,7 +54,7 @@
         <Button
             name="Letöltés"
             class="c-download flex-1 border-l-0"
-            href={image.path}
+            href={image.source}
             download
             downloadName={image.title}
         >

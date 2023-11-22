@@ -13,9 +13,10 @@ datasource db {
 
 model Image {
     id                 Int      @id @default(autoincrement())
+    source             String
+    folder             String
     title              String?
     description        String?
-    path               String
     cloudinaryAssetId  String
     cloudinaryPublicId String
     width              Int
@@ -30,7 +31,8 @@ model Image {
 
 model Thumbnail {
     id                 Int      @id @default(autoincrement())
-    path               String
+    source             String
+    folder             String
     cloudinaryAssetId  String
     cloudinaryPublicId String
     width              Int

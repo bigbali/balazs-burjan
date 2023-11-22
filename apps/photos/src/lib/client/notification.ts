@@ -1,10 +1,12 @@
 import { dev } from "$app/environment";
+import type { failure, ok, okish } from "$lib/apihelper";
 import { writable } from "svelte/store";
 
 interface Notification {
     timeout?: number,
     title?: string,
     message?: string,
+    error?: unknown,
     type?: 'info' | 'warn' | 'error',
 }
 
@@ -29,7 +31,7 @@ type NotifyReturn = {
 
 export const notifications = writable<NotificationMeta[]>([]);
 
-export const notify = ({ timeout = 5000, title, message, type = 'info' }: Notification): NotifyReturn | undefined => {
+export const notify = ({ timeout = 5000, title, message, type = 'info', ...params }: Notification): NotifyReturn | undefined => {
     if (!title && !message) return;
 
     let resolveDone: (value: true) => void;
@@ -56,7 +58,8 @@ export const notify = ({ timeout = 5000, title, message, type = 'info' }: Notifi
         cancel: cancelFn,
         extend,
         extendFnRef,
-        extendedBy: 0
+        extendedBy: 0,
+        ...params
     };
 
     notifications.update(store => [newNotification, ...store]);
@@ -106,3 +109,26 @@ const cancel = (id: string) => {
 
     return done;
 }
+
+export const responseToNotification = (response: ReturnType<typeof ok> | ReturnType<typeof okish> | ReturnType<typeof failure>): Notification => {
+    if (response.ok) {
+        if ('warnings' in response) {
+            return {
+                error: response.warnings,
+                message: response.message,
+                type: 'warn'
+            };
+        }
+
+        return {
+            message: response.message
+        };
+    }
+
+    return {
+        error: response.error,
+        message: response.message,
+        type: 'error',
+    };
+}
+

@@ -1,11 +1,11 @@
-import { failure, ok, pretty, unwrap } from "$lib/apihelper";
-import type { Album, ApiResponse, CreateAlbumData } from "$lib/type";
+import { collectCloudinary, failure, ok, okish, unwrap } from "$lib/apihelper";
+import type { Album, ApiResponse, CloudinaryError, CreateAlbumData, AlbumEditParams } from "$lib/type";
 import cloudinary from "../cloudinary";
 import prisma from "../prisma";
 import { convertImageResults, formatImageResponse } from "$lib/api/image";
 
-export default {
-    create: async ({ form, images, thumbnail }: CreateAlbumData['data']): Promise<ApiResponse<Album>> => {
+export default class AlbumServerAPI {
+    static async create({ form, images, thumbnail }: CreateAlbumData['data']): Promise<ApiResponse<Album>> {
         try {
             const {
                 title,
@@ -14,8 +14,6 @@ export default {
                 date,
                 hidden
             } = form;
-
-            const hasThumbnail = !!thumbnail && thumbnail.ok
 
             const album = await prisma.album.create({
                 include: {
@@ -32,7 +30,7 @@ export default {
                     images: {
                         create: convertImageResults(images)
                     },
-                    thumbnail: hasThumbnail ? {
+                    thumbnail: thumbnail.ok ? {
                         create: formatImageResponse(thumbnail.data)
                     } : undefined
                 }
@@ -47,9 +45,11 @@ export default {
                 source: 'server'
             });
         }
-    },
-    delete: async (id: string | number): Promise<ApiResponse<Album>> => {
-        const errors = [];
+    }
+
+    static async delete(id: string | number): Promise<ApiResponse<Album>> {
+        const errors: CloudinaryError[] = [];
+        const results: unknown[] = [];
 
         try {
             if (typeof id === 'string') {
@@ -67,37 +67,31 @@ export default {
             })
 
             if (album.thumbnail) {
-                const res = await cloudinary.api.delete_resources([album.thumbnail.cloudinaryPublicId]);
-                const folder = await cloudinary.api.delete_folder(album.path + '/thumbnail');
-
-                if (res.error) {
-                    errors.push(res);
-                }
-
-                if (folder.error) {
-                    errors.push(folder);
-                }
+                results.push(...await collectCloudinary([
+                    cloudinary.api.delete_resources([album.thumbnail.cloudinaryPublicId]),
+                    cloudinary.api.delete_folder(album.path + '/thumbnail')
+                ], errors));
             }
 
             if (album.images.length > 0) {
-                const res = await cloudinary.api.delete_resources(album.images.map(image => image.cloudinaryPublicId));
-                const folder = await cloudinary.api.delete_folder(album.path);
-
-                if (res.error) {
-                    errors.push(res);
-                }
-
-                if (folder.error) {
-                    errors.push(folder);
-                }
+                results.push(...await collectCloudinary([
+                    cloudinary.api.delete_resources(album.images.map(image => image.cloudinaryPublicId)),
+                    cloudinary.api.delete_folder(album.path)
+                ], errors));
             }
 
-            if (errors.length > 0) {
+            if (errors.length > 0 && results.length === 0) {
                 return failure({
                     message: 'Cloudinary hiba.',
                     source: 'server',
-                    reason: pretty(errors)
-                })
+                    error: errors
+                });
+            } else if (errors.length > 0 && results.length > 0) {
+                return okish({
+                    data: album,
+                    warnings: errors,
+                    message: 'Album törölve, de hibák léptek fel.'
+                });
             }
 
             return ok({
@@ -106,9 +100,70 @@ export default {
         } catch (error) {
             return failure({
                 message: unwrap(error),
-                source: 'server',
-            })
+                source: 'server'
+            });
         }
-    },
-    // edit: async (): ServerApiResponse<Album> => {}
+    }
+
+    static async edit(params: AlbumEditParams<'server'>): Promise<ApiResponse<Album>> {
+        try {
+            const {
+                id, thumbnail, date: _date, hidden, ...updates
+            } = params;
+
+            let errors: CloudinaryError[] = [];
+
+            const date = _date ? { date: new Date(_date) } : {};
+
+            if (thumbnail?.ok) { // delete old thumbnail from cloud
+                const albumBefore = await prisma.album.findFirst({
+                    where: {
+                        id: Number.parseInt(id)
+                    },
+                    include: {
+                        thumbnail: true
+                    }
+                });
+
+                await collectCloudinary([
+                    cloudinary.api.delete_resources([albumBefore!.thumbnail!.cloudinaryPublicId]),
+                ], errors);
+            }
+
+            const album = await prisma.album.update({
+                include: {
+                    images: true,
+                    thumbnail: true
+                },
+                where: {
+                    id: Number.parseInt(id)
+                },
+                data: {
+                    ...updates,
+                    ...date,
+                    hidden: !!hidden,
+                    thumbnail: thumbnail?.ok ? {
+                        update: formatImageResponse(thumbnail.data)
+                    } : undefined
+                }
+            });
+
+            if (errors.length > 0) {
+                return okish({
+                    data: album,
+                    warnings: errors,
+                    message: 'Album frissítve, de a régi borítókép törlése a felhőből sikertelen.'
+                });
+            }
+
+            return ok({
+                data: album,
+            });
+        } catch (error) {
+            return failure({
+                message: unwrap(error),
+                source: 'server'
+            });
+        }
+    }
 };

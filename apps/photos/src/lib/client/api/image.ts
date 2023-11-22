@@ -1,57 +1,26 @@
-import type { ApiResponse as ApiResponse, CloudinaryApiResponse, CloudinaryFailure, Failure, Image, ImageCreatedResponse, ImageDeletedResponse } from "$lib/type"
+import type { ApiResponse as ApiResponse, Failure, Image, CloudinaryUploadResponse, ImageCreateParams, ImageInitializeParams, ImageDeleteParams, ImageEditParams } from "$lib/type"
 import { fetchSignature } from "../signature"
 import { CLOUDINARY } from '$lib/cloudinary';
 import { signedForm } from "$lib/form";
-import { failure, log, ok, pretty, unwrap } from "$lib/apihelper";
+import { failure, log, ok, pretty, unwrap, requestBody, DELETE, PATCH } from "$lib/apihelper";
 
-export type ClientImageInitializeParams = {
-    image: File,
-    albumTitle: string,
-    thumbnail?: boolean,
-}
-
-export type ClientImageCreateParams = {
-    image: File,
-    albumId: string,
-    albumPath: string,
-    title?: string,
-    description?: string,
-    thumbnail?: boolean,
-}
-
-type ClientImageDeleteParams = {
-    id: number
-}
-
-export type ClientImageApi = {
-    /**  Uploads images when creating the album. Runs entirely on client. */
-    initialize: (params: ClientImageInitializeParams) => Promise<ApiResponse<ImageCreatedResponse>>,
-    /**  Uploads images when adding to an already existing album. Invokes server. */
-    create: (params: ClientImageCreateParams) => Promise<ApiResponse<Image>>,
-    delete: (params: ClientImageDeleteParams) => Promise<ApiResponse<Image>>
-}
-
-export const image: ClientImageApi = {
-    initialize: async ({
-        image,
-        albumTitle,
-        thumbnail = false
-    }) => {
+export default class ImageClientAPI {
+    /** Uploads an image to Cloudinary and returns the response. */
+    static async initialize({ album, image }: ImageInitializeParams): Promise<ApiResponse<CloudinaryUploadResponse>> {
         try {
-            if (!image) throw Error('Kép nem található!');
+            if (!image.file) throw Error('Kép nem található!');
 
-            const folder = `photos/${albumTitle}/${thumbnail ? 'thumbnail/' : ''}`;
-            const tags = thumbnail ? 'thumbnail' : 'image';
+            // @ts-ignore
+            const folder = (album.folder ?? `photos/${album.title}/`) as string;
 
-            const { signature, timestamp } = await fetchSignature({ folder, tags });
+            const { signature, timestamp } = await fetchSignature({ folder, tags: 'image' });
 
             const rawCloudinaryResponse = await fetch(`${CLOUDINARY}/image/upload`, {
                 method: 'POST',
-                body: signedForm(image, timestamp, signature, folder, tags),
+                body: signedForm(image.file, timestamp, signature, folder, 'image'),
             });
 
-            // could be 'success: false'
-            const cloudinaryResponse = await rawCloudinaryResponse.json() as ImageCreatedResponse;
+            const cloudinaryResponse = await rawCloudinaryResponse.json() as CloudinaryUploadResponse;
 
             if (!rawCloudinaryResponse.ok) {
                 throw Error(pretty(cloudinaryResponse));
@@ -64,51 +33,43 @@ export const image: ClientImageApi = {
         } catch (error) {
             return failure({
                 message: 'Kép létrehozása sikertelen.',
-                reason: unwrap(error),
+                error: unwrap(error),
                 source: 'client'
             });
         }
-    },
-    create: async ({
-        image,
-        albumId,
-        albumPath,
-        title,
-        description,
-        thumbnail = false
-    }) => {
+    }
+
+    /** Creates an image on an already existing album. */
+    static async create({ album, image }: ImageCreateParams<'client'>) {
         try {
-            if (!image) throw Error('Kép nem található!');
-
-            const folder = `${albumPath}/${thumbnail ? 'thumbnail/' : ''}`;
-            const tags = thumbnail ? 'thumbnail' : 'image';
-
-            const { signature, timestamp } = await fetchSignature({ folder, tags });
-
-            const rawCloudinaryResponse = await fetch(`${CLOUDINARY}/image/upload`, {
-                method: 'POST',
-                body: signedForm(image, timestamp, signature, folder, tags),
+            const response = await this.initialize({
+                album: {
+                    folder: album.path
+                },
+                image: {
+                    file: image.file
+                }
             });
 
-            const cloudinaryResponse = await rawCloudinaryResponse.json() as CloudinaryApiResponse<ImageCreatedResponse>
-
-            if (!rawCloudinaryResponse.ok) {
-                throw Error(pretty(cloudinaryResponse));
+            if (!response.ok) {
+                return failure(response);
             }
 
-            const rawServerResponse = await fetch('/api/image', {
+            const fetchResponse = await fetch('/api/image', {
                 method: 'POST',
-                body: JSON.stringify({
-                    albumId,
-                    albumPath,
-                    title,
-                    description,
-                    thumbnail,
-                    data: cloudinaryResponse,
+                body: requestBody<ImageCreateParams<'server'>>({
+                    album: {
+                        id: album.id.toString()
+                    },
+                    image: {
+                        title: image.title,
+                        description: image.description,
+                        data: response.data
+                    }
                 })
             });
 
-            const imageResponse = await rawServerResponse.json() as ApiResponse<Image>;
+            const imageResponse = await fetchResponse.json() as ApiResponse<Image>;
 
             if (!imageResponse.ok) {
                 return failure({ ...imageResponse } as Failure);
@@ -121,17 +82,53 @@ export const image: ClientImageApi = {
         } catch (error) {
             return failure({
                 message: 'Kép létrehozása sikertelen.',
-                reason: unwrap(error),
+                error: unwrap(error),
                 source: 'client'
             });
         }
-    },
-    delete: async ({ id }) => {
-        const response = await fetch('/api/image', {
-            method: 'DELETE',
-            body: JSON.stringify(id)
-        });
+    }
 
-        return await response.json();
+    /** Deletes an image identified by its ID. */
+    static async delete({ id }: ImageDeleteParams<'client'>) {
+        try {
+            const response = await DELETE<ApiResponse<Image>, ImageDeleteParams<'client'>>('image', { id });
+
+            if (!response.ok) {
+                return failure(response);
+            }
+
+            return ok({
+                message: 'Kép sikeresen törölve.',
+                data: response.data
+            })
+        }
+        catch (error) {
+            return failure({
+                source: 'client',
+                error,
+                message: 'Kép törlése sikertelen.'
+            })
+        }
+    }
+
+    static async edit(params: ImageEditParams<'client'>) {
+        try {
+            const response = await PATCH<ApiResponse<Image>>('image', params);
+
+            if (!response.ok) {
+                return failure(response);
+            }
+
+            return ok({
+                message: 'Kép sikeresen módosítva.',
+                data: response.data
+            });
+        } catch (error) {
+            return failure({
+                source: 'client',
+                error,
+                message: 'Kép módosítása sikertelen.'
+            });
+        }
     }
 }

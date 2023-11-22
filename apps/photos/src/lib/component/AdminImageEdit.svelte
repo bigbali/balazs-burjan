@@ -1,12 +1,17 @@
 <script lang="ts">
     import { transition } from '$lib/apihelper';
-    import type { Image } from '$lib/type';
+    import type { Image, ImageEditParams } from '$lib/type';
     import Button from './Button.svelte';
     import Suspense from './Suspense.svelte';
     import Wrap from './Wrap.svelte';
 
     export let image: Image;
     export let ondelete: (id: number) => any;
+    export let onedit: (params: ImageEditParams<'client'>) => any;
+
+    // can't be null, but undefined is welcome
+    let title = image.title ?? undefined;
+    let description = image.description ?? undefined;
 
     let [pending, suspend] = transition();
 </script>
@@ -16,17 +21,11 @@
         <div class="flex flex-col lg:flex-row gap-[1rem]">
             <img
                 class="w-[20rem] h-[20rem] object-cover"
-                src={image.path}
+                src={image.source}
                 alt={image.title}
             />
             <div class="flex flex-col flex-1 gap-[1rem]">
                 <form class="flex gap-[2rem] w-full h-full">
-                    <input
-                        type="text"
-                        name="img-id"
-                        value={image.id}
-                        class="hidden"
-                    />
                     <div class="flex flex-1 flex-col gap-[1rem]">
                         <label class="flex flex-col gap-[1rem]">
                             Cím
@@ -39,7 +38,7 @@
                                 class="border border-dark/20 rounded-[0.5rem] px-[0.5rem]"
                                 type="text"
                                 name="title"
-                                value={image.title}
+                                bind:value={title}
                             />
                         </label>
                         <label class="flex flex-col gap-[1rem] flex-1">
@@ -52,13 +51,20 @@
                             <textarea
                                 class="flex-1 border border-dark/20 rounded-[0.5rem] px-[0.5rem]"
                                 name="description"
-                                value={image.description}
+                                bind:value={description}
                             />
                         </label>
                     </div>
                 </form>
                 <div class="flex gap-[1rem]">
-                    <Button type="submit" color="green" class="!text-[1.5rem]">
+                    <Button
+                        on:click={() =>
+                            suspend(
+                                onedit({ id: image.id, title, description })
+                            )}
+                        color="green"
+                        class="!text-[1.5rem]"
+                    >
                         Mentés
                     </Button>
                     <Button

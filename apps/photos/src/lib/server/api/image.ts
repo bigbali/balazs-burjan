@@ -1,13 +1,18 @@
 import { formatImageResponse } from "$lib/api/image";
 import { failure, ok, unwrap } from "$lib/apihelper";
-import type { ServerImageCreateParams, Image, ApiResponse } from "$lib/type";
+import type { Image, ApiResponse, Thumbnail, ImageCreateParams, ImageDeleteParams, ImageEditParams } from "$lib/type";
 import cloudinary from "../cloudinary";
 import prisma from "../prisma";
 
-export default {
-    create: async ({ albumId, title, description, thumbnail, data }: ServerImageCreateParams): Promise<ApiResponse<Image>> => {
+/**
+ * Handles database and Cloudinary Admin API operations for images.
+ */
+export default class ImageServerAPI {
+    static async create({ album, image }: ImageCreateParams<'server'>): Promise<ApiResponse<Image>> {
+        const { title, description, data } = image;
+
         try {
-            const id = Number.parseInt(albumId);
+            const id = Number.parseInt(album.id);
 
             const images = await prisma.album.update({
                 where: {
@@ -22,22 +27,13 @@ export default {
                     },
                 },
                 data: {
-                    images: thumbnail
-                        ? undefined
-                        : {
-                            create: {
-                                title,
-                                description,
-                                ...formatImageResponse(data)
-                            }
-                        },
-                    thumbnail: thumbnail
-                        ? {
-                            create: {
-                                ...formatImageResponse(data)
-                            }
+                    images: {
+                        create: {
+                            title,
+                            description,
+                            ...formatImageResponse(data)
                         }
-                        : undefined
+                    }
                 }
             })
 
@@ -46,18 +42,44 @@ export default {
             });
         } catch (error) {
             return failure({
-                message: unwrap(error),
+                message: 'Kép létrehozása sikertelen.',
+                error: unwrap(error),
                 source: 'server'
             })
         }
-    },
-    delete: async (id: string) => {
+    }
+
+    static async edit({ id, ...params }: ImageEditParams<'server'>) {
+        try {
+            const image = await prisma.image.update({
+                where: {
+                    id: Number.parseInt(id)
+                },
+                data: {
+                    ...params
+                }
+            })
+
+            return ok({
+                message: 'Kép sikeresen módosítva.',
+                data: image
+            })
+        } catch (error) {
+            return failure({
+                source: 'server',
+                error,
+                message: 'Kép módosítása sikertelen.'
+            })
+        }
+    }
+
+    static async delete({ id }: ImageDeleteParams<'server'>): Promise<ApiResponse<Image>> {
         try {
             const image = await prisma.image.delete({
                 where: {
                     id: Number.parseInt(id)
                 }
-            })
+            });
 
             await cloudinary.uploader.destroy(image.cloudinaryPublicId);
 
@@ -68,7 +90,7 @@ export default {
         } catch (error) {
             return failure({
                 source: 'server',
-                reason: unwrap(error),
+                error: unwrap(error),
                 message: 'Kép törlése sikertelen.'
             })
         }

@@ -75,7 +75,7 @@
                     <div class="sm:hidden">
                         <Button
                             name="Letöltés"
-                            href={data.album.images[current_image].path}
+                            href={data.album.images[current_image].source}
                             download
                             target="_blank"
                         >

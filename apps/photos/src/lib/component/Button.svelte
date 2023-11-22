@@ -7,6 +7,7 @@
         undefined;
     export let download: string | boolean | undefined = undefined;
     export let downloadName: string | null | undefined = 'névtelen';
+    export let preventDefault = false;
 
     /**
      * A callback for when the download fails for whatever reason
@@ -84,7 +85,7 @@
     };
 
     const dispatch = createEventDispatcher();
-    const click = () => dispatch('click');
+    const click = (e: Event) => dispatch('click');
 </script>
 
 {#if href}
@@ -99,7 +100,7 @@
                 e.preventDefault();
                 downloadFile();
             }
-            click();
+            click(e);
         }}
     >
         <slot />
@@ -110,7 +111,10 @@
         class={`text-center rounded-full border transition-colors ${_color}${_size}${_active}${_class}`}
         {type}
         {name}
-        on:click={click}
+        on:click={(e) => {
+            preventDefault && e.preventDefault();
+            click(e);
+        }}
     >
         <slot />
     </button>

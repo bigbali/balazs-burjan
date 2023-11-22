@@ -22,11 +22,11 @@
         >
             Kép betöltése...
         </p>
-    {:else if image.path}
+    {:else if image.source}
         <img
             class="rounded-[1rem] max-w-full max-h-full object-cover border border-dark/20"
             draggable="false"
-            src={image.path}
+            src={image.source}
             alt={image.title ?? 'Kinagyított kép'}
         />
     {:else}
@@ -39,7 +39,7 @@
     <div class="absolute hidden sm:block sm:right-[1rem] sm:bottom-[1rem]">
         <Button
             name="Letöltés"
-            href={image.path}
+            href={image.source}
             download
             downloadName={image.title}
             target="_self"

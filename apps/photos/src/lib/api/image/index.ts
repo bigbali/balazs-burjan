@@ -1,4 +1,4 @@
-import type { ImageCreatedResponse, ImageResult, ImageData } from "$lib/type";
+import type { ImageResult, ImageData, CloudinaryUploadResponse } from "$lib/type";
 
 export const convertImageResults = (images: ImageResult[]): ImageData[] => {
     return images.map(image => {
@@ -8,10 +8,11 @@ export const convertImageResults = (images: ImageResult[]): ImageData[] => {
     }).filter((image) => image !== null) as ImageData[]
 }
 
-export const formatImageResponse = (image: ImageCreatedResponse) => ({
-    path: image.secure_url,
-    cloudinaryPublicId: image.public_id,
+export const formatImageResponse = (image: CloudinaryUploadResponse) => ({
     cloudinaryAssetId: image.asset_id,
+    cloudinaryPublicId: image.public_id,
+    source: image.secure_url,
+    folder: image.folder,
     size: image.bytes,
     format: image.format,
     width: image.width,

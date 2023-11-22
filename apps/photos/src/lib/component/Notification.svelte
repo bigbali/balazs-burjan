@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { pretty } from '$lib/apihelper';
     import type { NotificationMeta } from '$lib/client/notification';
 
     export let notification: NotificationMeta;
@@ -11,7 +12,7 @@
 
     const color = {
         info: ' bg-theme-green',
-        warn: ' bg-[rgb(200, 100, 100)]',
+        warn: ' c-bg-warn',
         error: ' bg-theme-red'
     } as const;
 </script>
@@ -45,12 +46,21 @@
                 {notification.message}
             </p>
         {/if}
+        {#if notification.error}
+            <pre class="text-light px-[1rem]" style="font-family: monospace;">
+                {pretty(notification.error).trim()}
+            </pre>
+        {/if}
     </div>
 </li>
 
 <style>
     .c-notification {
         pointer-events: all;
+    }
+
+    .c-bg-warn {
+        background-color: rgb(252, 186, 3);
     }
 
     button {

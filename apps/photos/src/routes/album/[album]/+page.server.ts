@@ -9,6 +9,9 @@ export const load = async ({ params }) => {
         },
         include: {
             images: true
+        },
+        orderBy: {
+            createdAt: 'desc'
         }
     });
 
