@@ -1,5 +1,3 @@
-import type { CloudinaryErrorContainer, Failure, Success } from "./type";
-
 export const pretty = (obj: any) => typeof obj === 'string'
     ? obj
     : JSON.stringify(obj, null, 2);
@@ -52,6 +50,7 @@ export const collectCloudinary = async (actions: Promise<unknown>[], collector: 
 }
 
 import { dev } from "$app/environment";
+import type { CloudinaryErrorContainer, Failure, Success } from "$lib/api";
 export const log = (params: any, ...rest: any[]) => {
     if (dev) {
         console.log(params, ...rest);

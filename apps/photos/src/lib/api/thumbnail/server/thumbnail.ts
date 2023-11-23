@@ -1,8 +1,10 @@
 import { formatImageResponse } from "$lib/api/image";
-import { collectCloudinary, failure, ok, okish, unwrap } from "$lib/apihelper";
-import type { ApiResponse, CloudinaryError, ServerImageCreateParams, Thumbnail, ThumbnailCreateParams } from "$lib/type";
-import cloudinary from "../cloudinary";
-import prisma from "../prisma";
+import { collectCloudinary, failure, ok, okish, unwrap } from "$lib/util/apihelper";
+import cloudinary from "../../../server/cloudinary";
+import prisma from "../../../server/prisma";
+import type { ThumbnailCreateParams } from "..";
+import type { Thumbnail } from "$lib/type";
+import type { ApiResponse, CloudinaryError } from "$lib/api";
 
 export default class ThumbnailServerAPI {
     static async create({ album, thumbnail }: ThumbnailCreateParams<'server'>): Promise<ApiResponse<Thumbnail>> {
@@ -48,13 +50,12 @@ export default class ThumbnailServerAPI {
                 }
             });
 
-            const results: unknown[] = [];
             const errors: CloudinaryError[] = [];
 
-            results.push(...await collectCloudinary([
+            await collectCloudinary([
                 cloudinary.api.delete_resources([thumbnail.cloudinaryPublicId]),
                 cloudinary.api.delete_folder(thumbnail.folder)
-            ], errors));
+            ], errors);
 
             if (errors.length > 0) {
                 return okish({

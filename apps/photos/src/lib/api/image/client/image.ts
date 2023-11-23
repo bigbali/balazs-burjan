@@ -1,8 +1,10 @@
-import type { ApiResponse as ApiResponse, Failure, Image, CloudinaryUploadResponse, ImageCreateParams, ImageInitializeParams, ImageDeleteParams, ImageEditParams } from "$lib/type"
-import { fetchSignature } from "../signature"
-import { CLOUDINARY } from '$lib/cloudinary';
-import { signedForm } from "$lib/form";
-import { failure, log, ok, pretty, unwrap, requestBody, DELETE, PATCH } from "$lib/apihelper";
+import { fetchSignature } from "../../../client/signature"
+import { CLOUDINARY } from '$lib/util/cloudinary';
+import { signedForm } from "$lib/util/form";
+import { failure, ok, pretty, unwrap, requestBody, DELETE, PATCH, POST } from "$lib/util/apihelper";
+import type { Image } from "$lib/type";
+import type { ImageCreateParams, ImageDeleteParams, ImageEditParams, ImageInitializeParams } from "..";
+import type { ApiResponse, CloudinaryUploadResponse, Failure } from "$lib/api";
 
 export default class ImageClientAPI {
     /** Uploads an image to Cloudinary and returns the response. */
@@ -55,21 +57,16 @@ export default class ImageClientAPI {
                 return failure(response);
             }
 
-            const fetchResponse = await fetch('/api/image', {
-                method: 'POST',
-                body: requestBody<ImageCreateParams<'server'>>({
-                    album: {
-                        id: album.id.toString()
-                    },
-                    image: {
-                        title: image.title,
-                        description: image.description,
-                        data: response.data
-                    }
-                })
-            });
-
-            const imageResponse = await fetchResponse.json() as ApiResponse<Image>;
+            const imageResponse = await POST<ApiResponse<Image>, ImageCreateParams<'server'>>('image', {
+                album: {
+                    id: album.id.toString()
+                },
+                image: {
+                    title: image.title,
+                    description: image.description,
+                    data: response.data
+                }
+            })
 
             if (!imageResponse.ok) {
                 return failure({ ...imageResponse } as Failure);

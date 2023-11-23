@@ -4,20 +4,15 @@
     import Page from '$lib/component/Page.svelte';
     import Separator from '$lib/component/Separator.svelte';
     import Button from '$lib/component/Button.svelte';
-    import type {
-        ImageCreateForm,
-        ImageEditParams,
-        AlbumEditForm,
-        Album
-    } from '$lib/type.js';
     import { notify, responseToNotification } from '$lib/client/notification';
     import { goto } from '$app/navigation';
     import autoAnimate from '@formkit/auto-animate';
     import AdminImageEdit from '$lib/component/AdminImageEdit.svelte';
     import AdminImageCreate from '$lib/component/AdminImageCreate.svelte';
-    import { transition } from '$lib/apihelper.js';
     import Suspense from '$lib/component/Suspense.svelte';
-    import ClientAPI from '$lib/client/api';
+    import { transition } from '$lib/util/apihelper';
+    import ClientAPI from '$lib/api/client.js';
+    import type { ImageCreateForm, ImageEditParams } from '$lib/api/image';
 
     export let data;
 
@@ -72,10 +67,6 @@
                     // @ts-ignore when we override the orinal date, it's gonna be str instead of date
                     original = { ...editAlbumForm };
                     goto(`/admin/edit/${response.data.slug}`);
-                    // window.location.href = window.location.href.replace(
-                    //     data.album!.slug,
-                    //     response.data.slug
-                    // );
                 }
             }
         },
@@ -264,7 +255,7 @@
                                     name="hidden"
                                     id="hidden"
                                     class="border border-dark/20 rounded-[0.5rem] block"
-                                    bind:value={editAlbumForm.hidden}
+                                    bind:checked={editAlbumForm.hidden}
                                 />
                             </div>
                         </div>
@@ -285,8 +276,8 @@
                         class="!text-[1.5rem] mt-auto"
                         on:click={async () => {
                             data.album?.id &&
-                                handler.album.delete(data.album.id);
-                            // suspend(handler.album.delete(data.album.id))}
+                                // handler.album.delete(data.album.id);
+                                suspend(handler.album.delete(data.album.id));
                         }}
                     >
                         Törlés

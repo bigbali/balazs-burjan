@@ -1,11 +1,13 @@
-import { collectCloudinary, failure, ok, okish, unwrap } from "$lib/apihelper";
-import type { Album, ApiResponse, CloudinaryError, CreateAlbumData, AlbumEditParams } from "$lib/type";
-import cloudinary from "../cloudinary";
-import prisma from "../prisma";
+import { collectCloudinary, failure, ok, okish, unwrap } from "$lib/util/apihelper";
+import cloudinary from "../../../server/cloudinary";
+import prisma from "../../../server/prisma";
 import { convertImageResults, formatImageResponse } from "$lib/api/image";
+import type { AlbumCreateParams, AlbumEditParams } from "..";
+import type { ApiResponse, CloudinaryError } from "$lib/api";
+import type { Album } from "$lib/type";
 
 export default class AlbumServerAPI {
-    static async create({ form, images, thumbnail }: CreateAlbumData['data']): Promise<ApiResponse<Album>> {
+    static async create({ form, images, thumbnail }: AlbumCreateParams): Promise<ApiResponse<Album>> {
         try {
             const {
                 title,

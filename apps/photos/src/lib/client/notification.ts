@@ -1,5 +1,5 @@
 import { dev } from "$app/environment";
-import type { failure, ok, okish } from "$lib/apihelper";
+import type { failure, ok, okish } from "$lib/util/apihelper";
 import { writable } from "svelte/store";
 
 interface Notification {

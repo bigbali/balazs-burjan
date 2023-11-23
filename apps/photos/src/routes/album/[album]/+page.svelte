@@ -44,6 +44,8 @@
 <Page>
     {#if !data.album}
         <Heading>Ez az album nem található.</Heading>
+    {:else if data.album.images.length === 0}
+        <Heading>Ez az album üres.</Heading>
     {:else}
         <Heading>
             {data.album?.title}

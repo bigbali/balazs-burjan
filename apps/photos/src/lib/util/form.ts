@@ -1,5 +1,5 @@
 import { PUBLIC_CLOUDINARY_API_KEY } from "$env/static/public";
-import type { Tag } from "./type";
+import type { Tag } from "$lib/api";
 
 export const signedForm = (image: File, timestamp: string, signature: string, folder: string, tag: Tag) => {
     const form = new FormData();

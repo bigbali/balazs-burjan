@@ -1,7 +1,9 @@
-import { failure, log, ok, unwrap } from "$lib/apihelper";
-import type { AlbumCreateForm, CloudinaryUploadResponse, ApiResponse, Album, AlbumEditParams, Thumbnail } from "$lib/type";
-import ImageClientAPI from "./image";
-import ThumbnailClientAPI from "./thumbnail";
+import type { ApiResponse, CloudinaryUploadResponse } from "$lib/api";
+import type { Album } from "$lib/type";
+import { DELETE, PATCH, POST, failure, ok, unwrap } from "$lib/util/apihelper";
+import type { AlbumCreateForm, AlbumEditParams } from "..";
+import ImageClientAPI from "../../image/client/image";
+import ThumbnailClientAPI from "../../thumbnail/client/thumbnail";
 
 export default class AlbumClientAPI {
     // todo createalbumparams<client>
@@ -39,16 +41,11 @@ export default class AlbumClientAPI {
                 });
             }
 
-            const response = await fetch('/api/album', {
-                method: 'POST',
-                body: JSON.stringify({
-                    images,
-                    thumbnail,
-                    form,
-                })
-            });
-
-            const album = await response.json() as ApiResponse<Album>;
+            const album = await POST<ApiResponse<Album>>('album', {
+                images,
+                thumbnail,
+                form,
+            })
 
             if (!album.ok) {
                 return failure({ ...album })
@@ -83,15 +80,7 @@ export default class AlbumClientAPI {
                 });
             }
 
-            const response = await fetch('/api/album', {
-                method: 'PATCH',
-                body: JSON.stringify({
-                    ...update,
-                    thumbnail
-                })
-            });
-
-            const album = await response.json() as ApiResponse<Album>;
+            const album = await PATCH<ApiResponse<Album>>('album', { ...update, thumbnail })
 
             if (!album.ok) {
                 return failure(album);
@@ -112,12 +101,7 @@ export default class AlbumClientAPI {
 
     static async delete(id: number) {
         try {
-            const response = await fetch('/api/album', {
-                method: 'DELETE',
-                body: JSON.stringify(id)
-            });
-
-            const album = await response.json() as ApiResponse<Album>;
+            const album = await DELETE<ApiResponse<Album>>('album', id)
 
             if (!album.ok) {
                 return failure({ ...album });

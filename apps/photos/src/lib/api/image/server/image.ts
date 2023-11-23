@@ -1,8 +1,9 @@
-import { formatImageResponse } from "$lib/api/image";
-import { failure, ok, unwrap } from "$lib/apihelper";
-import type { Image, ApiResponse, Thumbnail, ImageCreateParams, ImageDeleteParams, ImageEditParams } from "$lib/type";
-import cloudinary from "../cloudinary";
-import prisma from "../prisma";
+import { formatImageResponse, type ImageCreateParams, type ImageDeleteParams, type ImageEditParams } from "$lib/api/image";
+import { failure, ok, unwrap } from "$lib/util/apihelper";
+import cloudinary from "../../../server/cloudinary";
+import prisma from "../../../server/prisma";
+import type { ApiResponse } from "$lib/api";
+import type { Image } from "$lib/type";
 
 /**
  * Handles database and Cloudinary Admin API operations for images.

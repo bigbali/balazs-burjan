@@ -1,9 +1,10 @@
 <script lang="ts">
-    import { transition } from '$lib/apihelper';
-    import type { Image, ImageEditParams } from '$lib/type';
+    import { transition } from '$lib/util/apihelper';
     import Button from './Button.svelte';
     import Suspense from './Suspense.svelte';
     import Wrap from './Wrap.svelte';
+    import type { Image } from '$lib/type';
+    import type { ImageEditParams } from '$lib/api/image';
 
     export let image: Image;
     export let ondelete: (id: number) => any;

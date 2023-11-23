@@ -1,10 +1,10 @@
 <script lang="ts">
-    import type { ImageCreateForm, Image } from '$lib/type';
-    import { transition } from '$lib/apihelper';
+    import { transition } from '$lib/util/apihelper';
     import Button from './Button.svelte';
     import Heading from './Heading.svelte';
     import Suspense from './Suspense.svelte';
     import Wrap from './Wrap.svelte';
+    import type { ImageCreateForm } from '$lib/api/image';
 
     export let imageForm: ImageCreateForm;
     export let oncreate: (e: Event) => any;

@@ -5,13 +5,12 @@
     import Wrap from '$lib/component/Wrap.svelte';
     import Album from '$lib/component/Album.svelte';
     import Page from '$lib/component/Page.svelte';
-    import api from '$lib/client/api';
     import { notify } from '$lib/client/notification';
-    import type { AlbumCreateForm } from '$lib/type';
     import type { FormEventHandler } from 'svelte/elements';
-    import ClientAPI from '$lib/client/api';
-    import { transition } from '$lib/apihelper.js';
     import Suspense from '$lib/component/Suspense.svelte';
+    import { transition } from '$lib/util/apihelper';
+    import type { AlbumCreateForm } from '$lib/api/album';
+    import ClientAPI from '$lib/api/client';
 
     export let data;
 
