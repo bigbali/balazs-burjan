@@ -4,6 +4,9 @@
 
     export let notification: NotificationMeta;
 
+    const simple =
+        notification.message && !notification.title && !notification.error;
+
     let focused = false;
 
     notification.extend(() => {
@@ -21,6 +24,7 @@
     class={`c-notification relative mx-auto mb-[1rem] p-[1rem] w-fit h-fit min-w-[40rem] min-h-[10rem] rounded-[1rem] border border-light/25${
         color[notification.type]
     }`}
+    class:c-center={simple}
     on:mouseenter={() => (focused = true)}
     on:focus={() => (focused = true)}
     on:mouseleave={() => (focused = false)}
@@ -35,23 +39,33 @@
     >
         x
     </button>
-    <div class="flex flex-col gap-[1rem] font-roboto">
-        {#if notification.title}
-            <p class="text-[1.5rem] px-[1rem] text-light">
-                {notification.title}
-            </p>
-        {/if}
-        {#if notification.message}
-            <p class="text-light px-[1rem]">
+    {#if simple}
+        <div class="font-roboto">
+            <p class="text-light text-[1.25rem] px-[1rem] text-center">
                 {notification.message}
             </p>
-        {/if}
-        {#if notification.error}
-            <pre class="text-light px-[1rem]" style="font-family: monospace;">
+        </div>
+    {:else}
+        <div class="flex flex-col gap-[1rem] font-roboto">
+            {#if notification.title}
+                <p class="text-[1.5rem] px-[1rem] text-light">
+                    {notification.title}
+                </p>
+            {/if}
+            {#if notification.message}
+                <p class="text-light text-[1.25rem] px-[1rem]">
+                    {notification.message}
+                </p>
+            {/if}
+            {#if notification.error}
+                <pre
+                    class="text-light px-[1rem]"
+                    style="font-family: monospace;">
                 {pretty(notification.error).trim()}
             </pre>
-        {/if}
-    </div>
+            {/if}
+        </div>
+    {/if}
 </li>
 
 <style>
@@ -61,6 +75,11 @@
 
     .c-bg-warn {
         background-color: rgb(252, 186, 3);
+    }
+
+    .c-center {
+        display: grid;
+        place-items: center;
     }
 
     button {

@@ -2,14 +2,18 @@
     import { signIn } from '@auth/sveltekit/client';
     import Noise from '$lib/component/Noise.svelte';
     import Error from '$lib/component/Error.svelte';
-    import { redirect } from '@sveltejs/kit';
+    import Button from '$lib/component/Button.svelte';
+    import Heading from '$lib/component/Heading.svelte';
+    import { notify } from '$lib/client/notification';
 
     let show = false;
     let password: string | undefined;
 
     let auth_result: Response | null | undefined = undefined;
 
-    $: handleSignIn = async () => {
+    $: handleSignIn = async (e: Event) => {
+        e.preventDefault();
+
         auth_result = await signIn('credentials', {
             password: password,
             redirect: false
@@ -17,6 +21,12 @@
 
         if (auth_result?.ok) {
             location.reload();
+        } else {
+            notify({
+                type: 'error',
+                message: 'Bejelentkezés sikertelen: hibás jelszó.',
+                timeout: 300000
+            });
         }
     };
 </script>
@@ -27,36 +37,23 @@
 </svelte:head>
 
 <section class="flex flex-1">
-    {#if auth_result && !auth_result.ok}
-        <Error
-            className="text-[1.5rem] font-medium text-light"
-            condition
-            onClose={() => (auth_result = null)}
-        >
-            Bejelentkezés sikertelen: hibás jelszó.
-        </Error>
-    {/if}
     <Noise
         className="absolute -z-10 inset-0 opacity-50"
         frequency={0.3}
         octaves={10}
     />
-    <div id="rect" class="relative m-auto bg-dark text-light rounded-[3rem]">
-        <Noise
-            className="absolute inset-0 z-0 h-full w-full opacity-50 invert rounded-[3rem]"
-            frequency={0.3}
-            octaves={10}
-            width={1000}
-            height={1000}
-        />
+    <div
+        id="rect"
+        class="relative m-auto bg-[transparent] text-dark rounded-[2rem] px-[2rem] lg:px-0"
+    >
         <div
-            class="relative z-10 flex flex-col gap-28 items-center w-full h-full px-96 py-16 pb-24"
+            class="relative z-10 flex flex-col gap-28 items-center w-full h-full lg:px-96 lg:py-16 lg:pb-24"
         >
-            <h1 class="text-[5rem] text-center leading-[6rem] italic">
-                burján balázs:
-                <div class="text-[7rem] font-thin">fotók</div>
-            </h1>
-            <div class="flex flex-col gap-12">
+            <Heading style="line-height: 5rem">
+                <div class="text-[3rem] lg:text-[5rem]"> burján balázs: </div>
+                <div class="text-[5rem] lg:text-[7rem] font-thin">fotók</div>
+            </Heading>
+            <form class="flex flex-col gap-12" on:submit={handleSignIn}>
                 <div class="flex flex-col gap-4">
                     <div class="w-full">
                         <label
@@ -66,7 +63,7 @@
                             jelszó:
                         </label>
                         <input
-                            class="cursor-text border-2 rounded-[0.5rem] border-light/50 bg-light text-dark py-1 px-2 text-[1.5rem] leading-[2rem] w-full"
+                            class="cursor-text border rounded-[0.5rem] border-dark bg-light text-dark py-1 px-2 text-[1.5rem] leading-[2rem] w-full font-caveat"
                             id="password"
                             name="password"
                             type={show ? 'text' : 'password'}
@@ -89,26 +86,20 @@
                         <span> jelszó megjelenítése </span>
                     </label>
                 </div>
-                <button
-                    class="text-[3rem] font-medium rounded-full leading-12 px-8 w-full bg-theme-green tracking-wide border-[3px] border-light/50"
-                    on:click={handleSignIn}
+                <Button
+                    type="submit"
+                    size="large"
+                    color="green"
+                    class="text-[2rem] lg:text-[3rem]"
                 >
-                    bejelentkezés
-                </button>
-            </div>
+                    Bejelentkezés
+                </Button>
+            </form>
         </div>
     </div>
 </section>
 
 <style>
-    @import '@fontsource-variable/caveat';
-
-    h1,
-    label,
-    button {
-        font-family: 'Caveat Variable', cursive;
-    }
-
     label,
     input[type='checkbox'] {
         cursor: pointer;
