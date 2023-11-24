@@ -111,12 +111,14 @@ export default class AlbumServerAPI {
             }
 
             return ok({
-                data: album
+                data: album,
+                message: 'Album sikeresen szerkesztve.'
             });
         } catch (error) {
             return failure({
-                message: unwrap(error),
-                source: 'server'
+                error: error,
+                source: 'server',
+                message: 'Album szerkesztése sikertelen.'
             });
         }
     }
