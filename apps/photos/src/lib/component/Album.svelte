@@ -27,7 +27,11 @@
                 {#if album.date}
                     <hr class="text-light/25 w-3/4" />
                     <p>
-                        {album.date.toLocaleDateString()}
+                        {Intl.DateTimeFormat('hu-HU', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        }).format(album.date)}
                     </p>
                 {/if}
             </div>
