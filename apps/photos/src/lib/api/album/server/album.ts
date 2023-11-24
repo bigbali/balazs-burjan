@@ -1,10 +1,10 @@
-import { collectCloudinary, failure, ok, okish, unwrap } from "$lib/util/apihelper";
-import cloudinary from "../../../server/cloudinary";
-import prisma from "../../../server/prisma";
-import { convertImageResults, formatImageResponse } from "$lib/api/image";
-import type { AlbumCreateParams, AlbumEditParams } from "..";
-import type { ApiResponse, CloudinaryError } from "$lib/api";
-import type { Album } from "$lib/type";
+import { collectCloudinary, failure, ok, okish, unwrap } from '$lib/util/apihelper';
+import cloudinary from '../../../server/cloudinary';
+import prisma from '../../../server/prisma';
+import { convertImageResults, formatImageResponse } from '$lib/api/image';
+import type { AlbumCreateParams, AlbumEditParams } from '..';
+import type { ApiResponse, CloudinaryError } from '$lib/api';
+import type { Album } from '$lib/type';
 
 export default class AlbumServerAPI {
     static async create({ form, images, thumbnail }: AlbumCreateParams): Promise<ApiResponse<Album>> {
@@ -39,7 +39,7 @@ export default class AlbumServerAPI {
             });
 
             return ok({
-                data: album,
+                data: album
             });
         } catch (error) {
             return failure({
@@ -66,7 +66,7 @@ export default class AlbumServerAPI {
                 where: {
                     id
                 }
-            })
+            });
 
             if (album.thumbnail) {
                 results.push(...await collectCloudinary([
@@ -97,7 +97,7 @@ export default class AlbumServerAPI {
             }
 
             return ok({
-                data: album,
+                data: album
             });
         } catch (error) {
             return failure({
@@ -128,7 +128,7 @@ export default class AlbumServerAPI {
                 });
 
                 await collectCloudinary([
-                    cloudinary.api.delete_resources([albumBefore!.thumbnail!.cloudinaryPublicId]),
+                    cloudinary.api.delete_resources([albumBefore!.thumbnail!.cloudinaryPublicId])
                 ], errors);
             }
 
@@ -159,7 +159,7 @@ export default class AlbumServerAPI {
             }
 
             return ok({
-                data: album,
+                data: album
             });
         } catch (error) {
             return failure({
@@ -168,4 +168,4 @@ export default class AlbumServerAPI {
             });
         }
     }
-};
+}

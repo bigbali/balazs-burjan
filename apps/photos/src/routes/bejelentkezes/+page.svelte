@@ -1,7 +1,6 @@
 <script lang="ts">
     import { signIn } from '@auth/sveltekit/client';
     import Noise from '$lib/component/Noise.svelte';
-    import Error from '$lib/component/Error.svelte';
     import Button from '$lib/component/Button.svelte';
     import Heading from '$lib/component/Heading.svelte';
     import { notify } from '$lib/client/notification';

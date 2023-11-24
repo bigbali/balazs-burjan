@@ -27,7 +27,7 @@ export type CloudinaryUploadResponse = {
 export type CloudinaryError = {
     message: string,
     http_code: number
-}
+};
 
 export type CloudinaryErrorContainer = {
     error: CloudinaryError

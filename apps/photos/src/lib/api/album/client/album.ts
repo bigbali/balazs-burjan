@@ -1,9 +1,9 @@
-import type { ApiResponse, CloudinaryUploadResponse } from "$lib/api";
-import type { Album } from "$lib/type";
-import { DELETE, PATCH, POST, failure, ok, unwrap } from "$lib/util/apihelper";
-import type { AlbumCreateForm, AlbumEditParams } from "..";
-import ImageClientAPI from "../../image/client/image";
-import ThumbnailClientAPI from "../../thumbnail/client/thumbnail";
+import type { ApiResponse, CloudinaryUploadResponse } from '$lib/api';
+import type { Album } from '$lib/type';
+import { DELETE, PATCH, POST, failure, ok, unwrap } from '$lib/util/apihelper';
+import type { AlbumCreateForm, AlbumEditParams } from '..';
+import ImageClientAPI from '../../image/client/image';
+import ThumbnailClientAPI from '../../thumbnail/client/thumbnail';
 
 export default class AlbumClientAPI {
     // todo createalbumparams<client>
@@ -44,11 +44,11 @@ export default class AlbumClientAPI {
             const album = await POST<ApiResponse<Album>>('album', {
                 images,
                 thumbnail,
-                form,
-            })
+                form
+            });
 
             if (!album.ok) {
-                return failure({ ...album })
+                return failure({ ...album });
             }
 
             return ok({
@@ -72,7 +72,7 @@ export default class AlbumClientAPI {
             if (form.thumbnail?.length) {
                 thumbnail = await ThumbnailClientAPI.create({
                     album: {
-                        title: originalTitle,
+                        title: originalTitle
                     },
                     thumbnail: {
                         file: form.thumbnail[0]
@@ -80,7 +80,7 @@ export default class AlbumClientAPI {
                 });
             }
 
-            const album = await PATCH<ApiResponse<Album>>('album', { ...update, thumbnail })
+            const album = await PATCH<ApiResponse<Album>>('album', { ...update, thumbnail });
 
             if (!album.ok) {
                 return failure(album);
@@ -101,7 +101,7 @@ export default class AlbumClientAPI {
 
     static async delete(id: number) {
         try {
-            const album = await DELETE<ApiResponse<Album>>('album', id)
+            const album = await DELETE<ApiResponse<Album>>('album', id);
 
             if (!album.ok) {
                 return failure({ ...album });

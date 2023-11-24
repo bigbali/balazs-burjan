@@ -1,6 +1,6 @@
-import type { ApiResponse, CloudinaryUploadResponse } from "..";
-import type { ImageResult } from "../image";
-import type { Thumb } from "../thumbnail";
+import type { ApiResponse, CloudinaryUploadResponse } from '..';
+import type { ImageResult } from '../image';
+import type { Thumb } from '../thumbnail';
 
 export type AlbumCreateForm = {
     title: string,
@@ -26,7 +26,7 @@ export type AlbumCreateParams = {
     images: ImageResult[],
     thumbnail: ApiResponse<CloudinaryUploadResponse>,
     folder: string
-}
+};
 
 export type AlbumEditParams<T extends 'client' | 'server', TThumb = Thumb<T>> = {
     id: T extends 'client' ? number : string,
@@ -36,4 +36,4 @@ export type AlbumEditParams<T extends 'client' | 'server', TThumb = Thumb<T>> = 
     date?: string,
     hidden?: T extends 'client' ? boolean : string,
     thumbnail?: TThumb
-} & (T extends 'client' ? { originalTitle: string } : {})
+} & (T extends 'client' ? { originalTitle: string } : {});

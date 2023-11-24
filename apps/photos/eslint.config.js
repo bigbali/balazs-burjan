@@ -1,4 +1,1 @@
-import config from 'config/eslint.config.js';
-
-/** @type { import("eslint").Linter.FlatConfig[] } */
-export default [...config];
+export { default } from 'config/eslint.config.js';

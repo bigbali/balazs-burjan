@@ -71,7 +71,7 @@
                     href={album?.archive}
                     download
                     downloadName={album.title}
-                    {download_failed}
+                    downloadFailed={download_failed}
                 >
                     Letöltés
                 </Button>

@@ -12,7 +12,7 @@
     /**
      * A callback for when the download fails for whatever reason
      */
-    export let download_failed: (() => void) | undefined = undefined;
+    export let downloadFailed: (() => void) | undefined = undefined;
 
     export let name: string | undefined = undefined;
 
@@ -56,7 +56,7 @@
             const response = await fetch(href);
 
             if (!response.ok) {
-                download_failed && download_failed();
+                downloadFailed && downloadFailed();
                 return;
             }
 

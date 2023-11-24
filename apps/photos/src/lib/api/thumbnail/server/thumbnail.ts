@@ -1,10 +1,10 @@
-import { formatImageResponse } from "$lib/api/image";
-import { collectCloudinary, failure, ok, okish, unwrap } from "$lib/util/apihelper";
-import cloudinary from "../../../server/cloudinary";
-import prisma from "../../../server/prisma";
-import type { ThumbnailCreateParams } from "..";
-import type { Thumbnail } from "$lib/type";
-import type { ApiResponse, CloudinaryError } from "$lib/api";
+import { formatImageResponse } from '$lib/api/image';
+import { collectCloudinary, failure, ok, okish, unwrap } from '$lib/util/apihelper';
+import cloudinary from '../../../server/cloudinary';
+import prisma from '../../../server/prisma';
+import type { ThumbnailCreateParams } from '..';
+import type { Thumbnail } from '$lib/type';
+import type { ApiResponse, CloudinaryError } from '$lib/api';
 
 export default class ThumbnailServerAPI {
     static async create({ album, thumbnail }: ThumbnailCreateParams<'server'>): Promise<ApiResponse<Thumbnail>> {
@@ -25,7 +25,7 @@ export default class ThumbnailServerAPI {
                         }
                     }
                 }
-            })
+            });
 
             return ok({
                 data: response.thumbnail!
@@ -35,7 +35,7 @@ export default class ThumbnailServerAPI {
                 message: 'Borítókép törlése sikertelen.',
                 source: 'server',
                 error: unwrap(error)
-            })
+            });
         }
     }
 
@@ -62,19 +62,19 @@ export default class ThumbnailServerAPI {
                     data: thumbnail,
                     warnings: errors,
                     message: 'Borítókép sikeresen törölve, de hiba lépett fel a Cloudinary oldalán.'
-                })
+                });
             }
 
             return ok({
                 message: `'${thumbnail.album.title}' borítója sikeresen törölve.`,
                 data: thumbnail
-            })
+            });
         } catch (error) {
             return failure({
                 source: 'server',
                 error: unwrap(error),
                 message: 'Borítókép törlése sikertelen.'
-            })
+            });
         }
     }
-};
+}

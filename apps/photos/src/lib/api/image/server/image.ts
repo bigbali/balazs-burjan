@@ -1,9 +1,9 @@
-import { formatImageResponse, type ImageCreateParams, type ImageDeleteParams, type ImageEditParams } from "$lib/api/image";
-import { failure, ok, unwrap } from "$lib/util/apihelper";
-import cloudinary from "../../../server/cloudinary";
-import prisma from "../../../server/prisma";
-import type { ApiResponse } from "$lib/api";
-import type { Image } from "$lib/type";
+import { formatImageResponse, type ImageCreateParams, type ImageDeleteParams, type ImageEditParams } from '$lib/api/image';
+import { failure, ok, unwrap } from '$lib/util/apihelper';
+import cloudinary from '../../../server/cloudinary';
+import prisma from '../../../server/prisma';
+import type { ApiResponse } from '$lib/api';
+import type { Image } from '$lib/type';
 
 /**
  * Handles database and Cloudinary Admin API operations for images.
@@ -24,8 +24,8 @@ export default class ImageServerAPI {
                         orderBy: {
                             createdAt: 'desc'
                         },
-                        take: 1,
-                    },
+                        take: 1
+                    }
                 },
                 data: {
                     images: {
@@ -36,7 +36,7 @@ export default class ImageServerAPI {
                         }
                     }
                 }
-            })
+            });
 
             return ok({
                 data: images.images[0]
@@ -46,7 +46,7 @@ export default class ImageServerAPI {
                 message: 'Kép létrehozása sikertelen.',
                 error: unwrap(error),
                 source: 'server'
-            })
+            });
         }
     }
 
@@ -59,18 +59,18 @@ export default class ImageServerAPI {
                 data: {
                     ...params
                 }
-            })
+            });
 
             return ok({
                 message: 'Kép sikeresen módosítva.',
                 data: image
-            })
+            });
         } catch (error) {
             return failure({
                 source: 'server',
                 error,
                 message: 'Kép módosítása sikertelen.'
-            })
+            });
         }
     }
 
@@ -87,13 +87,13 @@ export default class ImageServerAPI {
             return ok({
                 message: `Kép [${image.id}] sikeresen törölve.`,
                 data: image
-            })
+            });
         } catch (error) {
             return failure({
                 source: 'server',
                 error: unwrap(error),
                 message: 'Kép törlése sikertelen.'
-            })
+            });
         }
     }
-};
+}

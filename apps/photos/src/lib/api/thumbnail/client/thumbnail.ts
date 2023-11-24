@@ -1,9 +1,9 @@
-import { fetchSignature } from "../../../client/signature"
+import { fetchSignature } from '../../../client/signature';
 import { CLOUDINARY } from '$lib/util/cloudinary';
-import { signedForm } from "$lib/util/form";
-import { failure, ok, pretty, unwrap } from "$lib/util/apihelper";
-import type { ThumbnailCreateParams } from "..";
-import type { CloudinaryUploadResponse } from "$lib/api";
+import { signedForm } from '$lib/util/form';
+import { failure, ok, pretty, unwrap } from '$lib/util/apihelper';
+import type { ThumbnailCreateParams } from '..';
+import type { CloudinaryUploadResponse } from '$lib/api';
 
 export default class ThumbnailClientAPI {
     static async create({ album, thumbnail }: ThumbnailCreateParams<'client'>) {
@@ -16,7 +16,7 @@ export default class ThumbnailClientAPI {
 
             const rawCloudinaryResponse = await fetch(`${CLOUDINARY}/image/upload`, {
                 method: 'POST',
-                body: signedForm(thumbnail.file, timestamp, signature, folder, 'thumbnail'),
+                body: signedForm(thumbnail.file, timestamp, signature, folder, 'thumbnail')
             });
 
             const cloudinaryResponse = await rawCloudinaryResponse.json() as CloudinaryUploadResponse;

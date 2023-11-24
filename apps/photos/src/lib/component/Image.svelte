@@ -1,7 +1,7 @@
 <script lang="ts">
-    import type { Image } from '$lib/type';
     import { createEventDispatcher } from 'svelte';
     import Button from './Button.svelte';
+    import type { Image } from '$lib/type';
 
     export let image: Image;
 

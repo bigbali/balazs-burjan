@@ -23,4 +23,4 @@ export const sign = (properties: Record<string, string>, _timestamp: string = ti
         timestamp: _timestamp,
         signature: cloudinary.utils.api_sign_request({ timestamp: _timestamp, ...properties }, CLOUDINARY_SECRET)
     };
-}
+};

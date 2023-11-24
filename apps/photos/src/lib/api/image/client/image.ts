@@ -1,10 +1,10 @@
-import { fetchSignature } from "../../../client/signature"
+import { fetchSignature } from '../../../client/signature';
 import { CLOUDINARY } from '$lib/util/cloudinary';
-import { signedForm } from "$lib/util/form";
-import { failure, ok, pretty, unwrap, requestBody, DELETE, PATCH, POST } from "$lib/util/apihelper";
-import type { Image } from "$lib/type";
-import type { ImageCreateParams, ImageDeleteParams, ImageEditParams, ImageInitializeParams } from "..";
-import type { ApiResponse, CloudinaryUploadResponse, Failure } from "$lib/api";
+import { signedForm } from '$lib/util/form';
+import { failure, ok, pretty, unwrap, DELETE, PATCH, POST } from '$lib/util/apihelper';
+import type { Image } from '$lib/type';
+import type { ImageCreateParams, ImageDeleteParams, ImageEditParams, ImageInitializeParams } from '..';
+import type { ApiResponse, CloudinaryUploadResponse, Failure } from '$lib/api';
 
 export default class ImageClientAPI {
     /** Uploads an image to Cloudinary and returns the response. */
@@ -19,7 +19,7 @@ export default class ImageClientAPI {
 
             const rawCloudinaryResponse = await fetch(`${CLOUDINARY}/image/upload`, {
                 method: 'POST',
-                body: signedForm(image.file, timestamp, signature, folder, 'image'),
+                body: signedForm(image.file, timestamp, signature, folder, 'image')
             });
 
             const cloudinaryResponse = await rawCloudinaryResponse.json() as CloudinaryUploadResponse;
@@ -66,7 +66,7 @@ export default class ImageClientAPI {
                     description: image.description,
                     data: response.data
                 }
-            })
+            });
 
             if (!imageResponse.ok) {
                 return failure({ ...imageResponse } as Failure);
@@ -97,14 +97,14 @@ export default class ImageClientAPI {
             return ok({
                 message: 'Kép sikeresen törölve.',
                 data: response.data
-            })
+            });
         }
         catch (error) {
             return failure({
                 source: 'client',
                 error,
                 message: 'Kép törlése sikertelen.'
-            })
+            });
         }
     }
 

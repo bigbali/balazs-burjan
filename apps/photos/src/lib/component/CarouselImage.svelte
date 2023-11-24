@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { Image } from '$lib/type';
     import Button from './Button.svelte';
+    import type { Image } from '$lib/type';
 
     export let image: Image;
     export let loaded = false;

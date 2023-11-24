@@ -1,6 +1,6 @@
-import { dev } from "$app/environment";
-import type { failure, ok, okish } from "$lib/util/apihelper";
-import { writable } from "svelte/store";
+import { dev } from '$app/environment';
+import type { failure, ok, okish } from '$lib/util/apihelper';
+import { writable } from 'svelte/store';
 
 interface Notification {
     timeout?: number,
@@ -27,7 +27,7 @@ type NotifyReturn = {
     notification: NotificationMeta,
     /** This promise resolves when the notification is closed by the user or automatically. */
     done: Promise<true>
-}
+};
 
 export const notifications = writable<NotificationMeta[]>([]);
 
@@ -41,12 +41,12 @@ export const notify = ({ timeout = 5000, title, message, type = 'info', ...param
     const cancelFn = () => {
         if (cancel(id)) {
             resolveDone(true);
-        };
-    }
+        }
+    };
     const timeoutId = setTimeout(cancelFn, timeout);
 
-    const extendFnRef = { fn: () => { } }
-    const extend = (cb: () => void) => extendFnRef.fn = cb
+    const extendFnRef = { fn: () => { } };
+    const extend = (cb: () => void) => extendFnRef.fn = cb;
 
     const newNotification = {
         id,
@@ -64,7 +64,7 @@ export const notify = ({ timeout = 5000, title, message, type = 'info', ...param
 
     notifications.update(store => [newNotification, ...store]);
 
-    type WindowWithNotificationHistory = Window & typeof globalThis & { notificationHistory: NotificationMeta[] }
+    type WindowWithNotificationHistory = Window & typeof globalThis & { notificationHistory: NotificationMeta[] };
     if (dev) {
         if (!(window as WindowWithNotificationHistory).notificationHistory) {
             (window as WindowWithNotificationHistory).notificationHistory = [];
@@ -76,7 +76,7 @@ export const notify = ({ timeout = 5000, title, message, type = 'info', ...param
     return {
         notification: newNotification,
         done
-    }
+    };
 };
 
 const cancel = (id: string) => {
@@ -108,7 +108,7 @@ const cancel = (id: string) => {
     });
 
     return done;
-}
+};
 
 export const responseToNotification = (response: ReturnType<typeof ok> | ReturnType<typeof okish> | ReturnType<typeof failure>): Notification => {
     if (response.ok) {
@@ -128,7 +128,7 @@ export const responseToNotification = (response: ReturnType<typeof ok> | ReturnT
     return {
         error: response.error,
         message: response.message,
-        type: 'error',
+        type: 'error'
     };
-}
+};
 

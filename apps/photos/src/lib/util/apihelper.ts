@@ -6,22 +6,22 @@ export const ok = <T extends {}>(params: { message?: string, data: T }): Success
     return {
         ok: true,
         ...params
-    }
-}
+    };
+};
 
 export const okish = <T extends {}, W extends unknown[]>(params: { message?: string, data: T, warnings: W }): Success<T> & { warnings: W } => {
     return {
         ok: true,
         ...params
-    }
-}
+    };
+};
 
 export const failure = (params: Omit<Failure, 'ok'>): Failure => {
     return {
         ok: false,
         ...params
-    }
-}
+    };
+};
 
 export const unwrap = (error: unknown): string => {
     if (typeof error === 'string') {
@@ -29,7 +29,7 @@ export const unwrap = (error: unknown): string => {
     }
 
     return (error as Error).message;
-}
+};
 
 /** Since the Cloudinary error object is an utter retardation, we collect it here so we don't go mad.\
  * Note: don't await the `actions` when passing them in as args.
@@ -47,15 +47,15 @@ export const collectCloudinary = async (actions: Promise<unknown>[], collector: 
     }
 
     return results;
-}
+};
 
-import { dev } from "$app/environment";
-import type { CloudinaryErrorContainer, Failure, Success } from "$lib/api";
+import { dev } from '$app/environment';
+import type { CloudinaryErrorContainer, Failure, Success } from '$lib/api';
 export const log = (params: any, ...rest: any[]) => {
     if (dev) {
         console.log(params, ...rest);
     }
-}
+};
 
 
 import { writable } from 'svelte/store';
@@ -68,14 +68,14 @@ export const transition = (init = false) => {
         store.set(false);
 
         return (e: any) => { };
-    }
+    };
 
     return [store, suspend] as const;
-}
+};
 
 export const requestBody = <T>(payload: T) => {
     return JSON.stringify(payload);
-}
+};
 
 type ApiRoute = 'album' | 'image' | 'thumbnail';
 type ApiMethod = 'POST' | 'PATCH' | 'DELETE';
@@ -87,7 +87,7 @@ export const FETCH = async <Return, Body>(route: ApiRoute, method: ApiMethod, bo
     });
 
     return await response.json() as Return;
-}
+};
 
 export const POST = async <Return, Body = any>(route: ApiRoute, body: Body) => await FETCH<Return, Body>(route, 'POST', body);
 export const PATCH = async <Return, Body = any>(route: ApiRoute, body: Body) => await FETCH<Return, Body>(route, 'PATCH', body);

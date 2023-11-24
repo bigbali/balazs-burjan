@@ -10,7 +10,7 @@
     export let ondelete: (id: number) => any;
     export let onedit: (params: ImageEditParams<'client'>) => any;
 
-    // can't be null, but undefined is welcome
+    // don't pass null to inputs
     let title = image.title ?? undefined;
     let description = image.description ?? undefined;
 

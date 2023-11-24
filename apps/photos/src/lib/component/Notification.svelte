@@ -1,6 +1,6 @@
 <script lang="ts">
-    import type { NotificationMeta } from '$lib/client/notification';
     import { pretty } from '$lib/util/apihelper';
+    import type { NotificationMeta } from '$lib/client/notification';
 
     export let notification: NotificationMeta;
 
