@@ -48,8 +48,17 @@
         <Heading>Ez az album üres.</Heading>
     {:else}
         <Heading>
-            {data.album?.title}
+            {data.album.title}
         </Heading>
+        {#if data.album.date}
+            <Heading level={2}>
+                {Intl.DateTimeFormat('hu-HU', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                }).format(data.album.date)}
+            </Heading>
+        {/if}
         <Separator />
         {#if browser}
             <!-- svelte-ignore a11y-click-events-have-key-events -->

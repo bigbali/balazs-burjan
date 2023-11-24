@@ -24,22 +24,13 @@
                 <p>
                     {album.title}
                 </p>
-                {#if album.date}
-                    <hr class="text-light/25 w-3/4" />
-                    <p>
-                        {Intl.DateTimeFormat('hu-HU', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric'
-                        }).format(album.date)}
-                    </p>
-                {/if}
             </div>
             {#if album.thumbnail}
                 <img
                     class="rounded-[1rem] w-full h-full object-cover aspect-square"
                     src={album.thumbnail?.source}
                     alt={album.title}
+                    loading="lazy"
                 />
             {:else}
                 <p
@@ -48,19 +39,26 @@
                     Borító nem található
                 </p>
             {/if}
-            {#if !is_admin}
+            <div
+                class="flex gap-[1rem] justify-between absolute bottom-[4.375rem] lg:bottom-[5.125rem] inset-x-[1rem]"
+            >
                 <p
-                    class="absolute bottom-[4.375rem] lg:bottom-[5.125rem] left-[1rem] p-[0.5rem] rounded-[0.5rem] justify-self-end bg-dark/80 text-light text-[1.25rem]"
+                    class="p-[0.5rem] rounded-[0.5rem] justify-self-end bg-dark/80 text-light text-[1.25rem]"
                 >
                     {album.images.length} kép
                 </p>
-            {:else}
-                <p
-                    class="absolute bottom-[1rem] left-[1rem] p-[0.5rem] rounded-[0.5rem] justify-self-end bg-dark/80 text-light text-[1.25rem]"
-                >
-                    {album.images.length} kép
-                </p>
-            {/if}
+                {#if album.date}
+                    <p
+                        class="p-[0.5rem] rounded-[0.5rem] bg-dark/80 text-light text-[1.25rem]"
+                    >
+                        {Intl.DateTimeFormat('hu-HU', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric'
+                        }).format(album.date)}
+                    </p>
+                {/if}
+            </div>
         </a>
         {#if !is_admin && album.archive}
             <div class="absolute left-0 right-0 bottom-0 flex justify-stretch">

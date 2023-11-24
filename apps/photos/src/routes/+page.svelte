@@ -25,7 +25,7 @@
     </div>
     {#if data.albums.length > 0}
         <Error condition={download_failed}>Album letöltése sikertelen</Error>
-        <div class="c-cards grid gap-8 py-[2rem]">
+        <div class="c-cards-grid gap-8 py-[2rem]">
             {#each data.albums as album}
                 <Album
                     {album}
@@ -39,31 +39,3 @@
         </div>
     {/if}
 </Page>
-
-<style>
-    .c-cards {
-        grid-template-columns: repeat(5, 1fr);
-    }
-
-    @media (max-width: 1900px) {
-        .c-cards {
-            grid-template-columns: repeat(4, 1fr);
-        }
-    }
-
-    @media (max-width: 1600px) {
-        .c-cards {
-            grid-template-columns: repeat(3, 1fr);
-        }
-    }
-    @media (max-width: 1024px) {
-        .c-cards {
-            grid-template-columns: repeat(2, 1fr);
-        }
-    }
-    @media (max-width: 768px) {
-        .c-cards {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
