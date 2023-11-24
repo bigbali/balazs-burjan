@@ -100,10 +100,10 @@
                     >
                         <div
                             slot="dots"
-                            class="absolute left-0 right-0 bottom-[-5rem] sm:bottom-[1rem] flex justify-center pointer-events-none"
+                            class="absolute left-[1rem] right-[1rem] bottom-[-5rem] sm:bottom-[1rem] flex justify-center pointer-events-none"
                         >
                             <div
-                                class="flex gap-[0.5rem] w-fit bg-dark/50 p-[1rem] border border-light/20 rounded-[0.5rem] backdrop-blur-[1rem] pointer-events-auto"
+                                class="flex flex-wrap gap-[0.5rem] w-fit bg-dark/50 p-[1rem] border border-light/20 rounded-[0.5rem] backdrop-blur-[1rem] pointer-events-auto"
                             >
                                 {#each data.album.images as _, index}
                                     <button

@@ -25,3 +25,9 @@
         grid-template-columns: 1fr;
     }
 }
+
+img {
+    /* fix chrome image rendering performance retardation that hasn't been fixed in the last decade when virtually all other browsers are capable of working properly */
+    -webkit-transform: translate3d(0, 0, 0);
+    image-rendering: -webkit-optimize-contrast;
+}
