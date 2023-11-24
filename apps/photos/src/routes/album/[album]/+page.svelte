@@ -204,7 +204,6 @@
     :global(.sc-carousel__pages-container) {
         max-height: 100%;
     }
-
     :global(.sc-carousel__arrow-container) {
         max-height: 100%;
     }

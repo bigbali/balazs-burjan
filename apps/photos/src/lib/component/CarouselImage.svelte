@@ -24,7 +24,7 @@
         </p>
     {:else if image.source}
         <img
-            class="rounded-[1rem] max-w-full m-auto object-contain border border-dark/20"
+            class="rounded-[1rem] max-w-full max-h-full m-auto object-contain border border-dark/20"
             draggable="false"
             src={image.source}
             alt={image.title ?? 'Kinagyított kép'}
