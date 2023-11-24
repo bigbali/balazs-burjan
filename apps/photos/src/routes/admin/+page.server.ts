@@ -14,8 +14,13 @@ export const load: PageServerLoad = async ({ locals }) => {
             createdAt: 'desc'
         },
         include: {
+            images: {
+                orderBy: {
+                    createdAt: 'desc'
+                }
+            },
             thumbnail: true,
-            images: true
+            archive: true
         }
     });
 

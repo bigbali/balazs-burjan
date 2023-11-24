@@ -45,8 +45,8 @@
 
     const handler = {
         album: {
-            delete: async (id: number) => {
-                const response = await ClientAPI.Album.delete(id);
+            delete: async () => {
+                const response = await ClientAPI.Album.delete(data.album!.id);
 
                 notify(responseToNotification(response));
 
@@ -68,6 +68,13 @@
                     original = { ...editAlbumForm };
                     goto(`/admin/edit/${response.data.slug}`);
                 }
+            },
+            generateArchive: async () => {
+                const response = await ClientAPI.Album.generateArchive({
+                    id: data.album!.id
+                });
+
+                notify(responseToNotification(response));
             }
         },
         image: {
@@ -261,7 +268,7 @@
                         </div>
                     </form>
                 </Wrap>
-                <div class="flex gap-[1rem] font-roboto">
+                <div class="flex flex-wrap gap-[1rem] font-roboto">
                     <Button
                         size="medium"
                         color="green"
@@ -275,12 +282,21 @@
                         color="red"
                         class="!text-[1.5rem] mt-auto"
                         on:click={async () => {
-                            data.album?.id &&
-                                // handler.album.delete(data.album.id);
-                                suspend(handler.album.delete(data.album.id));
+                            data.album?.id && suspend(handler.album.delete());
                         }}
                     >
                         Törlés
+                    </Button>
+                    <!-- Apparently the max file size for archives is 10mb on Cloudinary. Oops. -->
+                    <Button
+                        size="medium"
+                        class="!text-[1.5rem] ml-auto mt-auto opacity-50 cursor-not-allowed"
+                        disabled
+                        on:click={async () => {
+                            suspend(handler.album.generateArchive());
+                        }}
+                    >
+                        Archívum generálása
                     </Button>
                 </div>
                 <Separator />

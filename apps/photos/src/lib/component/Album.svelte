@@ -68,7 +68,7 @@
                 </Button>
                 <Button
                     class="flex-1 download border-l-0"
-                    href={album?.archive}
+                    href={album.archive.source}
                     download
                     downloadName={album.title}
                     downloadFailed={download_failed}

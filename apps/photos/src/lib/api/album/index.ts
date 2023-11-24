@@ -37,3 +37,8 @@ export type AlbumEditParams<T extends 'client' | 'server', TThumb = Thumb<T>> = 
     hidden?: T extends 'client' ? boolean : string,
     thumbnail?: TThumb
 } & (T extends 'client' ? { originalTitle: string } : {});
+
+export type AlbumGenerateArchiveParams<T extends 'client' | 'server' = 'client'> = {
+    id: T extends 'client' ? number : string
+};
+

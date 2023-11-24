@@ -13,7 +13,7 @@ export type Failure = {
 
 export type ApiResponse<T extends {} = {}> = Success<T> | Failure;
 
-export type CloudinaryUploadResponse = {
+export type CloudinaryUploadResponse<T extends 'image' | 'archive' = 'image'> = T extends 'image' ? {
     public_id: string,
     asset_id: string,
     secure_url: string,
@@ -22,7 +22,7 @@ export type CloudinaryUploadResponse = {
     height: number,
     format: string,
     bytes: number
-};
+} : { secure_url: string, public_id: string };
 
 export type CloudinaryError = {
     message: string,

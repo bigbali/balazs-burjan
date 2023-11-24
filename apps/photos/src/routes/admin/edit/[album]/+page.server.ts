@@ -20,7 +20,8 @@ export const load = async ({ params, locals }) => {
                     createdAt: 'desc'
                 }
             },
-            thumbnail: true
+            thumbnail: true,
+            archive: true
         }
     });
 

@@ -4,7 +4,7 @@ import { signedForm } from '$lib/util/form';
 import { failure, ok, pretty, unwrap, DELETE, PATCH, POST } from '$lib/util/apihelper';
 import type { Image } from '$lib/type';
 import type { ImageCreateParams, ImageDeleteParams, ImageEditParams, ImageInitializeParams } from '..';
-import type { ApiResponse, CloudinaryUploadResponse, Failure } from '$lib/api';
+import type { ApiResponse, CloudinaryUploadResponse } from '$lib/api';
 
 export default class ImageClientAPI {
     /** Uploads an image to Cloudinary and returns the response. */
@@ -54,7 +54,7 @@ export default class ImageClientAPI {
             });
 
             if (!response.ok) {
-                return failure(response);
+                return response;
             }
 
             const imageResponse = await POST<ApiResponse<Image>, ImageCreateParams<'server'>>('image', {
@@ -69,13 +69,10 @@ export default class ImageClientAPI {
             });
 
             if (!imageResponse.ok) {
-                return failure({ ...imageResponse } as Failure);
+                return imageResponse;
             }
 
-            return ok({
-                message: 'Kép sikeresen létrehozva.',
-                data: imageResponse.data
-            });
+            return imageResponse;
         } catch (error) {
             return failure({
                 message: 'Kép létrehozása sikertelen.',
@@ -88,16 +85,7 @@ export default class ImageClientAPI {
     /** Deletes an image identified by its ID. */
     static async delete({ id }: ImageDeleteParams<'client'>) {
         try {
-            const response = await DELETE<ApiResponse<Image>, ImageDeleteParams<'client'>>('image', { id });
-
-            if (!response.ok) {
-                return failure(response);
-            }
-
-            return ok({
-                message: 'Kép sikeresen törölve.',
-                data: response.data
-            });
+            return await DELETE<ApiResponse<Image>, ImageDeleteParams<'client'>>('image', { id });
         }
         catch (error) {
             return failure({
@@ -110,16 +98,7 @@ export default class ImageClientAPI {
 
     static async edit(params: ImageEditParams<'client'>) {
         try {
-            const response = await PATCH<ApiResponse<Image>>('image', params);
-
-            if (!response.ok) {
-                return failure(response);
-            }
-
-            return ok({
-                message: 'Kép sikeresen módosítva.',
-                data: response.data
-            });
+            return await PATCH<ApiResponse<Image>>('image', params);
         } catch (error) {
             return failure({
                 source: 'client',

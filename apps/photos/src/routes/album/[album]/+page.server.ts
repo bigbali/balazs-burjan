@@ -8,7 +8,12 @@ export const load = async ({ params }) => {
             }
         },
         include: {
-            images: true
+            images: {
+                orderBy: {
+                    createdAt: 'desc'
+                }
+            },
+            archive: true
         },
         orderBy: {
             createdAt: 'desc'
