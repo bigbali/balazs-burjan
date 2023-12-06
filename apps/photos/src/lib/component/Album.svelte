@@ -30,7 +30,6 @@
                     class="rounded-[1rem] w-full h-full object-cover aspect-square"
                     src={album.thumbnail?.source}
                     alt={album.title}
-                    loading="lazy"
                 />
             {:else}
                 <p
