@@ -1,6 +1,9 @@
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import js from '@eslint/js';
+import react from 'eslint-plugin-react';
+import hooks from 'eslint-plugin-react-hooks';
+import next from '@next/eslint-plugin-next';
 import globals from 'globals';
 
 /** @type { import("eslint").Linter.FlatConfig[] } */
@@ -9,7 +12,10 @@ export default [
     { // general
         files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.mjs', '**/*.cjs'],
         plugins: {
-            '@typescript-eslint': tsPlugin
+            '@typescript-eslint': tsPlugin,
+            react,
+            'react-hooks': hooks,
+            next
         },
         languageOptions: {
             parser: tsParser,
@@ -97,7 +103,7 @@ export default [
         }
     },
     {
-        files: ['**/*.tsx'],
+        files: ['**/*.jsx', '**/*.tsx'],
         languageOptions: {
             globals: {
                 'React': true

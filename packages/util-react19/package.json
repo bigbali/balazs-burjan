@@ -1,5 +1,5 @@
 {
-    "name": "util",
+    "name": "util-react19",
     "version": "0.0.0",
     "private": true,
     "files": [
@@ -7,6 +7,9 @@
         "cors.ts"
     ],
     "dependencies": {
-        "next": "^14.2.4"
+        "next": "^15.0.0-rc.0"
+    },
+    "devDependencies": {
+        "typescript": "^5.1.6"
     }
 }

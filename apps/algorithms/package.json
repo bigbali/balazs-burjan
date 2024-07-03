@@ -1,0 +1,49 @@
+{
+    "name": "~algorithms",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "build": "next build",
+        "dev": "next dev -p 3001",
+        "start": "next start",
+        "lint": "next lint"
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^6.4.0",
+        "@fortawesome/free-regular-svg-icons": "^6.4.0",
+        "@fortawesome/free-solid-svg-icons": "^6.4.0",
+        "@fortawesome/react-fontawesome": "latest",
+        "@million/lint": "^1.0.0-rc.76",
+        "babel-plugin-react-compiler": "0.0.0-experimental-696af53-20240625",
+        "eslint-plugin-react-hooks": "^4.6.2",
+        "konva": "^9.3.12",
+        "lodash": "^4.17.21",
+        "next": "^15.0.0-rc.0",
+        "react": "19.0.0-rc-58af67a8f8-20240628",
+        "react-dom": "19.0.0-rc-58af67a8f8-20240628",
+        "react-konva": "19.0.0-0",
+        "react-konva-utils": "^1.0.6",
+        "tailwindcss": "^3.4.4",
+        "ui-react19": "workspace:*",
+        "zustand": "^4.3.9"
+    },
+    "devDependencies": {
+        "@types/lodash": "^4.14.191",
+        "@types/node": "^18.11.18",
+        "@types/prettier": "^2.7.2",
+        "@types/react": "^18.3.3",
+        "@types/react-dom": "^18.3.0",
+        "autoprefixer": "^10.4.7",
+        "config": "workspace:*",
+        "eslint": "^9.6.0",
+        "postcss": "^8.4.14",
+        "postcss-loader": "^7.0.2",
+        "prettier": "^3.3.2",
+        "ts-node": "^10.9.1",
+        "tsconfig": "workspace:*",
+        "typescript": "^5.1.6",
+        "util-react19": "workspace:*"
+    },
+    "packageManager": "yarn@4.3.1"
+}
