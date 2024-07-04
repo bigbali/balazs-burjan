@@ -25,7 +25,7 @@ function useForwardedState<T>(initialState: T) {
     return [state, state[0], state[1]] as const;
 }
 
-const Node = ({
+export default function Node({
     x,
     y,
     nodeSize,
@@ -34,12 +34,27 @@ const Node = ({
     setOrigin,
     setGoal,
     grid
-}: NodeProps) => {
+}: NodeProps) {
     const [forwardVisited, isVisited, setIsVisited] = useForwardedState(false);
     const [forwardActive, isActive, setIsActive] = useForwardedState(false);
     const [forwardBacktrace, isBacktrace, setIsBacktrace] = useForwardedState(false);
     const [forwardObstruction, isObstruction, setIsObstruction] = useForwardedState(false);
     const [forwardWeight, weight, setWeight] = useForwardedState<number | null>(null);
+
+    const node = grid[y]![x]!;
+    node.visited = forwardVisited;
+    node.active = forwardActive;
+    node.backtrace = forwardBacktrace;
+    node.obstruction = forwardObstruction;
+    node.weight = forwardWeight;
+
+    node.reset = () => {
+        setIsVisited(false);
+        setIsActive(false);
+        setIsBacktrace(false);
+        setIsObstruction(false);
+        setWeight(null);
+    };
 
     useEffect(() => {
         const node = grid[y]![x]!;
@@ -128,6 +143,8 @@ const Node = ({
         return NodeColor.DEFAULT;
     })();
 
+    // const fill = NodeColor.DEFAULT;
+
     return (
         <Rect
             key={`${x}${y}`}
@@ -158,6 +175,4 @@ const Node = ({
             onMouseDown={handleObstruction}
         />
     );
-};
-
-export default memo(Node);
+}

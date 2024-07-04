@@ -1,7 +1,9 @@
 import dynamic from 'next/dynamic';
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-const PathfinderVisualizer = dynamic(() => import('../algorithm/pathfinding'), {ssr: false});
-// import { useLoading } from 'ui-react19/store/loading';
+
+const PathfinderVisualizer = dynamic(() => import('../algorithm/pathfinding'), { ssr: false });
+import { useLoading } from '../store/useLoading';
+import Loading from '../component/Loading';
 
 enum Mode {
     PATHFINDER = 'pathfinder',
@@ -57,12 +59,15 @@ const Algorithms = () => {
     ), [mode]);
 
     return (
-        <Visualizer
-            ModeSelector={ModeSelector}
-            key={mode}
-            ref={visualizerRef}
-            topOffset={topOffset}
-        />
+        <>
+            <Loading />
+            <Visualizer
+                ModeSelector={ModeSelector}
+                key={mode}
+                ref={visualizerRef}
+                topOffset={topOffset}
+            />
+        </>
     );
 };
 

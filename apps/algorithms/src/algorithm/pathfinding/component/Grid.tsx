@@ -16,8 +16,15 @@ import type { Grid as GridType } from '../type';
 import NodeControls, { useNodeControlsMenu } from './NodeControls';
 import { MouseButton, type Coordinate } from '../../../util/type';
 import Row from './Row';
+import Canvas from '../../../renderer/canvas';
+import useRenderer from '../hook/useRenderer';
 
 export const GRID_MARGIN = 3;
+
+const DEFAULT_GRID_SIZE = {
+    x: 20,
+    y: 20
+};
 
 export type GridData = {
     columns: number,
@@ -37,6 +44,7 @@ export type GridProps = {
  *  when we were actually holding the button to paint */
 let cancelClick = false;
 
+
 const Grid = ({ data }: GridProps) => {
     const {
         rows,
@@ -44,12 +52,13 @@ const Grid = ({ data }: GridProps) => {
         ...gridData
     } = data;
 
+    const canvas = useRef<HTMLCanvasElement>(null);
+
+
     const layerRef = useRef<Konva.Layer>(null);
     const gridRef = useRef<HTMLDivElement>(null);
-    const [gridDimensions, setGridDimensions] = useState({
-        x: 0,
-        y: 0
-    });
+    const [gridDimensions, setGridDimensions] = useState(DEFAULT_GRID_SIZE);
+    const renderer = useRenderer(canvas, gridDimensions);
 
     const setGrid = useNodeControlsMenu(state => state.setGrid);
 
@@ -94,6 +103,7 @@ const Grid = ({ data }: GridProps) => {
     }, [nodeAtPosition]);
 
     const fireNodeClick = useCallback((e: KonvaEventObject<MouseEvent>) => {
+        console.log('click');
         if (cancelClick) {
             cancelClick = false;
             return;
@@ -120,9 +130,11 @@ const Grid = ({ data }: GridProps) => {
         });
     }, [rows, columns]);
 
+
+
     return (
-        <div className='h-full mr-8' ref={gridRef}>
-            <NodeControls />
+        <div className='w-full h-full' ref={gridRef}>
+            {/* <NodeControls />
             <Stage
                 className='max-w-full max-h-full mx-auto'
                 width={nodeSize * columns + GRID_MARGIN * 2}
@@ -134,7 +146,8 @@ const Grid = ({ data }: GridProps) => {
                 <Layer ref={layerRef}>
                     {!!gridDimensions.x && rowElements}
                 </Layer>
-            </Stage>
+            </Stage> */}
+            <canvas ref={canvas}></canvas>
         </div>
     );
 };

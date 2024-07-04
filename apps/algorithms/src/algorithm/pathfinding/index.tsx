@@ -8,13 +8,13 @@ import {
     useRef
 } from 'react';
 import dynamic from 'next/dynamic';
-import { useLoading } from 'ui-react19/src/store/loading';
-import useBacktraceHighlight from './component/Node/useBacktraceHighlight';
 import type { Coordinate, Entry } from '../../util/type';
 import { Delay, Dimensions, State } from './type';
 import Menu from './component/Menu';
 import useGrid from './hook/useGrid';
-// import Grid from './component/Grid'
+import { useLoading } from '../../store/useLoading';
+import useBacktraceHighlight from './component/Node/useBacktraceHighlight';
+import Grid from './component/Grid';
 
 
 type PathfinderVisualizerProps = {
@@ -45,9 +45,11 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
             setState(state);
         }, []);
 
-        // const setGlobalLoading = useLoading(state => state.setIsLoading);
-        // useEffect(() => setGlobalLoading(isPending), [isPending, setGlobalLoading]);
+        const setGlobalLoading = useLoading(state => state.setIsLoading);
+        useEffect(() => setGlobalLoading(isPending), [isPending, setGlobalLoading]);
         useEffect(() => { stateRef.current = state; }, [state]);
+
+        console.log(isPending);
 
         const grid = useGrid(columns, rows);
         useBacktraceHighlight(grid, result);
@@ -56,10 +58,6 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
             columns, rows, grid, origin, target, setOrigin, setGoal: setTarget
         }), [columns, target, grid, origin, rows]);
 
-        const Grid = dynamic(() => import('./component/Grid'), {
-            ssr: false
-        });
-
         return (
             <div
                 style={{
@@ -67,7 +65,7 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
                 }}
                 // NOTE is this still relevant?
                 // this needs translate(0) so the contained fixed element is not relative to viewport
-                className='relative max-w-full p-2 overflow-hidden translate-x-0'
+                className='relative w-full p-2 overflow-hidden translate-x-0 flex gap-[1rem] justify-between'
                 ref={ref}
             >
                 <Grid data={gridData} />

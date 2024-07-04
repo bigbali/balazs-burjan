@@ -8,7 +8,7 @@ const config = {
     basePath: BASEPATH,
     assetPrefix: `http://localhost:${PORT}${BASEPATH}/`,
     experimental: {
-        reactCompiler: false
+        reactCompiler: true
     },
     webpack: (config) => {
         config.externals = [...config.externals, { canvas: 'canvas' }];
@@ -16,5 +16,9 @@ const config = {
     }
 };
 
-export default MillionLint.next()(config);
-// export default config;
+
+// export default process.env.NODE_ENV === 'development'
+//     ? MillionLint.next()(config)
+//     : config;
+
+export default config;

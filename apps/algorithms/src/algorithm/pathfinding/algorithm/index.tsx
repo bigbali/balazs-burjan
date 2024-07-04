@@ -60,7 +60,7 @@ export const usePathfinderOptions = (algorithm: Pathfinder) => {
 
     return   [
         options,
-        <  Element options={options} setOptions={setOptions} />
+        <Element options={options} setOptions={setOptions} />
     ] as const;
 };
 
