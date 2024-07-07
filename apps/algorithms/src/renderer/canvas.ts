@@ -1,3 +1,5 @@
+import type { GridData } from '../algorithm/pathfinding/component/Grid';
+import type { Coordinate } from '../util/type';
 import Node from './node';
 
 type Resolution = {
@@ -8,52 +10,169 @@ type Resolution = {
 export default class Canvas {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
-    nodes: Node[];
+    nodes: Map<string, Node>;
     showNumbers = true;
-    // resolution: Resolution;
-    // dx: number;
-    // dy: number;
+    borderSize = 1;
+    resolution: Resolution;
+    origin: Node;
+    target: Node;
+    nodeSize: number;
 
-    constructor(canvas: HTMLCanvasElement, resolution: Resolution) {
+    constructor(canvas: HTMLCanvasElement, resolution: Resolution,  data: GridData) {
         this.canvas = canvas;
         this.context = canvas.getContext('2d')!;
-        this.nodes = [];
+        this.nodes = new Map();
+
+        this.resolution = resolution;
 
         this.canvas.width =
             canvas.parentElement!.clientWidth * window.devicePixelRatio;
         this.canvas.height =
             canvas.parentElement!.clientHeight * window.devicePixelRatio;
 
+        this.nodeSize =
+             this.canvas.width / this.resolution.x -
+             this.borderSize / this.resolution.x -
+             this.borderSize;
 
-        for (let x = 0; x < resolution.x; x++) {
-            for (let y = 0; y < resolution.y; y++) {
-                let s =
-                    this.canvas.width / resolution.x - (3 / resolution.x) - 3;
+        const { origin, target } = this.initialize(data);
 
-                this.nodes.push(new Node(this, x, y, s, false, false, false));
+        this.origin = origin;
+        this.target = target;
+    }
+
+    setResolution(resolution: Resolution) {
+        this.resolution = resolution;
+    }
+
+    setOrigin(newOrigin: Node) {
+        this.origin.isOrigin = false;
+        this.origin.paint();
+
+        this.origin = newOrigin;
+        this.origin.isOrigin = true;
+        this.origin.paint();
+    }
+
+    setTarget(newTarget: Node) {
+        this.target.isTarget = false;
+        this.target.paint();
+
+        this.target = newTarget;
+        this.target.isTarget = true;
+        this.target.paint();
+    }
+
+    getNodeAtCursor(x: number, y: number) {
+        return this.nodes.get(
+            `${Math.floor(x / (this.nodeSize + this.borderSize))},${Math.floor(y / (this.nodeSize + this.borderSize))}`
+        );
+    }
+
+    getNodeAtIndex(x: number, y: number) {
+        return this.nodes.get(`${x},${y}`);
+    }
+
+    updateNodeSize() {
+        this.nodeSize =
+            this.canvas.width / this.resolution.x -
+            this.borderSize / this.resolution.x -
+            this.borderSize;
+    }
+
+    initialize(data: GridData) {
+        let origin!: Node;
+        let target!: Node;
+
+        for (let x = 0; x < this.resolution.x; x++) {
+            for (let y = 0; y < this.resolution.y; y++) {
+                const isOrigin = x === data.origin.x && y === data.origin.y;
+                const isTarget = x === data.target.x && y === data.target.y;
+
+                const node = new Node(this, x, y, false, isTarget, isOrigin);
+
+                isOrigin && (origin = node);
+                isTarget && (target = node);
+
+                this.nodes.set(`${x},${y}`, node);
             }
         }
 
-        this.firstPaint();
+        this.paint();
+
+        return { origin, target };
     }
 
-    firstPaint() {
+    update() {
+        this.nodes.clear();
+
+        for (let x = 0; x < this.resolution.x; x++) {
+            for (let y = 0; y < this.resolution.y; y++) {
+                const isOrigin = x === this.origin.x && y === this.origin.y;
+                const isTarget = x === this.target.x && y === this.target.y;
+
+                const node = new Node(this, x, y, false, isTarget, isOrigin);
+
+                this.nodes.set(`${x},${y}`, node);
+            }
+        }
+
+        this.#ensureOriginAndTargetAreWithinBounds();
+
+        this.paint();
+    }
+
+    paint() {
         this.context.fillStyle = 'black';
 
-        this.context.fillRect(
-            0,
-            0,
-            this.canvas.width,
-            this.canvas.height
-        );
+        this.context.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        for (const node of this.nodes) {
+        for (const node of this.nodes.values()) {
             node.paint();
         }
     }
 
-    setShowNumbers(value: boolean) {
-        this.showNumbers = value;
-        this.firstPaint();
+    setShowNumbers(fn: (showNumbers: boolean) => boolean) {
+        this.showNumbers = fn(this.showNumbers);
+        this.paint();
+    }
+
+    #ensureOriginAndTargetAreWithinBounds() {
+        const edgeX = this.resolution.x - 1;
+        const edgeY = this.resolution.y - 1;
+
+        let originX = this.origin.x;
+        let originY = this.origin.y;
+
+        if (originX > edgeX) {
+            originX = edgeX;
+        }
+
+        if (originY > edgeY) {
+            originY = edgeY;
+        }
+
+        const origin = this.getNodeAtIndex(originX, originY);
+
+        if (origin && origin !== this.origin) {
+            this.setOrigin(origin);
+        }
+
+        let targetX = this.target.x;
+        let targetY = this.target.y;
+
+        if (targetX > edgeX) {
+            targetX = edgeX;
+        }
+
+        if (targetY > edgeY) {
+            targetY = edgeY;
+        }
+
+        const target = this.getNodeAtIndex(targetX, targetY);
+
+        if (target && target !== this.target) {
+            this.setTarget(target);
+        }
     }
 }

@@ -49,14 +49,20 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
         useEffect(() => setGlobalLoading(isPending), [isPending, setGlobalLoading]);
         useEffect(() => { stateRef.current = state; }, [state]);
 
-        console.log(isPending);
-
         const grid = useGrid(columns, rows);
         useBacktraceHighlight(grid, result);
 
         const gridData = useMemo(() => ({
             columns, rows, grid, origin, target, setOrigin, setGoal: setTarget
         }), [columns, target, grid, origin, rows]);
+
+        // useEffect(() => {
+        //     // if the grid got smaller, check if the target is out of bounds and bring it in if so
+        //     setTarget(state => (state.x >= columns || state.y >= rows)
+        //         ? { x: columns - 1, y: rows - 1 }
+        //         : state
+        //     );
+        // }, [columns, rows]);
 
         return (
             <div

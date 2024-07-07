@@ -82,15 +82,15 @@ type MarkNode = (
  * @returns a function to that sets the state of the node and updates the visited matrix
  */
 export const markNode: MarkNode = (grid, visited, x, y) => {
-    const {
-        visited: [, setVisited],
-        active: [, setHighlighted]
-    } = grid[y]![x]!;
+    // const {
+    //     visited: [, setVisited],
+    //     active: [, setHighlighted]
+    // } = grid[y]![x]!;
 
     visited[y]![x] = true;
-    setVisited(true);
-    setHighlighted(true);
-    setTimeout(() => setHighlighted(false), 200);
+    // setVisited(true);
+    // setHighlighted(true);
+    // setTimeout(() => setHighlighted(false), 200);
 };
 
 type SetupPathfinder = <T>(

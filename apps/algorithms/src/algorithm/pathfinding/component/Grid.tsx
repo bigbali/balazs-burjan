@@ -1,30 +1,19 @@
-import type Konva from 'konva';
-import type { KonvaEventObject } from 'konva/lib/Node';
 import type {
     SetStateAction,
-    Dispatch
+    Dispatch,
+    MouseEventHandler
 } from 'react';
 import {
+    useCallback,
     useEffect,
     useRef,
-    useState,
-    useMemo,
-    useCallback
-} from 'react';
-import { Layer, Stage } from 'react-konva';
+    useState } from 'react';
 import type { Grid as GridType } from '../type';
-import NodeControls, { useNodeControlsMenu } from './NodeControls';
+import NodeControls, {  useNodeControlsMenu, useNodeStore } from './NodeControls';
 import { MouseButton, type Coordinate } from '../../../util/type';
-import Row from './Row';
-import Canvas from '../../../renderer/canvas';
 import useRenderer from '../hook/useRenderer';
-
-export const GRID_MARGIN = 3;
-
-const DEFAULT_GRID_SIZE = {
-    x: 20,
-    y: 20
-};
+import { KonvaEventObject } from 'konva/lib/Node';
+import type Canvas from '../../../renderer/canvas';
 
 export type GridData = {
     columns: number,
@@ -40,6 +29,8 @@ export type GridProps = {
     data: GridData
 };
 
+export let abc: Canvas;
+
 /** When `mouseup` event triggers, we need to cancel it if
  *  when we were actually holding the button to paint */
 let cancelClick = false;
@@ -54,11 +45,11 @@ const Grid = ({ data }: GridProps) => {
 
     const canvas = useRef<HTMLCanvasElement>(null);
 
-
-    const layerRef = useRef<Konva.Layer>(null);
     const gridRef = useRef<HTMLDivElement>(null);
-    const [gridDimensions, setGridDimensions] = useState(DEFAULT_GRID_SIZE);
-    const renderer = useRenderer(canvas, gridDimensions);
+    // const [gridDimensions, setGridDimensions] = useState(DEFAULT_GRID_SIZE);
+    const renderer = useRenderer(canvas, { x: columns, y: rows }, data);
+
+    useEffect(() => {abc = renderer!;}, [renderer]);
 
     const setGrid = useNodeControlsMenu(state => state.setGrid);
 
@@ -66,88 +57,75 @@ const Grid = ({ data }: GridProps) => {
         setGrid(gridRef.current);
     }, [setGrid]);
 
-    const nodeSize = Math.min(
-        (gridDimensions.x - GRID_MARGIN * 2) / columns,
-        (gridDimensions.y - GRID_MARGIN * 2) / rows
-    );
+    const [open, setOpen] = useState(false);
+    const [pos, setPos] = useState(null);
 
-    const rowElements = useMemo(() => {
-        const rowArray = new Array<React.JSX.Element>(rows);
+    const setNode = useNodeStore(state => state.setSelectedNode);
 
-        for (let row = 0; row < rows; row++) {
-            rowArray[row] = (
-                <Row
-                    key={row}
-                    data={{
-                        nodeSize,
-                        row,
-                        columns,
-                        ...gridData
-                    }}
-                />
-            );
-        }
-        return rowArray;
-    }, [columns, gridData, nodeSize, rows]);
+    // const nodeSize = Math.min(
+    //     (columns - GRID_MARGIN * 2) / columns,
+    //     (rows - GRID_MARGIN * 2) / rows
+    // );
 
-    const nodeAtPosition = useCallback((x: number, y: number) => {
-        return {
-            x: Math.min(Math.floor((x / nodeSize)), columns - 1),
-            y: Math.min(Math.floor((y / nodeSize)), rows - 1)
-        };
-    }, [columns, rows, nodeSize]);
+    // const nodeAtPosition = useCallback((x: number, y: number) => {
+    //     return {
+    //         x: Math.min(Math.floor((x / nodeSize)), columns - 1),
+    //         y: Math.min(Math.floor((y / nodeSize)), rows - 1)
+    //     };
+    // }, [columns, rows, nodeSize]);
 
-    const getNode = useCallback((e: KonvaEventObject<MouseEvent>) => {
-        const n = nodeAtPosition(e.evt.offsetX, e.evt.offsetY);
-        return layerRef.current?.findOne(`#${n.x}-${n.y}`);
-    }, [nodeAtPosition]);
+    // const getNode = useCallback((e: KonvaEventObject<MouseEvent>) => {
+    //     const n = renderer?.getNode(e.evt.offsetX, e.evt.offsetY);
+    //     // return layerRef.current?.findOne(`#${n.x}-${n.y}`);
+    // }, [renderer]);
 
-    const fireNodeClick = useCallback((e: KonvaEventObject<MouseEvent>) => {
-        console.log('click');
-        if (cancelClick) {
-            cancelClick = false;
-            return;
-        }
-        getNode(e)?._fire('click', null);
-    }, [getNode]);
+    // // const fireNodeClick = useCallback((e: KonvaEventObject<MouseEvent>) => {
+    // //     console.log('click');
+    // //     if (cancelClick) {
+    // //         cancelClick = false;
+    // //         return;
+    // //     }
+    // //     getNode(e)?._fire('click', null);
+    // // }, [getNode]);
 
-    const fireNodeMouseDown = useCallback((e: KonvaEventObject<MouseEvent>) => {
-        if (e.evt.buttons === MouseButton.NONE) return;
-        cancelClick = true;
-        getNode(e)?._fire('mousedown', e);
-    }, [getNode]);
+    // const fireNodeMouseDown = useCallback((e: KonvaEventObject<MouseEvent>) => {
+    //     if (e.evt.buttons === MouseButton.NONE) return;
+    //     cancelClick = true;
+    //     getNode(e)?._fire('mousedown', e);
+    // }, [getNode]);
 
-    const preventContextMenu = useCallback((e: KonvaEventObject<MouseEvent>) => {
-        e.evt.preventDefault();
-    }, []);
+    // const preventContextMenu = useCallback((e: KonvaEventObject<MouseEvent>) => {
+    //     e.evt.preventDefault();
+    // }, []);
+
+    const handleClick: MouseEventHandler<HTMLCanvasElement> = (e) => {
+        const yOnCanvas = e.clientY - renderer!.canvas.getBoundingClientRect().top;
+        const xOnCanvas = e.clientX - renderer!.canvas.getBoundingClientRect().left;
+        //  e.relatedTa
+
+        setPos({ x: xOnCanvas, y: yOnCanvas });
+        setOpen(open => !open);
+
+        // console.log(yOnCanvas);
+
+        const node = renderer!.getNodeAtCursor(xOnCanvas, yOnCanvas);
+
+        node?.paint('pink');
+        setNode(node!);
+    };
 
     useEffect(() => {
-        if (!gridRef.current) return;
+        renderer?.setResolution({ x: columns, y: rows });
+        renderer?.updateNodeSize();
 
-        setGridDimensions({
-            x: gridRef.current.scrollWidth,
-            y: gridRef.current.scrollHeight
-        });
-    }, [rows, columns]);
-
-
+        // renderer?.setTarget(renderer.getNodeAtIndex(gridData.target.x, gridData.target.y));
+        renderer?.update();
+    }, [columns, rows, gridData.target]);
 
     return (
-        <div className='w-full h-full' ref={gridRef}>
-            {/* <NodeControls />
-            <Stage
-                className='max-w-full max-h-full mx-auto'
-                width={nodeSize * columns + GRID_MARGIN * 2}
-                height={nodeSize * rows + GRID_MARGIN * 2}
-                onMouseMove={fireNodeMouseDown}
-                onClick={fireNodeClick}
-                onContextMenu={preventContextMenu}
-            >
-                <Layer ref={layerRef}>
-                    {!!gridDimensions.x && rowElements}
-                </Layer>
-            </Stage> */}
-            <canvas ref={canvas}></canvas>
+        <div className='relative w-full h-full' ref={gridRef}>
+            <canvas ref={canvas} onClick={handleClick}></canvas>
+            <NodeControls open={open} position={pos} />
         </div>
     );
 };

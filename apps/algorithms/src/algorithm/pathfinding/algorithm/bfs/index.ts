@@ -11,6 +11,7 @@ import {
 import { Directions } from './direction';
 import type { Direction, Grid } from '../../type';
 import { PathfinderState, State } from '../../type';
+import { abc } from '../../component/Grid';
 
 type BeginBFSParams = {
     origin: Coordinate,
@@ -63,15 +64,17 @@ function* bfsGenerator(
     while (queue.length > 0) {
         const current = queue.shift()!;
 
+        const node = abc.nodes.get(`${current.x},${current.y}`);
+
         if (state.current === State.PATHFINDER_PAUSED) {
             return current;
         }
 
-        if (current.x === target.x && current.y === target.y) {
+        if (node?.isTarget) {
             return current;
         }
 
-        if (visited[current.y]![current.x]) {
+        if (node?.isVisited) {
             continue;
         }
 
@@ -79,7 +82,10 @@ function* bfsGenerator(
             continue;
         }
 
-        markNode(grid, visited, current.x, current.y);
+        // markNode(grid, visited, current.x, current.y);
+
+        node!.isVisited = true;
+        node?.paint('green');
 
         for (const [dx, dy] of directions) {
             const x = current.x + dx;

@@ -6,15 +6,13 @@ export default class Node {
     y: number;
     dx: number;
     dy: number;
-    // sdx: number;
-    // sdy: number;
-    size: number;
-    borderSize: number;
     isObstruction: boolean;
     isTarget: boolean;
     isOrigin: boolean;
+    isVisited: boolean;
+    weight = 0;
 
-    constructor(renderer: Canvas, x: number, y: number, size: number, isObstruction: boolean, isTarget: boolean, isOrigin: boolean) {
+    constructor(renderer: Canvas, x: number, y: number, isObstruction: boolean, isTarget: boolean, isOrigin: boolean) {
         this.renderer = renderer;
         this.x = x;
         this.y = y;
@@ -22,42 +20,71 @@ export default class Node {
         this.isTarget = isTarget;
         this.isOrigin = isOrigin;
 
-        this.borderSize = 3;
-        this.size = size;
-        this.dx = (size + this.borderSize) * x + this.borderSize;
-        this.dy = (size + this.borderSize) * y + this.borderSize;
+        this.dx = (this.renderer.nodeSize + this.renderer.borderSize) * x + this.renderer.borderSize;
+        this.dy =
+            (this.renderer.nodeSize + this.renderer.borderSize) * y +
+            this.renderer.borderSize;
+
+        this.isVisited = false;
     }
 
-    paint() {
+    setOrigin() {
+        this.renderer.setOrigin(this);
+    }
+
+    setTarget() {
+        this.renderer.setTarget(this);
+    }
+
+    paint(color?: string) {
         const ctx = this.renderer.context;
 
         ctx.fillStyle = 'red';
-        ctx.fillRect(this.dx, this.dy, this.size, this.size);
 
-        console.log(this);
+        // console.log('paint');
+
+        if (this.isOrigin) {
+            ctx.fillStyle = 'dodgerblue';
+        }
+
+        if (this.isTarget) {
+            ctx.fillStyle = 'green';
+        }
+
+        if (color) {
+            ctx.fillStyle = color;
+            // console.log('yooo', this);
+        }
+
+        ctx.fillRect(
+            this.dx,
+            this.dy,
+            this.renderer.nodeSize,
+            this.renderer.nodeSize
+        );
 
         if (this.renderer.showNumbers) {
             if (this.x === 0) {
-                ctx.font = `${this.size * 0.6}px monospace`;
+                ctx.font = `${this.renderer.nodeSize * 0.6}px monospace`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = 'white';
                 ctx.fillText(
                     this.y.toString(),
-                    this.dx + this.size / 2 - 1,
-                    this.dy + this.size / 2 + 1
+                    this.dx + this.renderer.nodeSize / 2 - 1,
+                    this.dy + this.renderer.nodeSize / 2 + 1
                 );
             }
 
             if (this.y === 0) {
-                ctx.font = `${this.size * 0.6}px monospace`;
+                ctx.font = `${this.renderer.nodeSize * 0.6}px monospace`;
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
                 ctx.fillStyle = 'white';
                 ctx.fillText(
                     this.x.toString(),
-                    this.dx + this.size / 2 - 1,
-                    this.dy + this.size / 2 + 1
+                    this.dx + this.renderer.nodeSize / 2 - 1,
+                    this.dy + this.renderer.nodeSize / 2 + 1
                 );
             }
         }

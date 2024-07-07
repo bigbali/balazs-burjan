@@ -7,6 +7,7 @@ import { position } from './position';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { NodeColor } from '../../type';
+import type Node from '../../../../renderer/node';
 
 type Callback<T = () => void> = T;
 type SetCallback<T = Callback> = (callback: T) => void;
@@ -75,6 +76,20 @@ export const useNodeControlsMenu = create<NodeControlsMenuStore>()(devtools((set
     }
 }));
 
+type Nodexxx = {
+    selectedNode: Node | null,
+    setSelectedNode: (node: Node) => void
+};
+
+export const useNodeStore = create<Nodexxx>(set => ({
+    selectedNode: null,
+    setSelectedNode: (node) => set({ selectedNode: node })
+}));
+
+// const useNodeControls = () => {
+//     const { selectedNode } = nodeStore();
+// }
+
 let skipEffect = true;
 const useNodeControlsMenuLogic = (node: Konva.Rect | null) => {
     const [isOpen, _setIsOpen] = useState(false);
@@ -84,7 +99,7 @@ const useNodeControlsMenuLogic = (node: Konva.Rect | null) => {
         _setIsOpen(args);
     }, []);
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
     useEffect(() => {
         if (!node) return;
 
@@ -100,7 +115,7 @@ const useNodeControlsMenuLogic = (node: Konva.Rect | null) => {
 
         skipEffect = !isOpen;
         _setIsOpen(true);
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [node]);
 
     return [isOpen, setIsOpen] as const;
@@ -111,39 +126,45 @@ const buttonClass = `
     disabled:opacity-25 disabled:cursor-not-allowed
 `;
 
-const NodeControls = () => {
-    const {
-        grid,
-        node,
-        nodeSize,
-        nodeIsOrigin,
-        nodeIsTarget,
-        nodeIsObstruction,
-        nodeSetOrigin,
-        nodeSetTarget,
-        nodeSetObstruction,
-        nodeSetHighlight
-    } = useNodeControlsMenu();
+const NodeControls = ({ open, position }) => {
+    // const {
+    //     grid,
+    //     node,
+    //     nodeSize,
+    //     nodeIsOrigin,
+    //     nodeIsTarget,
+    //     nodeIsObstruction,
+    //     nodeSetOrigin,
+    //     nodeSetTarget,
+    //     nodeSetObstruction,
+    //     nodeSetHighlight
+    // } = useNodeControlsMenu();
 
-    const [isOpen, setIsOpen] = useNodeControlsMenuLogic(node);
+    // const [isOpen, setIsOpen] = useNodeControlsMenuLogic(node);
 
-    useEffect(() => { // this highlights the selected node and resets when demounting
-        nodeSetHighlight(isOpen);
-        return () => nodeSetHighlight(false);
-    }, [isOpen, nodeSetHighlight]);
+    // useEffect(() => { // this highlights the selected node and resets when demounting
+    //     nodeSetHighlight(isOpen);
+    //     return () => nodeSetHighlight(false);
+    // }, [isOpen, nodeSetHighlight]);
 
-    const disabled = nodeIsTarget || nodeIsOrigin;
+    const disabled = false;
 
-    if (isOpen) {
+    const node = useNodeStore(state => state.selectedNode);
+
+    // const disabled = nodeIsTarget || nodeIsOrigin;
+
+    if (open) {
         return (
             <div
-                className='absolute border border-slate-300 bg-white rounded-lg p-2 flex flex-col gap-2'
+                className='absolute flex flex-col gap-2 p-2 bg-white border rounded-lg w-max border-slate-300 '
                 style={{
                     zIndex: 1,
-                    ...position(node, grid, nodeSize)
+                    // ...position(node, grid, nodeSize)
+                    top: position.y,
+                    left: position.x
                 }}
             >
-                {disabled && (
+                {/* {disabled && (
                     <p>
                         <span className='mr-2'>
                             <FontAwesomeIcon color='red' icon={faCircleExclamation} />
@@ -156,20 +177,21 @@ const NodeControls = () => {
                             }.
                         </span>
                     </p>
-                )}
+                )} */}
                 {!disabled && (
                     <div className='flex flex-col gap-2'>
                         <button
                             className={buttonClass}
                             style={{ background: NodeColor.ORIGIN }}
                             onClick={() => {
-                                setIsOpen(false);
-                                startTransition(() => {
-                                    if (nodeIsObstruction) {
-                                        nodeSetObstruction(false);
-                                    }
-                                    nodeSetOrigin();
-                                });
+                                // setIsOpen(false);
+                                // startTransition(() => {
+                                //     if (nodeIsObstruction) {
+                                //         nodeSetObstruction(false);
+                                //     }
+                                //     nodeSetOrigin();
+                                // });
+                                node?.setOrigin();
                             }}
                         >
                             Set Origin
@@ -178,36 +200,37 @@ const NodeControls = () => {
                             className={buttonClass}
                             style={{ background: NodeColor.TARGET }}
                             onClick={() => {
-                                setIsOpen(false);
-                                startTransition(() => {
-                                    nodeSetTarget();
-                                });
+                                // setIsOpen(false);
+                                // startTransition(() => {
+                                //     nodeSetTarget();
+                                // });
+                                node?.setTarget();
                             }}
                         >
                             Set Target
                         </button>
                         <button
                             className={buttonClass}
-                            style={{
-                                background: nodeIsObstruction
-                                    ? NodeColor.DEFAULT
-                                    : NodeColor.OBSTRUCTION,
-                                color: nodeIsObstruction
-                                    ? 'black'
-                                    : undefined
-                            }}
-                            onClick={() => {
-                                setIsOpen(false);
-                                startTransition(() => {
-                                    nodeSetObstruction(state => !state);
-                                });
-                            }}
+                            // style={{
+                            //     background: nodeIsObstruction
+                            //         ? NodeColor.DEFAULT
+                            //         : NodeColor.OBSTRUCTION,
+                            //     color: nodeIsObstruction
+                            //         ? 'black'
+                            //         : undefined
+                            // }}
+                            // onClick={() => {
+                            //     setIsOpen(false);
+                            //     startTransition(() => {
+                            //         nodeSetObstruction(state => !state);
+                            //     });
+                            // }}
                         >
-                            {
+                            {/* {
                                 nodeIsObstruction
                                     ? 'Clear'
                                     : 'Obstruct'
-                            }
+                            } */}
                         </button>
                     </div>
                 )}
