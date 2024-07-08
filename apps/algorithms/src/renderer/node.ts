@@ -1,3 +1,4 @@
+import { NodeColor } from '../algorithm/pathfinding/type';
 import type Canvas from './canvas';
 
 export default class Node {
@@ -6,10 +7,12 @@ export default class Node {
     y: number;
     dx: number;
     dy: number;
-    isObstruction: boolean;
     isTarget: boolean;
     isOrigin: boolean;
-    isVisited: boolean;
+    isObstruction = false;
+    isHighlighted = false;
+    isBacktrace = false;
+    isVisited = false;
     weight = 0;
 
     constructor(renderer: Canvas, x: number, y: number, isObstruction: boolean, isTarget: boolean, isOrigin: boolean) {
@@ -29,31 +32,77 @@ export default class Node {
     }
 
     setOrigin() {
+        this.isObstruction = false;
         this.renderer.setOrigin(this);
     }
 
     setTarget() {
+        this.isObstruction = false;
         this.renderer.setTarget(this);
+    }
+
+    setVisited() {
+        this.isVisited = true;
+        this.paint();
+    }
+
+    setHighlighted(state: boolean) {
+        this.isHighlighted = state;
+        this.paint();
+    }
+
+    setObstruction(state: boolean) {
+        if (!this.isOrigin && !this.isTarget) {
+            this.isObstruction = state;
+        }
+
+        this.paint();
+    }
+
+    setBacktrace() {
+        this.isBacktrace = true;
+        this.paint();
+    }
+
+    text(text: string) {
+        this.renderer.context.fillStyle = 'white';
+        this.renderer.context.fillText(
+            text,
+            this.dx + this.renderer.nodeSize / 2 - 1,
+            this.dy + this.renderer.nodeSize / 2 + 1
+        );
     }
 
     paint(color?: string) {
         const ctx = this.renderer.context;
 
-        ctx.fillStyle = 'red';
-
-        // console.log('paint');
-
-        if (this.isOrigin) {
-            ctx.fillStyle = 'dodgerblue';
-        }
-
-        if (this.isTarget) {
-            ctx.fillStyle = 'green';
-        }
+        // paint to background color first to prevent progressive color shift on the edges on repeated color changes
+        ctx.fillStyle = 'black';
+        ctx.fillRect(
+            this.dx - 0.5,
+            this.dy - 0.5,
+            this.renderer.nodeSize + 1,
+            this.renderer.nodeSize + 1
+        );
 
         if (color) {
             ctx.fillStyle = color;
-            // console.log('yooo', this);
+        } else {
+            if (this.isOrigin) {
+                ctx.fillStyle = NodeColor.ORIGIN;
+            } else if (this.isTarget) {
+                ctx.fillStyle = NodeColor.TARGET;
+            } else if (this.isObstruction) {
+                ctx.fillStyle = NodeColor.OBSTRUCTION;
+            } else if (this.isHighlighted) {
+                ctx.fillStyle = NodeColor.HIGHLIGHT;
+            } else if (this.isBacktrace) {
+                ctx.fillStyle = NodeColor.BACKTRACE;
+            } else if (this.isVisited) {
+                ctx.fillStyle = NodeColor.VISITED;
+            } else {
+                ctx.fillStyle = NodeColor.DEFAULT;
+            }
         }
 
         ctx.fillRect(
@@ -65,27 +114,11 @@ export default class Node {
 
         if (this.renderer.showNumbers) {
             if (this.x === 0) {
-                ctx.font = `${this.renderer.nodeSize * 0.6}px monospace`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = 'white';
-                ctx.fillText(
-                    this.y.toString(),
-                    this.dx + this.renderer.nodeSize / 2 - 1,
-                    this.dy + this.renderer.nodeSize / 2 + 1
-                );
+                this.text(this.y.toString());
             }
 
             if (this.y === 0) {
-                ctx.font = `${this.renderer.nodeSize * 0.6}px monospace`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillStyle = 'white';
-                ctx.fillText(
-                    this.x.toString(),
-                    this.dx + this.renderer.nodeSize / 2 - 1,
-                    this.dy + this.renderer.nodeSize / 2 + 1
-                );
+                this.text(this.x.toString());
             }
         }
     }

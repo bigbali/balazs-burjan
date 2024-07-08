@@ -16,12 +16,18 @@
         "postcss": "^8.4.25",
         "tailwindcss": "^3.4.4",
         "tsconfig": "workspace:*",
-        "typescript": "^5.1.6"
+        "typescript": "^5.5.3"
     },
     "dependencies": {
         "lodash": "^4.17.21",
         "next-auth": "^4.22.1",
         "util-react19": "workspace:*",
         "zustand": "^4.5.4"
-    }
+    },
+    "peerDependencies": {
+        "babel-plugin-react-compiler": "0.0.0-experimental-696af53-20240625",
+        "react": "19.0.0-rc-9c6806964f-20240703",
+        "react-dom": "19.0.0-rc-9c6806964f-20240703"
+    },
+    "packageManager": "yarn@4.3.1"
 }

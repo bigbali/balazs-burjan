@@ -129,13 +129,12 @@ export default function FieldRangeInput ({
     rangeStyle,
     ...props
 }: FieldRangeInputProps) {
-    "use no memo";
     const [value, setValue] = useState<number | null>(defaultValue);
 
-    const fieldCallback = !!onChange
+    const fieldCallback = onChange
         ? onChange
         : onFieldChange;
-    const rangeCallback = !!onChange
+    const rangeCallback = onChange
         ? onChange
         : onRangeChange;
 
@@ -184,5 +183,5 @@ export default function FieldRangeInput ({
             />
         </div>
     );
-};
+}
 

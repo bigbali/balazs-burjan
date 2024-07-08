@@ -59,8 +59,8 @@ export default function Menu({
 
     const runPathfinder = async (resume: boolean) => {
         const result = await PATHFINDER_MAP[pathfinder]({
-            origin,
-            target,
+            // origin,
+            // target,
             grid,
             delay: delayRef,
             state: stateRef,

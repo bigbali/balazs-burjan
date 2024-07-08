@@ -1,5 +1,4 @@
 import type { GridData } from '../algorithm/pathfinding/component/Grid';
-import type { Coordinate } from '../util/type';
 import Node from './node';
 
 type Resolution = {
@@ -18,7 +17,11 @@ export default class Canvas {
     target: Node;
     nodeSize: number;
 
-    constructor(canvas: HTMLCanvasElement, resolution: Resolution,  data: GridData) {
+    constructor(
+        canvas: HTMLCanvasElement,
+        resolution: Resolution,
+        data: GridData
+    ) {
         this.canvas = canvas;
         this.context = canvas.getContext('2d')!;
         this.nodes = new Map();
@@ -30,10 +33,14 @@ export default class Canvas {
         this.canvas.height =
             canvas.parentElement!.clientHeight * window.devicePixelRatio;
 
-        this.nodeSize =
-             this.canvas.width / this.resolution.x -
-             this.borderSize / this.resolution.x -
-             this.borderSize;
+        this.nodeSize = 
+            this.canvas.width / this.resolution.x -
+            this.borderSize / this.resolution.x -
+            this.borderSize;
+        // this.nodeSize = Math.ceil(
+        //     this.canvas.width / this.resolution.x -
+        //     this.borderSize / this.resolution.x -
+        //     this.borderSize);
 
         const { origin, target } = this.initialize(data);
 
@@ -43,6 +50,7 @@ export default class Canvas {
 
     setResolution(resolution: Resolution) {
         this.resolution = resolution;
+        this.update();
     }
 
     setOrigin(newOrigin: Node) {
@@ -73,13 +81,6 @@ export default class Canvas {
         return this.nodes.get(`${x},${y}`);
     }
 
-    updateNodeSize() {
-        this.nodeSize =
-            this.canvas.width / this.resolution.x -
-            this.borderSize / this.resolution.x -
-            this.borderSize;
-    }
-
     initialize(data: GridData) {
         let origin!: Node;
         let target!: Node;
@@ -98,6 +99,11 @@ export default class Canvas {
             }
         }
 
+        this.context.font = `${this.nodeSize * 0.6}px monospace`;
+        this.context.textAlign = 'center';
+        this.context.textBaseline = 'middle';
+        // this.context.translate(0.5, 0.5)
+
         this.paint();
 
         return { origin, target };
@@ -105,6 +111,8 @@ export default class Canvas {
 
     update() {
         this.nodes.clear();
+
+        this.#updateNodeSize();
 
         for (let x = 0; x < this.resolution.x; x++) {
             for (let y = 0; y < this.resolution.y; y++) {
@@ -120,6 +128,13 @@ export default class Canvas {
         this.#ensureOriginAndTargetAreWithinBounds();
 
         this.paint();
+    }
+
+    #updateNodeSize() {
+        this.nodeSize =
+            this.canvas.width / this.resolution.x -
+            this.borderSize / this.resolution.x -
+            this.borderSize;
     }
 
     paint() {

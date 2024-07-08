@@ -52,6 +52,8 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
         const grid = useGrid(columns, rows);
         useBacktraceHighlight(grid, result);
 
+        console.log(result);
+
         const gridData = useMemo(() => ({
             columns, rows, grid, origin, target, setOrigin, setGoal: setTarget
         }), [columns, target, grid, origin, rows]);

@@ -44,4 +44,4 @@ export default function Expander ({ open, openInitial, onToggle, label, children
             </details>
         </div>
     );
-};
+}

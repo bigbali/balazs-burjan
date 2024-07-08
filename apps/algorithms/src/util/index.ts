@@ -93,18 +93,49 @@ export const markNode: MarkNode = (grid, visited, x, y) => {
     // setTimeout(() => setHighlighted(false), 200);
 };
 
+// type SetupPathfinder = <T>(
+//     entries: {
+//         push: (...args: any[]) => any
+//     },
+//     initialEntry: T,
+//     grid: Grid,
+//     visited: boolean[][],
+//     resume: boolean
+// ) => void;
+
+// TODO wtf?
+// export const setupPathfinder: SetupPathfinder = (entries, initialEntry, grid, visited, resume) => {
+//     if (!resume) {
+//         Array.isArray(initialEntry)
+//             ? entries.push(...initialEntry)
+//             : entries.push(initialEntry);
+//     }
+
+//     // if we are resuming, do not reset the visited matrix
+//     if (!resume) {
+//         visited.length = 0;
+//         for (let y = 0; y < grid.length; y++) {
+//             const row: boolean[] = [];
+//             visited.push(row);
+
+//             for (let x = 0; x < grid[0]!.length; x++) {
+//                 row.push(false);
+//             }
+//         }
+//     }
+// };
+
 type SetupPathfinder = <T>(
     entries: {
-        push: (...args: any[]) => any
+        push: (...args: any[]) => any;
     },
     initialEntry: T,
     grid: Grid,
-    visited: boolean[][],
     resume: boolean
 ) => void;
 
-// TODO wtf?
-export const setupPathfinder: SetupPathfinder = (entries, initialEntry, grid, visited, resume) => {
+
+export const setupPathfinder: SetupPathfinder = (entries, initialEntry, grid, resume) => {
     if (!resume) {
         Array.isArray(initialEntry)
             ? entries.push(...initialEntry)
@@ -112,15 +143,15 @@ export const setupPathfinder: SetupPathfinder = (entries, initialEntry, grid, vi
     }
 
     // if we are resuming, do not reset the visited matrix
-    if (!resume) {
-        visited.length = 0;
-        for (let y = 0; y < grid.length; y++) {
-            const row: boolean[] = [];
-            visited.push(row);
+    // if (!resume) {
+    //     visited.length = 0;
+    //     for (let y = 0; y < grid.length; y++) {
+    //         const row: boolean[] = [];
+    //         visited.push(row);
 
-            for (let x = 0; x < grid[0]!.length; x++) {
-                row.push(false);
-            }
-        }
-    }
+    //         for (let x = 0; x < grid[0]!.length; x++) {
+    //             row.push(false);
+    //         }
+    //     }
+    // }
 };

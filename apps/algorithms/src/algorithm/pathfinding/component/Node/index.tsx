@@ -125,7 +125,7 @@ export default function Node({
     }, [setIsObstruction]);
 
     const fill = (() => {
-        if (isBacktrace && !isOrigin && !isGoal && !isObstruction) return NodeColor.HIGHLIGHT_BACKTRACE;
+        if (isBacktrace && !isOrigin && !isGoal && !isObstruction) return NodeColor.BACKTRACE;
         else if (isActive && !isOrigin && !isGoal && !isObstruction) return NodeColor.HIGHLIGHT_SELECTED;
         else if (isOrigin) return NodeColor.ORIGIN;
         else if (isGoal) return NodeColor.TARGET;

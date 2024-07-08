@@ -8,7 +8,7 @@ type RendererStore = {
     setRenderer: (renderer: Canvas) => void
 };
 
-const useRendererStore = create<RendererStore>((set) => ({
+export const useRendererStore = create<RendererStore>((set) => ({
     renderer: null,
     setRenderer: (renderer) => set({ renderer })
 }));
