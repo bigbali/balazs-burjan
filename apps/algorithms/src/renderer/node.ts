@@ -66,7 +66,16 @@ export default class Node {
 
     text(text: string) {
         this.renderer.context.fillStyle = 'white';
+        this.renderer.context.strokeStyle = 'black';
+        this.renderer.context.lineWidth = 1;
+
         this.renderer.context.fillText(
+            text,
+            this.dx + this.renderer.nodeSize / 2 - 1,
+            this.dy + this.renderer.nodeSize / 2 + 1
+        );
+
+        this.renderer.context.strokeText(
             text,
             this.dx + this.renderer.nodeSize / 2 - 1,
             this.dy + this.renderer.nodeSize / 2 + 1

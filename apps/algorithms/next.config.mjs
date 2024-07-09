@@ -1,6 +1,6 @@
 // @ts-check
 import { BASEPATH, PORT } from './src/util/zone.mjs';
-import MillionLint from '@million/lint';
+// import MillionLint from '@million/lint';
 
 /** @type {import("next").NextConfig} */
 const config = {
@@ -16,6 +16,7 @@ const config = {
     }
 };
 
+// doesn't work with yarn pnp
 
 // export default process.env.NODE_ENV === 'development'
 //     ? MillionLint.next()(config)

@@ -7,7 +7,6 @@ import {
     useEffect,
     useRef
 } from 'react';
-import dynamic from 'next/dynamic';
 import type { Coordinate, Entry } from '../../util/type';
 import { Delay, Dimensions, State } from './type';
 import Menu from './component/Menu';
@@ -15,7 +14,6 @@ import useGrid from './hook/useGrid';
 import { useLoading } from '../../store/useLoading';
 import useBacktraceHighlight from './component/Node/useBacktraceHighlight';
 import Grid from './component/Grid';
-
 
 type PathfinderVisualizerProps = {
     ModeSelector: React.FC,
@@ -52,19 +50,9 @@ export default forwardRef<HTMLDivElement, PathfinderVisualizerProps>(
         const grid = useGrid(columns, rows);
         useBacktraceHighlight(grid, result);
 
-        console.log(result);
-
         const gridData = useMemo(() => ({
             columns, rows, grid, origin, target, setOrigin, setGoal: setTarget
         }), [columns, target, grid, origin, rows]);
-
-        // useEffect(() => {
-        //     // if the grid got smaller, check if the target is out of bounds and bring it in if so
-        //     setTarget(state => (state.x >= columns || state.y >= rows)
-        //         ? { x: columns - 1, y: rows - 1 }
-        //         : state
-        //     );
-        // }, [columns, rows]);
 
         return (
             <div

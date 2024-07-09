@@ -3,12 +3,12 @@ import { create } from 'zustand';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { NodeColor } from '../../type';
-import { Coordinate } from '../../../../util/type';
+import type { Coordinate } from '../../../../util/type';
 import type Node from '../../../../renderer/node';
 
 type SelectedNodeStore = {
     selectedNode: Node | null,
-    setSelectedNode: (node: Node) => void
+    setSelectedNode: (node: Node | null) => void
 };
 
 export const useNodeStore = create<SelectedNodeStore>(set => ({

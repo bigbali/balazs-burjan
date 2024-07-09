@@ -33,19 +33,19 @@ export default class Canvas {
         this.canvas.height =
             canvas.parentElement!.clientHeight * window.devicePixelRatio;
 
-        this.nodeSize = 
+        this.nodeSize =
             this.canvas.width / this.resolution.x -
             this.borderSize / this.resolution.x -
             this.borderSize;
-        // this.nodeSize = Math.ceil(
-        //     this.canvas.width / this.resolution.x -
-        //     this.borderSize / this.resolution.x -
-        //     this.borderSize);
 
         const { origin, target } = this.initialize(data);
 
         this.origin = origin;
         this.target = target;
+
+        canvas.addEventListener('contextmenu', function (event) {
+            event.preventDefault();
+        });
     }
 
     setResolution(resolution: Resolution) {
@@ -74,11 +74,11 @@ export default class Canvas {
     getNodeAtCursor(x: number, y: number) {
         return this.nodes.get(
             `${Math.floor(x / (this.nodeSize + this.borderSize))},${Math.floor(y / (this.nodeSize + this.borderSize))}`
-        );
+        ) ?? null;
     }
 
     getNodeAtIndex(x: number, y: number) {
-        return this.nodes.get(`${x},${y}`);
+        return this.nodes.get(`${x},${y}`) ?? null;
     }
 
     initialize(data: GridData) {
@@ -102,7 +102,6 @@ export default class Canvas {
         this.context.font = `${this.nodeSize * 0.6}px monospace`;
         this.context.textAlign = 'center';
         this.context.textBaseline = 'middle';
-        // this.context.translate(0.5, 0.5)
 
         this.paint();
 
@@ -125,9 +124,22 @@ export default class Canvas {
             }
         }
 
+        this.context.font = `${this.nodeSize * 0.6}px monospace`;
+        this.context.textAlign = 'center';
+        this.context.textBaseline = 'middle';
+
         this.#ensureOriginAndTargetAreWithinBounds();
 
         this.paint();
+    }
+
+    resize() {
+        this.canvas.width =
+            this.canvas.parentElement!.clientWidth * window.devicePixelRatio;
+        this.canvas.height =
+            this.canvas.parentElement!.clientHeight * window.devicePixelRatio;
+
+        this.update();
     }
 
     #updateNodeSize() {

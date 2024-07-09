@@ -1,5 +1,5 @@
 {
     "extends": "tsconfig",
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.mjs"],
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.cjs", "**/*.mjs", "prettier.config.js"],
     "exclude": ["node_modules"]
 }
