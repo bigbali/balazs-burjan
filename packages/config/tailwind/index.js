@@ -4,11 +4,22 @@ export default {
     theme: {
         extend: {
             colors: {
-                'theme-red': 'rgb(204, 18, 18)',
-                'theme-dark-bg': '#1E1E23',
-                'theme-light-bg': '#FAFAFA',
-                'theme-dark-text': '#F0F0F0',
-                'theme-light-text': '#232328'
+                theme: {
+                    primary: '#cc1212',
+                    bg: {
+
+                    },
+                    control: {
+                        bg: {
+                            light: '#DADDDD',
+                            dark: '#262629'
+                        }
+                    },
+                    border: {
+                        light: '#CBD5E1',
+                        dark: '#323538'
+                    }
+                }
             },
             borderRadius: {
                 1: '0.25rem',

@@ -5,7 +5,7 @@ import type {
     SetStateAction,
     CSSProperties
 } from 'react';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import { debounce } from 'lodash';
 import type { Either } from '../../util/type';
 
@@ -130,6 +130,7 @@ export default function FieldRangeInput ({
     ...props
 }: FieldRangeInputProps) {
     const [value, setValue] = useState<number | null>(defaultValue);
+    const id = useId();
 
     const fieldCallback = onChange
         ? onChange
@@ -141,15 +142,15 @@ export default function FieldRangeInput ({
     return (
         <div {...props}>
             {label && (
-                <label htmlFor='columns' style={labelStyle}>
+                <label htmlFor={id} style={labelStyle}>
                     {label}
                 </label>
             )}
             <input
-                className='text-center border rounded-md border-slate-300'
-                style={fieldStyle}
+                className='text-center border rounded-md border-theme-border-light'
+                style={{ maxWidth: `calc(${max.toString().length}ch + 3rem)`, paddingInlineStart: '0.5rem', ...fieldStyle }}
+                id={id}
                 type='number'
-                id='columns'
                 max={max}
                 min={min}
                 step={step}

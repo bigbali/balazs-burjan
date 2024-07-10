@@ -1,16 +1,24 @@
 import type { MutableRefObject } from 'react';
-import type { Grid, Node } from '../algorithm/pathfinding/type';
+import type { Grid, Resolution } from '../type';
+import type Node from '../renderer/node';
 
-export const isOutOfBounds = (x: number, y: number, grid: Grid) => {
-    if (y >= grid.length || y < 0) return true;
-    if (x >= grid[0]!.length || x < 0) return true;
+// export const isOutOfBounds = (x: number, y: number, grid: Grid) => {
+//     if (y >= grid.length || y < 0) return true;
+//     if (x >= grid[0]!.length || x < 0) return true;
+
+//     return false;
+// };
+
+export const isOutOfBounds = (x: number, y: number, resolution: Resolution) => {
+    if (x >= resolution.x || x < 0) return true;
+    if (y >= resolution.y || y < 0) return true;
 
     return false;
 };
 
-export const isObstruction = (x: number, y: number, grid: Grid) => {
-    return grid[y]![x]!.obstruction?.[0];
-};
+// export const isObstruction = (x: number, y: number, grid: Grid) => {
+//     return grid[y]![x]!.obstruction?.[0];
+// };
 
 type ForEachNode = <T extends Node>(
     grid: T[][],
@@ -25,12 +33,12 @@ export const forEachNode: ForEachNode = (grid, callback) => {
     }
 };
 
-type RecursiveAsyncGeneratorRunner = <T>(
+type GeneratorRunner = <T>(
     generator: Generator<unknown, T, unknown>,
     delay: MutableRefObject<number>
 ) => Promise<T>;
 
-type AsyncRecursiveAsyncGeneratorRunner = <T>(
+type AsyncGeneratorRunner = <T>(
     generator: AsyncGenerator<unknown, T, unknown>,
     delay: MutableRefObject<number>
 ) => Promise<T>;
@@ -41,7 +49,7 @@ type AsyncRecursiveAsyncGeneratorRunner = <T>(
  * @param delay - a ref object that contains a number
  * @returns the result of the generator
  */
-export const recursiveAsyncGeneratorRunner: RecursiveAsyncGeneratorRunner = async (generator, delay) => {
+export const generatorRunner: GeneratorRunner = async (generator, delay) => {
     const result = generator.next();
 
     if (result.done) {
@@ -52,21 +60,22 @@ export const recursiveAsyncGeneratorRunner: RecursiveAsyncGeneratorRunner = asyn
         setTimeout(() => resolve(), delay.current);
     });
 
-    return await recursiveAsyncGeneratorRunner(generator, delay);
+    return await generatorRunner(generator, delay);
 };
 
-export const asyncRecursiveAsyncGeneratorRunner: AsyncRecursiveAsyncGeneratorRunner = async (generator, delay) => {
+export const asyncGeneratorRunner: AsyncGeneratorRunner = async (generator, delay) => {
     const result = await generator.next();
 
     if (result.done) {
         return result.value;
     }
 
-    await new Promise<void>((resolve) => {
-        setTimeout(() => resolve(), delay.current);
-    });
+    let timeout: NodeJS.Timeout;
+    await new Promise((resolve) => {
+        timeout = setTimeout(resolve, delay.current);
+    }).then(() => clearTimeout(timeout));
 
-    return await asyncRecursiveAsyncGeneratorRunner(generator, delay);
+    return await asyncGeneratorRunner(generator, delay);
 };
 
 type MarkNode = (
@@ -130,12 +139,11 @@ type SetupPathfinder = <T>(
         push: (...args: any[]) => any;
     },
     initialEntry: T,
-    grid: Grid,
     resume: boolean
 ) => void;
 
 
-export const setupPathfinder: SetupPathfinder = (entries, initialEntry, grid, resume) => {
+export const setupPathfinder: SetupPathfinder = (entries, initialEntry, resume) => {
     if (!resume) {
         Array.isArray(initialEntry)
             ? entries.push(...initialEntry)

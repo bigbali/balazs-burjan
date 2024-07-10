@@ -1,8 +1,8 @@
-import { NodeColor } from '../algorithm/pathfinding/type';
-import type Canvas from './canvas';
+import type Renderer from '.';
+import { NodeColor } from '../type';
 
 export default class Node {
-    renderer: Canvas;
+    renderer: Renderer;
     x: number;
     y: number;
     dx: number;
@@ -15,7 +15,7 @@ export default class Node {
     isVisited = false;
     weight = 0;
 
-    constructor(renderer: Canvas, x: number, y: number, isObstruction: boolean, isTarget: boolean, isOrigin: boolean) {
+    constructor(renderer: Renderer, x: number, y: number, isObstruction: boolean, isTarget: boolean, isOrigin: boolean) {
         this.renderer = renderer;
         this.x = x;
         this.y = y;

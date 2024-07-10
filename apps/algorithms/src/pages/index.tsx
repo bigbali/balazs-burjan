@@ -1,32 +1,20 @@
 import dynamic from 'next/dynamic';
-import { startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-
-const PathfinderVisualizer = dynamic(() => import('../algorithm/pathfinding'), { ssr: false });
-import { useLoading } from '../store/useLoading';
-import Loading from '../component/Loading';
+import { startTransition, useCallback, useMemo, useState } from 'react';
 
 enum Mode {
     PATHFINDER = 'pathfinder',
     SORT = 'sort'
 }
 
-const ALGORITHM_VISUALIZER_MAP = {
-    [Mode.PATHFINDER]: PathfinderVisualizer,
-    [Mode.SORT]: () => <h1>NOT IMPLEMENTED</h1>
-} as const;
+const PathfinderVisualizer = dynamic(() => import('../algorithm/pathfinding'), { ssr: false });
 
-const Algorithms = () => {
+export default function Algorithms() {
     const [mode, setMode] = useState(() => Mode.PATHFINDER);
-    const [topOffset, setTopOffset] = useState(0);
-    const visualizerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (visualizerRef.current) {
-            setTopOffset(
-                visualizerRef.current.offsetTop
-            );
-        }
-    }, []);
+    const ALGORITHM_VISUALIZER_MAP = {
+        [Mode.PATHFINDER]: PathfinderVisualizer,
+        [Mode.SORT]: () => <h1>NOT IMPLEMENTED</h1>
+    } as const;
 
     const Visualizer = useMemo(() => ALGORITHM_VISUALIZER_MAP[mode], [mode]);
     const ModeSelector = useCallback(() => (
@@ -59,16 +47,9 @@ const Algorithms = () => {
     ), [mode]);
 
     return (
-        <>
-            <Loading />
-            <Visualizer
-                ModeSelector={ModeSelector}
-                key={mode}
-                ref={visualizerRef}
-                topOffset={topOffset}
-            />
-        </>
+        <Visualizer
+            ModeSelector={<ModeSelector />}
+            key={mode}
+        />
     );
-};
-
-export default Algorithms;
+}

@@ -11,7 +11,7 @@
         "eslint": "^9.6.0",
         "eslint-plugin-react": "^7.34.3",
         "eslint-plugin-react-hooks": "^4.6.2",
-        "globals": "^13.20.0",
+        "globals": "^15.8.0",
         "postcss": "^8.4.21",
         "postcss-import": "^16.1.0",
         "prettier": "^3.3.2",

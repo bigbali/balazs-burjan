@@ -4305,7 +4305,7 @@ const RAW_RUNTIME_STATE =
           ["eslint", "npm:9.6.0"],\
           ["eslint-plugin-react", "virtual:3ea405134475fa5c320be86f85615bd694947f13fe55ed43b2d84d997a30b40bfcc555f71403b66c7a5e5f2a7295a91407bf39da43d853539b6003a010b25d7a#npm:7.34.3"],\
           ["eslint-plugin-react-hooks", "virtual:3ea405134475fa5c320be86f85615bd694947f13fe55ed43b2d84d997a30b40bfcc555f71403b66c7a5e5f2a7295a91407bf39da43d853539b6003a010b25d7a#npm:4.6.2"],\
-          ["globals", "npm:13.24.0"],\
+          ["globals", "npm:15.8.0"],\
           ["postcss", "npm:8.4.39"],\
           ["postcss-import", "virtual:3ea405134475fa5c320be86f85615bd694947f13fe55ed43b2d84d997a30b40bfcc555f71403b66c7a5e5f2a7295a91407bf39da43d853539b6003a010b25d7a#npm:16.1.0"],\
           ["prettier", "npm:3.3.2"],\
@@ -6152,6 +6152,13 @@ const RAW_RUNTIME_STATE =
           ["globals", "npm:14.0.0"]\
         ],\
         "linkType": "HARD"\
+      }],\
+      ["npm:15.8.0", {\
+        "packageLocation": "../../../AppData/Local/Yarn/Berry/cache/globals-npm-15.8.0-170a64f008-10c0.zip/node_modules/globals/",\
+        "packageDependencies": [\
+          ["globals", "npm:15.8.0"]\
+        ],\
+        "linkType": "HARD"\
       }]\
     ]],\
     ["globalthis", [\
@@ -7718,6 +7725,96 @@ const RAW_RUNTIME_STATE =
         ],\
         "linkType": "HARD"\
       }],\
+      ["virtual:7ebfe31dce321543f0b4a6bc9577c49eb6fa3a4d0e9e554a6e04fb6654c48fb54ae03b3606f46e5f579ce51b0de87d6972b3c60047a4c2f59ee1c003a70a5e02#npm:14.2.4", {\
+        "packageLocation": "./.yarn/__virtual__/next-virtual-31a280bdee/4/AppData/Local/Yarn/Berry/cache/next-npm-14.2.4-37fb4e5b51-10c0.zip/node_modules/next/",\
+        "packageDependencies": [\
+          ["next", "virtual:7ebfe31dce321543f0b4a6bc9577c49eb6fa3a4d0e9e554a6e04fb6654c48fb54ae03b3606f46e5f579ce51b0de87d6972b3c60047a4c2f59ee1c003a70a5e02#npm:14.2.4"],\
+          ["@next/env", "npm:14.2.4"],\
+          ["@next/swc-darwin-arm64", "npm:14.2.4"],\
+          ["@next/swc-darwin-x64", "npm:14.2.4"],\
+          ["@next/swc-linux-arm64-gnu", "npm:14.2.4"],\
+          ["@next/swc-linux-arm64-musl", "npm:14.2.4"],\
+          ["@next/swc-linux-x64-gnu", "npm:14.2.4"],\
+          ["@next/swc-linux-x64-musl", "npm:14.2.4"],\
+          ["@next/swc-win32-arm64-msvc", "npm:14.2.4"],\
+          ["@next/swc-win32-ia32-msvc", "npm:14.2.4"],\
+          ["@next/swc-win32-x64-msvc", "npm:14.2.4"],\
+          ["@opentelemetry/api", null],\
+          ["@playwright/test", null],\
+          ["@swc/helpers", "npm:0.5.5"],\
+          ["@types/opentelemetry__api", null],\
+          ["@types/playwright__test", null],\
+          ["@types/react", "npm:18.3.3"],\
+          ["@types/react-dom", "npm:18.3.0"],\
+          ["@types/sass", null],\
+          ["busboy", "npm:1.6.0"],\
+          ["caniuse-lite", "npm:1.0.30001640"],\
+          ["graceful-fs", "npm:4.2.11"],\
+          ["postcss", "npm:8.4.31"],\
+          ["react", null],\
+          ["react-dom", null],\
+          ["sass", null],\
+          ["styled-jsx", "virtual:31a280bdee155901cac6fc47917cd16f3988ab6ab5c6ded93bd9217da6303e1ab0413db6b91db19905eb23faf7014b93a92d26504b15a11343ff96918d6cec0c#npm:5.1.1"]\
+        ],\
+        "packagePeers": [\
+          "@opentelemetry/api",\
+          "@playwright/test",\
+          "@types/opentelemetry__api",\
+          "@types/playwright__test",\
+          "@types/react-dom",\
+          "@types/react",\
+          "@types/sass",\
+          "react-dom",\
+          "react",\
+          "sass"\
+        ],\
+        "linkType": "HARD"\
+      }],\
+      ["virtual:91309ac079a987448bd4530e5b9b4ee94f1cedcb24adf6e519a22141d8e3edef270b0bba173cfb07a9d33a02c85889c806c8ceca1a1a99cfd6120bb956e88382#npm:14.2.4", {\
+        "packageLocation": "./.yarn/__virtual__/next-virtual-8450708242/4/AppData/Local/Yarn/Berry/cache/next-npm-14.2.4-37fb4e5b51-10c0.zip/node_modules/next/",\
+        "packageDependencies": [\
+          ["next", "virtual:91309ac079a987448bd4530e5b9b4ee94f1cedcb24adf6e519a22141d8e3edef270b0bba173cfb07a9d33a02c85889c806c8ceca1a1a99cfd6120bb956e88382#npm:14.2.4"],\
+          ["@next/env", "npm:14.2.4"],\
+          ["@next/swc-darwin-arm64", "npm:14.2.4"],\
+          ["@next/swc-darwin-x64", "npm:14.2.4"],\
+          ["@next/swc-linux-arm64-gnu", "npm:14.2.4"],\
+          ["@next/swc-linux-arm64-musl", "npm:14.2.4"],\
+          ["@next/swc-linux-x64-gnu", "npm:14.2.4"],\
+          ["@next/swc-linux-x64-musl", "npm:14.2.4"],\
+          ["@next/swc-win32-arm64-msvc", "npm:14.2.4"],\
+          ["@next/swc-win32-ia32-msvc", "npm:14.2.4"],\
+          ["@next/swc-win32-x64-msvc", "npm:14.2.4"],\
+          ["@opentelemetry/api", null],\
+          ["@playwright/test", null],\
+          ["@swc/helpers", "npm:0.5.5"],\
+          ["@types/opentelemetry__api", null],\
+          ["@types/playwright__test", null],\
+          ["@types/react", "npm:18.3.3"],\
+          ["@types/react-dom", "npm:18.3.0"],\
+          ["@types/sass", null],\
+          ["busboy", "npm:1.6.0"],\
+          ["caniuse-lite", "npm:1.0.30001640"],\
+          ["graceful-fs", "npm:4.2.11"],\
+          ["postcss", "npm:8.4.31"],\
+          ["react", "npm:19.0.0-rc-9c6806964f-20240703"],\
+          ["react-dom", "virtual:ab741124a2f8a3501c8345ccf100b091e49e97198e618c9b5f1e3a350b8f6b1cba31abf4603e631ca957f1976c6610aa9c5ffaa0f09d1f8e963cc5ec556d7c34#npm:19.0.0-rc-9c6806964f-20240703"],\
+          ["sass", null],\
+          ["styled-jsx", "virtual:845070824222ae835f5ad388641e204d32a713aa64259621568e3a722be6722b5aab01eab6dfaa2b2361d4138b6fbc63c4df389a0bbc6ef4fc35a93d2e27a8ef#npm:5.1.1"]\
+        ],\
+        "packagePeers": [\
+          "@opentelemetry/api",\
+          "@playwright/test",\
+          "@types/opentelemetry__api",\
+          "@types/playwright__test",\
+          "@types/react-dom",\
+          "@types/react",\
+          "@types/sass",\
+          "react-dom",\
+          "react",\
+          "sass"\
+        ],\
+        "linkType": "HARD"\
+      }],\
       ["virtual:9dce388d82c018b4a7af5edc7243e51f7023d1ab93a923b3959d0066ac6881c93b965a0932486426cbefa96c9c8e47849d5ff541d2404b8aca246480fa32f0d2#npm:14.2.4", {\
         "packageLocation": "./.yarn/__virtual__/next-virtual-24b6fb3770/4/AppData/Local/Yarn/Berry/cache/next-npm-14.2.4-37fb4e5b51-10c0.zip/node_modules/next/",\
         "packageDependencies": [\
@@ -7913,7 +8010,7 @@ const RAW_RUNTIME_STATE =
           ["@types/react-dom", "npm:18.3.0"],\
           ["cookie", "npm:0.5.0"],\
           ["jose", "npm:4.15.9"],\
-          ["next", null],\
+          ["next", "virtual:7ebfe31dce321543f0b4a6bc9577c49eb6fa3a4d0e9e554a6e04fb6654c48fb54ae03b3606f46e5f579ce51b0de87d6972b3c60047a4c2f59ee1c003a70a5e02#npm:14.2.4"],\
           ["nodemailer", null],\
           ["oauth", "npm:0.9.15"],\
           ["openid-client", "npm:5.6.5"],\
@@ -7947,7 +8044,7 @@ const RAW_RUNTIME_STATE =
           ["@types/react-dom", "npm:18.3.0"],\
           ["cookie", "npm:0.5.0"],\
           ["jose", "npm:4.15.9"],\
-          ["next", null],\
+          ["next", "virtual:91309ac079a987448bd4530e5b9b4ee94f1cedcb24adf6e519a22141d8e3edef270b0bba173cfb07a9d33a02c85889c806c8ceca1a1a99cfd6120bb956e88382#npm:14.2.4"],\
           ["nodemailer", null],\
           ["oauth", "npm:0.9.15"],\
           ["openid-client", "npm:5.6.5"],\
@@ -10312,6 +10409,50 @@ const RAW_RUNTIME_STATE =
         ],\
         "linkType": "HARD"\
       }],\
+      ["virtual:31a280bdee155901cac6fc47917cd16f3988ab6ab5c6ded93bd9217da6303e1ab0413db6b91db19905eb23faf7014b93a92d26504b15a11343ff96918d6cec0c#npm:5.1.1", {\
+        "packageLocation": "./.yarn/__virtual__/styled-jsx-virtual-ebc6c08151/4/AppData/Local/Yarn/Berry/cache/styled-jsx-npm-5.1.1-2557a209ba-10c0.zip/node_modules/styled-jsx/",\
+        "packageDependencies": [\
+          ["styled-jsx", "virtual:31a280bdee155901cac6fc47917cd16f3988ab6ab5c6ded93bd9217da6303e1ab0413db6b91db19905eb23faf7014b93a92d26504b15a11343ff96918d6cec0c#npm:5.1.1"],\
+          ["@babel/core", null],\
+          ["@types/babel-plugin-macros", null],\
+          ["@types/babel__core", null],\
+          ["@types/react", "npm:18.3.3"],\
+          ["babel-plugin-macros", null],\
+          ["client-only", "npm:0.0.1"],\
+          ["react", null]\
+        ],\
+        "packagePeers": [\
+          "@babel/core",\
+          "@types/babel-plugin-macros",\
+          "@types/babel__core",\
+          "@types/react",\
+          "babel-plugin-macros",\
+          "react"\
+        ],\
+        "linkType": "HARD"\
+      }],\
+      ["virtual:845070824222ae835f5ad388641e204d32a713aa64259621568e3a722be6722b5aab01eab6dfaa2b2361d4138b6fbc63c4df389a0bbc6ef4fc35a93d2e27a8ef#npm:5.1.1", {\
+        "packageLocation": "./.yarn/__virtual__/styled-jsx-virtual-894838df52/4/AppData/Local/Yarn/Berry/cache/styled-jsx-npm-5.1.1-2557a209ba-10c0.zip/node_modules/styled-jsx/",\
+        "packageDependencies": [\
+          ["styled-jsx", "virtual:845070824222ae835f5ad388641e204d32a713aa64259621568e3a722be6722b5aab01eab6dfaa2b2361d4138b6fbc63c4df389a0bbc6ef4fc35a93d2e27a8ef#npm:5.1.1"],\
+          ["@babel/core", null],\
+          ["@types/babel-plugin-macros", null],\
+          ["@types/babel__core", null],\
+          ["@types/react", "npm:18.3.3"],\
+          ["babel-plugin-macros", null],\
+          ["client-only", "npm:0.0.1"],\
+          ["react", "npm:19.0.0-rc-9c6806964f-20240703"]\
+        ],\
+        "packagePeers": [\
+          "@babel/core",\
+          "@types/babel-plugin-macros",\
+          "@types/babel__core",\
+          "@types/react",\
+          "babel-plugin-macros",\
+          "react"\
+        ],\
+        "linkType": "HARD"\
+      }],\
       ["virtual:a1b5bb10c18cb6f5fa21b638df87a2f2aa7e1d6112568afd407de19e6492c73af2f59010010981007676e2954a2d8454146faaf7839ece07465f89793faa0a1e#npm:5.1.3", {\
         "packageLocation": "./.yarn/__virtual__/styled-jsx-virtual-d8ea77f075/4/AppData/Local/Yarn/Berry/cache/styled-jsx-npm-5.1.3-8644fbefe9-10c0.zip/node_modules/styled-jsx/",\
         "packageDependencies": [\
@@ -11170,12 +11311,14 @@ const RAW_RUNTIME_STATE =
         "packageDependencies": [\
           ["ui-react19", "virtual:ab741124a2f8a3501c8345ccf100b091e49e97198e618c9b5f1e3a350b8f6b1cba31abf4603e631ca957f1976c6610aa9c5ffaa0f09d1f8e963cc5ec556d7c34#workspace:packages/ui-react19"],\
           ["@types/babel-plugin-react-compiler", null],\
+          ["@types/lodash", "npm:4.17.6"],\
           ["@types/react", "npm:18.3.3"],\
           ["@types/react-dom", "npm:18.3.0"],\
           ["babel-plugin-react-compiler", "npm:0.0.0-experimental-696af53-20240625"],\
           ["config", "workspace:packages/config"],\
           ["eslint", "npm:9.6.0"],\
           ["lodash", "npm:4.17.21"],\
+          ["next", "virtual:91309ac079a987448bd4530e5b9b4ee94f1cedcb24adf6e519a22141d8e3edef270b0bba173cfb07a9d33a02c85889c806c8ceca1a1a99cfd6120bb956e88382#npm:14.2.4"],\
           ["next-auth", "virtual:91309ac079a987448bd4530e5b9b4ee94f1cedcb24adf6e519a22141d8e3edef270b0bba173cfb07a9d33a02c85889c806c8ceca1a1a99cfd6120bb956e88382#npm:4.24.7"],\
           ["postcss", "npm:8.4.39"],\
           ["postcss-import", "virtual:3ea405134475fa5c320be86f85615bd694947f13fe55ed43b2d84d997a30b40bfcc555f71403b66c7a5e5f2a7295a91407bf39da43d853539b6003a010b25d7a#npm:16.1.0"],\
@@ -11201,11 +11344,13 @@ const RAW_RUNTIME_STATE =
         "packageLocation": "./packages/ui-react19/",\
         "packageDependencies": [\
           ["ui-react19", "workspace:packages/ui-react19"],\
+          ["@types/lodash", "npm:4.17.6"],\
           ["@types/react", "npm:18.3.3"],\
           ["@types/react-dom", "npm:18.3.0"],\
           ["config", "workspace:packages/config"],\
           ["eslint", "npm:9.6.0"],\
           ["lodash", "npm:4.17.21"],\
+          ["next", "virtual:7ebfe31dce321543f0b4a6bc9577c49eb6fa3a4d0e9e554a6e04fb6654c48fb54ae03b3606f46e5f579ce51b0de87d6972b3c60047a4c2f59ee1c003a70a5e02#npm:14.2.4"],\
           ["next-auth", "virtual:7ebfe31dce321543f0b4a6bc9577c49eb6fa3a4d0e9e554a6e04fb6654c48fb54ae03b3606f46e5f579ce51b0de87d6972b3c60047a4c2f59ee1c003a70a5e02#npm:4.24.7"],\
           ["postcss", "npm:8.4.39"],\
           ["postcss-import", "virtual:3ea405134475fa5c320be86f85615bd694947f13fe55ed43b2d84d997a30b40bfcc555f71403b66c7a5e5f2a7295a91407bf39da43d853539b6003a010b25d7a#npm:16.1.0"],\
