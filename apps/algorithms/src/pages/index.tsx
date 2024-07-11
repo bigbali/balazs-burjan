@@ -6,7 +6,7 @@ enum Mode {
     SORT = 'sort'
 }
 
-const PathfinderVisualizer = dynamic(() => import('../algorithm/pathfinding'), { ssr: false });
+const PathfinderVisualizer = dynamic(() => import('../pathfinder'), { ssr: false });
 
 export default function Algorithms() {
     const [mode, setMode] = useState(() => Mode.PATHFINDER);

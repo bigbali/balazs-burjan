@@ -21,8 +21,8 @@ const START_BUTTON_CLASS_MAP = {
 } as const;
 
 export default function AlgorithmControls({ state, run }: Readonly<AlgorithmControlsProps>) {
-    const className = START_BUTTON_CLASS_MAP[state as keyof typeof START_BUTTON_CONTENT_MAP] ?? 'bg-yellow-500';
-    const content = START_BUTTON_CONTENT_MAP[state as keyof typeof START_BUTTON_CONTENT_MAP] ?? 'hello';
+    const className = START_BUTTON_CLASS_MAP[state as keyof typeof START_BUTTON_CONTENT_MAP] ?? 'bg-gray-500';
+    const content = START_BUTTON_CONTENT_MAP[state as keyof typeof START_BUTTON_CONTENT_MAP] ?? 'Please wait...';
 
     const onClick = (() => {
         if (state === State.IDLE) return () => run(State.PATHFINDER);
@@ -30,9 +30,7 @@ export default function AlgorithmControls({ state, run }: Readonly<AlgorithmCont
         if (state === State.PATHFINDER_PAUSED) return () => run(State.PATHFINDER_CONTINUE);
     })();
 
-    const disabled = (() => {
-        return !state.startsWith(State.PATHFINDER) && state !== State.IDLE;
-    })();
+    const disabled = !state.startsWith(State.PATHFINDER) && state !== State.IDLE;
 
     return (
         <button

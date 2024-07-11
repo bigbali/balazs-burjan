@@ -11,14 +11,14 @@ const BFSOrthogonalDirections = [
     [1, 0],
     [0, -1],
     [0, 1]
-] satisfies Direction[];
+] as const satisfies Direction[];
 
 const BFSDiagonalDirections = [
     [-1, -1],
     [1, 1],
     [1, -1],
     [-1, 1]
-] satisfies Direction[];
+] as const satisfies Direction[];
 
 const BFSHybridDirections = [
     [-1, 0],
@@ -29,7 +29,7 @@ const BFSHybridDirections = [
     [1, 1],
     [1, -1],
     [-1, 1]
-] satisfies Direction[];
+] as const satisfies Direction[];
 
 export const Directions = {
     [BFSDirection.ORTHOGONAL]: BFSOrthogonalDirections,

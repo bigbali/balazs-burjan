@@ -1,14 +1,9 @@
 import type { CellularAutomataOptions } from './options';
 import type { AsyncObstructionGenerator } from '../../../type';
-import type { Coordinate } from '../../..//type';
 import {
-    asyncGeneratorRunner,
-    setupPathfinder,
-    isOutOfBounds
-} from '../../../util';
+    asyncGeneratorRunner } from '../../../util';
 import { useRendererStore } from '../../hook/useRenderer';
 
-const queue: Coordinate[] = [];
 const directions = [
     [-1, 0],
     [1, 0],
@@ -44,15 +39,6 @@ export const beginCAObstructionGenerator: AsyncObstructionGenerator<CellularAuto
             options.interrupt.current = false;
         }
 
-        setupPathfinder(
-            queue,
-            {
-                x: renderer.origin.x,
-                y: renderer.origin.y
-            },
-            false
-        );
-
         return await asyncGeneratorRunner(caObstructionGenerator(options), delay);
     };
 
@@ -72,10 +58,8 @@ async function* caObstructionGenerator(options: CellularAutomataOptions) {
                 const nx = node.x + dx;
                 const ny = node.y + dy;
 
-                if (!isOutOfBounds(nx, ny, renderer.resolution)) {
-                    if (renderer?.getNodeAtIndex(nx, ny)?.isObstruction) {
-                        adjacentPaths++;
-                    }
+                if (renderer?.getNodeAtIndex(nx, ny)?.isObstruction) {
+                    adjacentPaths++;
                 }
             }
 

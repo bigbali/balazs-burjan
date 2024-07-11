@@ -13,7 +13,7 @@ export default class Node {
     isHighlighted = false;
     isBacktrace = false;
     isVisited = false;
-    weight = 0;
+    weight: number | null = null;
 
     constructor(renderer: Renderer, x: number, y: number, isObstruction: boolean, isTarget: boolean, isOrigin: boolean) {
         this.renderer = renderer;
@@ -43,6 +43,11 @@ export default class Node {
 
     setVisited() {
         this.isVisited = true;
+        this.paint();
+    }
+
+    setWeight(weight: number | null) {
+        this.weight = weight;
         this.paint();
     }
 
@@ -97,18 +102,23 @@ export default class Node {
         if (color) {
             ctx.fillStyle = color;
         } else {
-            if (this.isOrigin) {
+            if (this.isHighlighted) {
+                ctx.fillStyle = NodeColor.HIGHLIGHT;
+            }else if (this.isOrigin) {
                 ctx.fillStyle = NodeColor.ORIGIN;
             } else if (this.isTarget) {
                 ctx.fillStyle = NodeColor.TARGET;
             } else if (this.isObstruction) {
                 ctx.fillStyle = NodeColor.OBSTRUCTION;
-            } else if (this.isHighlighted) {
-                ctx.fillStyle = NodeColor.HIGHLIGHT;
             } else if (this.isBacktrace) {
                 ctx.fillStyle = NodeColor.BACKTRACE;
             } else if (this.isVisited) {
                 ctx.fillStyle = NodeColor.VISITED;
+            } else if (this.weight !== null) {
+                const r = 255 - this.weight;
+                const g = Math.max((128 - this.weight) * 2, 30);
+                const b = Math.max((128 - this.weight) * 2, 60);
+                ctx.fillStyle = `rgb(${r}, ${g}, ${b})`;
             } else {
                 ctx.fillStyle = NodeColor.DEFAULT;
             }

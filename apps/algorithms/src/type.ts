@@ -1,4 +1,5 @@
 import type { MutableRefObject } from 'react';
+import type Node from './renderer/node';
 
 /**
  * The amount of nodes in a column or row.
@@ -73,9 +74,10 @@ export type Coordinate = {
     y: number
 };
 
-export type Entry<T = object> = (Coordinate & {
+export type Entry<T = {}> = (({
+    node: Node,
     parent: Entry
-} & T) | null;
+}) & T) | null;
 
 export type ValueOf<T> = T[keyof T];
 

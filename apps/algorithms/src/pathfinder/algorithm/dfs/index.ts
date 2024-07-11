@@ -1,21 +1,12 @@
 import type { MutableRefObject } from 'react';
 import type { DFSDirection } from './direction';
 import { Directions } from './direction';
-import {
-    setupPathfinder,
-    markNode,
-    generatorRunner,
-    isObstruction,
-    isOutOfBounds
-} from '../../../../util';
-import type { Coordinate, Entry } from '../../../../util/type';
-import type { Direction, Grid } from '../../../type';
+import type { Direction, Entry } from '../../../type';
 import { State } from '../../../type';
+import { setupPathfinder, generatorRunner } from '../../../util';
+import { useRendererStore } from '../../hook/useRenderer';
 
 type BeginDFSParams = {
-    origin: Coordinate,
-    target: Coordinate,
-    grid: Grid,
     delay: MutableRefObject<number>,
     state: MutableRefObject<State>,
     resume: boolean,
@@ -28,67 +19,69 @@ export type BeginDFS = (params: BeginDFSParams) => Promise<Entry>;
 
 let stack: Entry[] = [];
 let directions: Direction[] = [];
-const visited: boolean[][] = [];
 
 export const resetDFS = (callback: () => void) => {
     stack = [];
     callback();
 };
 
-export const beginDFS: BeginDFS = async ({ origin, target, grid, delay, state, resume, options }) => {
-    const { direction } = options;
+export const beginDFS: BeginDFS = async ({ delay, state, resume, options }) => {
+    const renderer = useRendererStore.getState().renderer;
 
-    directions = Directions[direction];
+    if (!renderer) throw Error('no renderer');
+
+    directions = Directions[options.direction];
 
     setupPathfinder(
         stack,
         {
-            x: origin.x,
-            y: origin.y,
+            node: renderer.origin,
             parent: null
         },
-        grid,
-        visited,
         resume
     );
 
-    return await generatorRunner(dfsGenerator(target, grid, state), delay);
+    return await generatorRunner(dfsGenerator(state), delay);
 };
 
 function* dfsGenerator(
-    target: Coordinate,
-    grid: Grid,
     state: MutableRefObject<State>
 ) {
+    const renderer = useRendererStore.getState().renderer;
+
+    if (!renderer) throw Error('no renderer');
+
     while (stack.length > 0) {
         if (state.current === State.PATHFINDER_PAUSED) {
             return null;
         }
 
         const current = stack.pop()!;
+        const node = current.node;
 
-        if (current.x === target.x && current.y === target.y) {
+        if (node.isTarget) {
             return current;
         }
 
-        if (visited[current.y]![current.x]) {
+        if (node.isVisited) {
             continue;
         }
 
-        if (isObstruction(current.x, current.y, grid)) {
+        if (node.isObstruction) {
             continue;
         }
 
-        markNode(grid, visited, current.x, current.y);
+        node.setVisited();
 
         for (const [dx, dy] of directions) {
-            const x = current.x + dx;
-            const y = current.y + dy;
+            const x = node.x + dx;
+            const y = node.y + dy;
 
-            if (!isOutOfBounds(x, y, grid) && !visited[y]![x] && !isObstruction(x, y, grid)) {
+            const adjacentNode = renderer.getNodeAtIndex(x, y);
+
+            if (adjacentNode && !adjacentNode.isVisited && !adjacentNode.isObstruction) {
                 stack.push({
-                    x,
-                    y,
+                    node: adjacentNode!,
                     parent: current
                 });
             }

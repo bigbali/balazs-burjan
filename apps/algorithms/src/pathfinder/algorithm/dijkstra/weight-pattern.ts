@@ -1,38 +1,35 @@
-import type { Coordinate } from '../../../../util/type';
-import type { Grid } from '../../../type';
+import { useRendererStore } from '../../hook/useRenderer';
 
 export enum WeightPattern {
     GRAVITATIONAL = 'gravitational',
     RANDOM = 'random',
     MANUAL = 'manual'
-};
+}
 
-export const generateRandomWeightPattern = (grid: Grid | null) => {
-    if (!grid) {
-        return;
+export const generateRandomWeightPattern = () => {
+    const renderer = useRendererStore.getState().renderer;
+
+    if (!renderer) {
+        throw Error('no renderer');
     }
 
-    for (const row of grid) {
-        for (const nodeReference of row) {
-            const random = Math.random();
+    for (const node of Array.from(renderer.nodes.values())) {
+        const random = Math.random();
 
-            if (random > 0.75) {
-                const [, setWeight] = nodeReference.weight;
-                setWeight(Math.round(random * grid.length));
-            }
-        }
+        node.setWeight(Math.round(random * 255));
     }
 };
 
-export const generateGravitationalWeightPattern = (grid: Grid | null, goal: Coordinate | null) => {
-    if (!grid || !goal) {
-        return;
+export const generateGravitationalWeightPattern = () => {
+    const renderer = useRendererStore.getState().renderer;
+
+    if (!renderer) {
+        throw Error('no renderer');
     }
 
-    for (let y = 0; y < grid.length; y++) {
-        for (let x = 0; x < grid[0]!.length; x++) {
-            const distance = Math.sqrt(Math.pow(goal.y - y, 2) + Math.pow(goal.x - x, 2));
-            grid[y]![x]!.weight[1](Math.round((distance / grid.length * 255)));
-        }
+    for (const node of Array.from(renderer.nodes.values())) {
+        const distance = Math.sqrt(Math.pow(renderer.target.y - node.y, 2) + Math.pow(renderer.target.x - node.x, 2));
+
+        node.setWeight((Math.round((distance / renderer.resolution.x * 255))));
     }
 };

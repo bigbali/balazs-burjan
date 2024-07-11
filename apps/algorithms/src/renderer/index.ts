@@ -88,6 +88,14 @@ export default class Renderer {
         this.paint();
     }
 
+    isOutOfBounds = (x: number, y: number) => {
+        if (x >= this.resolution.x || x < 0) return true;
+        if (y >= this.resolution.y || y < 0) return true;
+
+        return false;
+    };
+
+
     initialize() {
         for (let x = 0; x < this.resolution.x; x++) {
             for (let y = 0; y < this.resolution.y; y++) {

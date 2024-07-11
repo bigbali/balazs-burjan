@@ -1,18 +1,12 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { generateGravitationalWeightPattern, generateRandomWeightPattern, WeightPattern } from './weight-pattern';
-import type { Coordinate } from '../../../../util/type';
-import type { Grid } from '../../../type';
 
 type DijkstraOptionsType = {
     weightPattern: WeightPattern,
-    grid: Grid | null,
-    target: Coordinate | null
 };
 
 export const dijkstraDefaultOptions: DijkstraOptionsType = {
-    weightPattern: WeightPattern.GRAVITATIONAL,
-    grid: null,
-    target: null
+    weightPattern: WeightPattern.GRAVITATIONAL
 };
 
 export type DijkstraOptionsProps = {
@@ -25,11 +19,11 @@ export const DijkstraOptions = ({ options, setOptions }: DijkstraOptionsProps) =
         <div className='flex flex-col gap-2'>
             <div className='flex gap-2'>
                 <label htmlFor='dijkstraweight'>
-                    Weight:
+                    Weight Pattern:
                 </label>
                 <select
                     id='dijsktraweight'
-                    className='border border-slate-3 rounded-md capitalize px-4'
+                    className='px-4 capitalize border rounded-md border-slate-3'
                     value={options.weightPattern}
                     onChange={(e) => {
                         setOptions({
@@ -46,16 +40,16 @@ export const DijkstraOptions = ({ options, setOptions }: DijkstraOptionsProps) =
             </div>
             {options.weightPattern === WeightPattern.RANDOM && (
                 <button
-                    className='bg-sky-700 text-white font-medium px-4 py-2 rounded-lg w-fit'
-                    onClick={() => generateRandomWeightPattern(options.grid)}
+                    className='w-full px-4 py-2 font-medium text-white rounded-lg bg-sky-700'
+                    onClick={() => generateRandomWeightPattern()}
                 >
                     Generate Random Weight Pattern
                 </button>
             )}
             {options.weightPattern === WeightPattern.GRAVITATIONAL && (
                 <button
-                    className='bg-sky-700 text-white font-medium px-4 py-2 rounded-lg w-fit'
-                    onClick={() => generateGravitationalWeightPattern(options.grid, options.target)}
+                    className='w-full px-4 py-2 font-medium text-white rounded-lg bg-sky-700'
+                    onClick={() => generateGravitationalWeightPattern()}
                 >
                     Generate Gravitational Weight Pattern
                 </button>

@@ -26,32 +26,27 @@ export type BeginBFS = (params: BeginBFSParams) => Promise<Entry | null>;
 
 let queue: Entry[] = [];
 let directions: Direction[] = [];
-// const visited: boolean[][] = [];
 
 export const resetBFS = (callback: () => void) => {
     queue = [];
     callback();
 };
 
-export const beginBFS: BeginBFS = async ({ grid, delay, state, resume, options }) => {
+export const beginBFS: BeginBFS = async ({ delay, state, resume, options }) => {
     const renderer = useRendererStore.getState().renderer;
 
     if (!renderer) {
         throw Error('no renderer');
     }
 
-    const { direction } = options;
-
-    directions = Directions[direction];
+    directions = Directions[options.direction];
 
     setupPathfinder(
         queue,
         {
-            x: renderer.origin.x,
-            y: renderer.origin.y,
+            node: renderer.origin,
             parent: null
         },
-        grid,
         resume
     );
 
@@ -67,8 +62,7 @@ function* bfsGenerator(state: MutableRefObject<State>) {
 
     while (queue.length > 0) {
         const current = queue.shift()!;
-
-        const node = renderer?.getNodeAtIndex(current.x, current.y);
+        const node = current.node;
 
         if (state.current === State.PATHFINDER_PAUSED) {
             return current;
@@ -89,19 +83,14 @@ function* bfsGenerator(state: MutableRefObject<State>) {
         node?.setVisited();
 
         for (const [dx, dy] of directions) {
-            const x = current.x + dx;
-            const y = current.y + dy;
+            const x = node.x + dx;
+            const y = node.y + dy;
 
             const adjacentNode = renderer.getNodeAtIndex(x, y);
 
-            if (!adjacentNode) {
-                continue;
-            }
-
-            if (!adjacentNode.isVisited && !adjacentNode.isObstruction) {
+            if (adjacentNode && !adjacentNode.isVisited && !adjacentNode.isObstruction) {
                 queue.push({
-                    x,
-                    y,
+                    node: adjacentNode,
                     parent: current
                 });
             }

@@ -1,6 +1,6 @@
 import type { MutableRefObject } from 'react';
 import type { ObstructionGeneratorOptionsProps } from '..';
-import { createRef, memo } from 'react';
+import { createRef } from 'react';
 import { FieldRangeInput } from 'ui-react19';
 
 enum CAPreset {
@@ -74,7 +74,7 @@ const CA_PRESETS_MAP: Record<CAPreset, CellularAutomataOptions> = {
 
 export const CA_DEFAULT_OPTIONS = CA_PRESETS_MAP[CAPreset.CWOL];
 
-const CAOptions: React.FC<ObstructionGeneratorOptionsProps<CellularAutomataOptions>> = ({ options, setOptions }) => {
+const CAOptions = ({ options, setOptions }: ObstructionGeneratorOptionsProps<CellularAutomataOptions>) => {
     if (!options) {
         return null;
     }
@@ -230,4 +230,4 @@ const CAOptions: React.FC<ObstructionGeneratorOptionsProps<CellularAutomataOptio
     );
 };
 
-export default memo(CAOptions);
+export default CAOptions;

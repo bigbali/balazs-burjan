@@ -1,14 +1,11 @@
-import type { Coordinate } from '../../../../util/type';
+import type { Entry } from '../../../type';
 
-export type DijkstraQueueEntry = Coordinate & {
-    weight: number | null,
-    parent: DijkstraQueueEntry | null
-};
+export type DijkstraEntry = Entry<{weight: number | null}>;
 
 export class PriorityQueue {
-    private heap: [number, DijkstraQueueEntry][] = [];
+    private heap: [number, DijkstraEntry][] = [];
 
-    push(priority: number, value: DijkstraQueueEntry) {
+    push(priority: number, value: DijkstraEntry) {
         this.heap.push([priority, value]);
         this.bubbleUp(this.heap.length - 1);
     }
@@ -53,6 +50,7 @@ export class PriorityQueue {
         const [priority, value] = this.heap[index]!;
         const lastIndex = this.heap.length - 1;
 
+        // eslint-disable-next-line no-constant-condition
         while (true) {
             const leftChildIndex = 2 * index + 1;
             const rightChildIndex = 2 * index + 2;

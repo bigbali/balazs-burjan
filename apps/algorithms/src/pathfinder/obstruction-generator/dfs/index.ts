@@ -1,84 +1,62 @@
 import shuffle from 'lodash/shuffle';
 import {
-    setupPathfinder,
-    isObstruction,
-    isOutOfBounds,
     generatorRunner
-} from '../../../../util';
-import type { Coordinate } from '../../../../util/type';
-import type { AsyncObstructionGenerator, Grid } from '../../../type';
+} from '../../../util';
+import type { AsyncObstructionGenerator, Direction } from '../../../type';
+import { useRendererStore } from '../../hook/useRenderer';
+import type Node from '../../../renderer/node';
+import type Renderer from '../../../renderer';
 
-const stack: Coordinate[] = [];
+const stack: Node[] = [];
 const directions = [
     [-2, 0],
     [2, 0],
     [0, -2],
     [0, 2]
-] as const;
-const visited: boolean[][] = [];
+] as const satisfies Direction[];
 
-export const beginDFSObstructionGenerator: AsyncObstructionGenerator = async ({ origin, target, grid, delay }) => {
-    // since React batches the state updates to the nodes, they are updated only after the following code has run,
-    // and to prevent this, we run this in an async function that we await, so we'll have the updated nodes when running
-    // the generator
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async function setObstructions() {
-        for (const row of grid) {
-            for (const node of row) {
-                node.obstruction[1](true);
-            }
-        }
+export const beginDFSObstructionGenerator: AsyncObstructionGenerator = async ({ delay }) => {
+    const renderer = useRendererStore.getState().renderer;
+
+    if (!renderer) {
+        throw Error('no renderer');
     }
 
-    await setObstructions();
-
-    setupPathfinder(
-        stack,
-        {
-            x: origin.x,
-            y: origin.y
-        },
-        grid,
-        visited,
-        false
-    );
-
-    grid[origin.y]![origin.x]!.obstruction[1](false);
-    grid[target.y]![target.x]!.obstruction[1](false);
-
-    return await generatorRunner(dfsObstructionGenerator(grid), delay);
-};
-
-function* dfsObstructionGenerator(
-    grid: Grid
-) {
-    while (stack.length > 0) {
-        const current = stack.pop()!;
-
-        if (visited[current.y]![current.x]) {
+    for (const node of Array.from(renderer.nodes.values())) {
+        if (node.isOrigin || node.isTarget) {
             continue;
         }
 
+        node.setObstruction(true);
+    }
+
+    stack.push(renderer.origin);
+
+    return await generatorRunner(dfsObstructionGenerator(renderer), delay);
+};
+
+function* dfsObstructionGenerator(renderer: Renderer) {
+    while (stack.length > 0) {
+        const node = stack.pop()!;
+
         for (const [dx, dy] of shuffle(directions)) {
-            const x = current.x + dx;
-            const y = current.y + dy;
+            const x = node.x + dx;
+            const y = node.y + dy;
 
-            if (!isOutOfBounds(x, y, grid) && !visited[y]![x] && isObstruction(x, y, grid)) {
-                const setObstruction = grid[y]![x]!.obstruction[1];
-                setObstruction(false);
+            const adjacentNode = renderer.getNodeAtIndex(x, y);
 
-                const mx = current.x + (dx / 2);
-                const my = current.y + (dy / 2);
+            if (adjacentNode && adjacentNode.isObstruction) {
+                adjacentNode.setObstruction(false);
 
-                if (!isOutOfBounds(my, my, grid) && !visited[my]![mx]) {
-                    grid[my]![mx]!.obstruction[1](false);
+                const mx = node.x + (dx / 2);
+                const my = node.y + (dy / 2);
 
-                    stack.push({
-                        x,
-                        y
-                    });
+                const mNode = renderer.getNodeAtIndex(mx, my);
 
-                    visited[my]![mx] = true;
+                if (mNode) {
+                    mNode.setObstruction(false);
+
+                    stack.push(adjacentNode);
                 }
             }
         }

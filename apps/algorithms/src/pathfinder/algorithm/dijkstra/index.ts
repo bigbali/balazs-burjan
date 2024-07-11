@@ -3,15 +3,12 @@ import type { BFSDirection } from '../bfs/direction';
 import { PriorityQueue } from './priority-queue';
 import {
     setupPathfinder,
-    markNode,
-    generatorRunner,
-    isObstruction,
-    isOutOfBounds
-} from '../../../../util';
-import type { Coordinate, Entry } from '../../../../util/type';
+    generatorRunner
+} from '../../../util';
+import type { Coordinate, Entry } from '../../../type';
 import type { Direction, Grid } from '../../../type';
 import { State } from '../../../type';
-
+import { useRendererStore } from '../../hook/useRenderer';
 
 type BeginDijkstraParams = {
     origin: Coordinate,
@@ -35,42 +32,49 @@ const directions = [
     [1, 0],
     [0, -1],
     [0, 1]
-] satisfies Direction[];
-
-const visited: boolean[][] = [];
+] as const satisfies Direction[];
 
 export const resetDijkstra = (callback: () => void) => {
     pq.clear();
     callback();
 };
 
-export const beginDijkstra: BeginDijkstra = async ({ origin, target, grid, delay, state, resume }) => {
+export const beginDijkstra: BeginDijkstra = async ({ delay, state, resume }) => {
+    const renderer = useRendererStore.getState().renderer;
+
+    if (!renderer) {
+        throw Error('no renderer');
+    }
+
     setupPathfinder(
         pq,
         [0, {
-            x: origin.x,
-            y: origin.y,
+            node: renderer.origin,
             parent: null
         }],
-        grid,
-        visited,
         resume
     );
 
-    return await generatorRunner(dijkstraGenerator(target, grid, state), delay);
+    return await generatorRunner(dijkstraGenerator(state), delay);
 };
 
 function* dijkstraGenerator(
-    target: Coordinate,
-    grid: Grid,
     state: MutableRefObject<State>
 ) {
+    const renderer = useRendererStore.getState().renderer;
+
+    if (!renderer) {
+        throw Error('no renderer');
+    }
+
     while (!pq.isEmpty()) {
         const [, current] = pq.pop() || [];
 
         if (!current) continue;
 
-        if (current.x === target.x && current.y === target.y) {
+        const node = current.node;
+
+        if (node.isTarget) {
             return current;
         }
 
@@ -78,27 +82,27 @@ function* dijkstraGenerator(
             return null;
         }
 
-        if (visited[current.y]![current.x]) {
+        if (node.isVisited) {
             continue;
         }
 
-
-        if (isObstruction(current.x, current.y, grid)) {
+        if (node.isObstruction) {
             continue;
         }
 
-        markNode(grid, visited, current.x, current.y);
+        node.setVisited();
 
         for (const [dx, dy] of directions) {
-            const x = current.x + dx;
-            const y = current.y + dy;
+            const x = node.x + dx;
+            const y = node.y + dy;
 
-            if (!isOutOfBounds(x, y, grid) && !visited[y]![x] && !isObstruction(x, y, grid)) {
-                const weight = grid[y]![x]!.weight[0];
+            const adjacentNode = renderer.getNodeAtIndex(x, y);
+
+            if (adjacentNode && !adjacentNode.isVisited && !adjacentNode.isObstruction) {
+                const weight = adjacentNode.weight;
 
                 pq.push(weight ?? 0, {
-                    x,
-                    y,
+                    node: adjacentNode,
                     parent: current,
                     weight
                 });

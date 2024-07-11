@@ -6,7 +6,7 @@ export enum DFSDirection {
     TBRL = 'top to bottom, right to left',
     BTLR = 'bottom to top, left to right',
     BTRL = 'bottom to top, right to left'
-};
+}
 
 const DFSTopToBottomLeftToRight = [
     [-1, 0],

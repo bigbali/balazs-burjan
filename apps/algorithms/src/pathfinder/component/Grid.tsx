@@ -2,12 +2,12 @@ import type {
     MouseEventHandler,
     MouseEvent
 } from 'react';
-import type { Coordinate } from '../../type';
+import { MouseButton, type Coordinate } from '../../type';
 import {
     useEffect,
     useRef,
     useState } from 'react';
-import NodeControls, { useNodeStore } from './NodeControls';
+import NodeControls, { useNodeControlsStore } from './NodeControls';
 import useRenderer from '../hook/useRenderer';
 import { useWindowResize } from 'ui-react19';
 
@@ -20,13 +20,12 @@ let isMouseDown = false;
 let isObstructionMode = true;
 
 const Grid = ({ columns, rows }: GridProps) => {
-    const canvas = useRef<HTMLCanvasElement>(null);
-
     const { renderer, initialize } = useRenderer();
-
     const [cursorPosition, setCursorPosition] = useState<Coordinate | null>(null);
+    const nodeContext = useNodeControlsStore();
 
-    const setNode = useNodeStore(state => state.setSelectedNode);
+    const canvas = useRef<HTMLCanvasElement>(null);
+    const ref = useRef<HTMLDivElement>(null);
 
     const relativeCursorPosition = (e: MouseEvent) => ({
         x: e.clientX - renderer!.canvas.getBoundingClientRect().left,
@@ -37,21 +36,31 @@ const Grid = ({ columns, rows }: GridProps) => {
         const pos = relativeCursorPosition(e);
         setCursorPosition(pos);
 
-        setNode(renderer?.getNodeAtCursor(pos.x, pos.y) ?? null);
+        nodeContext.toggle(renderer?.getNodeAtCursor(pos.x, pos.y)!);
     };
 
-    const mouseDown: MouseEventHandler<HTMLCanvasElement> = (e) => {
+    const handleMouseDown: MouseEventHandler<HTMLCanvasElement> = (e) => {
+        if (e.buttons !== MouseButton.LEFT) {
+            return;
+        }
+
+        if (nodeContext.isOpen) {
+            nodeContext.close();
+        }
+
         const { x, y } = relativeCursorPosition(e);
+        const node = renderer?.getNodeAtCursor(x, y);
 
         isMouseDown = true;
-        isObstructionMode = !renderer?.getNodeAtCursor(x, y)?.isObstruction;
+        isObstructionMode = !node?.isObstruction;
+        node?.setObstruction(isObstructionMode);
     };
 
-    const mouseUp: MouseEventHandler<HTMLCanvasElement> = () => {
+    const handleMouseUp: MouseEventHandler<HTMLCanvasElement> = () => {
         isMouseDown = false;
     };
 
-    const mouseMove: MouseEventHandler<HTMLCanvasElement> = (e) => {
+    const handleMouseMove: MouseEventHandler<HTMLCanvasElement> = (e) => {
         if (isMouseDown) {
             const { x, y } = relativeCursorPosition(e);
             renderer?.getNodeAtCursor(x, y)?.setObstruction(isObstructionMode);
@@ -63,7 +72,7 @@ const Grid = ({ columns, rows }: GridProps) => {
 
         // if the node menu is open while the window is resized, we hold a reference to a node that is no longer renderer,
         // thus we set it to null in order to prevent interacting with it
-        setNode(null);
+        nodeContext.close();
     });
 
     useEffect(() => {
@@ -77,15 +86,15 @@ const Grid = ({ columns, rows }: GridProps) => {
     }, [columns, rows]);
 
     return (
-        <div className='relative w-full h-full overflow-auto'>
+        <div className='relative w-full h-full overflow-hidden' ref={ref}>
             <canvas
                 ref={canvas}
-                onMouseDown={mouseDown}
-                onMouseUp={mouseUp}
-                onMouseMove={mouseMove}
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+                onMouseMove={handleMouseMove}
                 onContextMenu={handleContextMenu}>
             </canvas>
-            <NodeControls position={cursorPosition} />
+            <NodeControls position={cursorPosition} container={ref.current} />
         </div>
     );
 };

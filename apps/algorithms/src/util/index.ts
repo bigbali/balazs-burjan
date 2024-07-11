@@ -9,29 +9,9 @@ import type Node from '../renderer/node';
 //     return false;
 // };
 
-export const isOutOfBounds = (x: number, y: number, resolution: Resolution) => {
-    if (x >= resolution.x || x < 0) return true;
-    if (y >= resolution.y || y < 0) return true;
-
-    return false;
-};
-
 // export const isObstruction = (x: number, y: number, grid: Grid) => {
 //     return grid[y]![x]!.obstruction?.[0];
 // };
-
-type ForEachNode = <T extends Node>(
-    grid: T[][],
-    callback: (node: T) => void
-) => void;
-
-export const forEachNode: ForEachNode = (grid, callback) => {
-    for (const element of grid) {
-        for (let column = 0; column < grid[0]!.length; column++) {
-            callback(element[column]!);
-        }
-    }
-};
 
 type GeneratorRunner = <T>(
     generator: Generator<unknown, T, unknown>,
@@ -76,30 +56,6 @@ export const asyncGeneratorRunner: AsyncGeneratorRunner = async (generator, dela
     }).then(() => clearTimeout(timeout));
 
     return await asyncGeneratorRunner(generator, delay);
-};
-
-type MarkNode = (
-    grid: Grid,
-    visited: boolean[][],
-    x: number,
-    y: number
-) => void;
-
-// // TODO could be better, no need to return fn, can move visited to node itself
-/**
- * Updates the highlight state of the node at `grid[y][x]`
- * @returns a function to that sets the state of the node and updates the visited matrix
- */
-export const markNode: MarkNode = (grid, visited, x, y) => {
-    // const {
-    //     visited: [, setVisited],
-    //     active: [, setHighlighted]
-    // } = grid[y]![x]!;
-
-    visited[y]![x] = true;
-    // setVisited(true);
-    // setHighlighted(true);
-    // setTimeout(() => setHighlighted(false), 200);
 };
 
 // type SetupPathfinder = <T>(

@@ -39,7 +39,7 @@ export const OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP = {
     [ObstructionGenerator.DFS]: {},
     [ObstructionGenerator.RANDOM]: RANDOM_DEFAULT_OPTIONS,
     [ObstructionGenerator.CELLULAR_AUTOMATA]: CA_DEFAULT_OPTIONS
-};
+} as const;
 
 export type ObstructionGeneratorOptions = ValueOf<typeof OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP>;
 type ObstructionGeneratorOptionsPayload<T> = Partial<T & { remount: boolean }>;

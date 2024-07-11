@@ -8,13 +8,14 @@ import AlgorithmControls from './AlgorithmControls';
 import { OBSTRUCTION_GENERATOR_MAP, ObstructionGenerator, useObstructionGeneratorOptions } from '../obstruction-generator';
 import ObstructionGeneratorControls from './ObstructionGeneratorControls';
 import useRenderer from '../hook/useRenderer';
+import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 type MenuProps = {
     ModeSelector: React.JSX.Element,
     rows: number,
     columns: number,
     state: State,
-    result: Entry | null,
     delayRef: MutableRefObject<Delay>,
     stateRef: MutableRefObject<State>,
     setRows: (value: number) => void,
@@ -30,7 +31,6 @@ export default function Menu({
     rows,
     columns,
     state,
-    result,
     delayRef,
     stateRef,
     setRows,
@@ -109,14 +109,6 @@ export default function Menu({
             return;
         }
     };
-
-    // TODO wtf
-    // useEffect(() => {
-    //     if (pathfinderOptions === dijkstraDefaultOptions) {
-    //         pathfinderOptions.grid = grid;
-    //         pathfinderOptions.target = target;
-    //     }
-    // }, [pathfinderOptions, grid, target]);
 
     return (
         <div className='flex flex-col h-full gap-2 p-2 bg-white border rounded-lg w-[35rem] border-theme-border-light'>
@@ -217,7 +209,7 @@ export default function Menu({
             </div>
             <div className='flex flex-col justify-between h-full gap-4'>
                 <div className='flex flex-col gap-2'>
-                    <Expander label='Algorithm'>
+                    <Expander label='Algorithm' openInitial>
                         <fieldset className='px-4 pt-3 pb-4'>
                             {PathfinderOptions}
                         </fieldset>
@@ -228,6 +220,26 @@ export default function Menu({
                                 {ObstructionGeneratorOptions}
                             </div>
                         </fieldset>
+                    </Expander>
+                    <Expander label='Help'>
+                        <div className='flex flex-col gap-4 m-4 font-medium'>
+                            <p className='flex items-center gap-[1rem]'>
+                                <FontAwesomeIcon
+                                    color='#323538'
+                                    icon={faInfoCircle}
+                                    className='w-[1.2rem] h-[1.2rem]'
+                                />
+                        Toggle obstructions using the left mouse button.
+                            </p>
+                            <p className='flex items-center gap-[1rem]'>
+                                <FontAwesomeIcon
+                                    color='#323538'
+                                    icon={faInfoCircle}
+                                    className='w-[1.2rem] h-[1.2rem]'
+                                />
+                        Open the node context menu using the right mouse button.
+                            </p>
+                        </div>
                     </Expander>
                 </div>
                 <div className='flex flex-col gap-4'>
