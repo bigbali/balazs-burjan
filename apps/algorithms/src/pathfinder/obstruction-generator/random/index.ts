@@ -1,27 +1,30 @@
-import type { ObstructionGenerator, ObstructionGeneratorOptions } from '../../../type';
-import type { RandomOptions } from './options';
+import type { ObstructionGeneratorOptions } from '../../../type';
+import type { OGRandomOptions } from './options';
 import { useRendererStore } from '../../hook/useRenderer';
 
-type Options = ObstructionGeneratorOptions<RandomOptions>;
+type Options = ObstructionGeneratorOptions<OGRandomOptions>;
 
-export const beginRandomObstructionGenerator: ObstructionGenerator<RandomOptions> = ({ options }) => {
-    return generateRandomObstructions(options);
-};
-
-function generateRandomObstructions({ probability: p }: Options['options']) {
-    const renderer = useRendererStore.getState().renderer;
-
-    if (!renderer) {
-        throw Error('no renderer');
+export default class OGRandom {
+    static begin  ({ options }: Options)  {
+        return this.run(options);
     }
 
-    const probability = p / 100;
+    static run({ probability: p }: OGRandomOptions) {
+        const renderer = useRendererStore.getState().renderer;
 
-    for (const node of Array.from(renderer.nodes.values())) {
-        if (Math.random() <= probability) {
-            node.setObstruction(true);
+        if (!renderer) {
+            throw Error('no renderer');
         }
-    }
 
-    return true;
+        const probability = p / 100;
+
+        for (const node of Array.from(renderer.nodes.values())) {
+            if (Math.random() <= probability) {
+                node.setObstruction(true);
+            }
+        }
+
+        return true;
+    }
 }
+

@@ -2,27 +2,28 @@ import type {
     MouseEventHandler,
     MouseEvent
 } from 'react';
-import { MouseButton, type Coordinate } from '../../type';
+import { MouseButton, State, type Coordinate } from '../../type';
 import {
     useEffect,
     useRef,
     useState } from 'react';
-import NodeControls, { useNodeControlsStore } from './NodeControls';
+import NodeContextMenu, { useNodeControlsStore } from './NodeContextMenu';
 import useRenderer from '../hook/useRenderer';
 import { useWindowResize } from 'ui-react19';
-
-export type GridProps = {
-    columns: number,
-    rows: number,
-};
+import usePathfinderStore from '../../renderer/usePathfinderStore';
+import useBacktraceHighlight from '../hook/useBacktraceHighlight';
+import { PATHFINDER_MAP } from '../algorithm';
 
 let isMouseDown = false;
 let isObstructionMode = true;
 
-const Grid = ({ columns, rows }: GridProps) => {
+const Grid = () => {
     const { renderer, initialize } = useRenderer();
     const [cursorPosition, setCursorPosition] = useState<Coordinate | null>(null);
     const nodeContext = useNodeControlsStore();
+
+    const { columns, rows, result } = usePathfinderStore();
+    useBacktraceHighlight(result);
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const ref = useRef<HTMLDivElement>(null);
@@ -73,6 +74,10 @@ const Grid = ({ columns, rows }: GridProps) => {
         // if the node menu is open while the window is resized, we hold a reference to a node that is no longer renderer,
         // thus we set it to null in order to prevent interacting with it
         nodeContext.close();
+        usePathfinderStore.getState().setState(State.IDLE);
+        PATHFINDER_MAP[usePathfinderStore.getState().pathfinder].reset();
+
+        renderer?.reset();
     });
 
     useEffect(() => {
@@ -86,7 +91,7 @@ const Grid = ({ columns, rows }: GridProps) => {
     }, [columns, rows]);
 
     return (
-        <div className='relative w-full h-full overflow-hidden' ref={ref}>
+        <div className='relative grid w-full h-full overflow-hidden place-items-center' ref={ref}>
             <canvas
                 ref={canvas}
                 onMouseDown={handleMouseDown}
@@ -94,7 +99,7 @@ const Grid = ({ columns, rows }: GridProps) => {
                 onMouseMove={handleMouseMove}
                 onContextMenu={handleContextMenu}>
             </canvas>
-            <NodeControls position={cursorPosition} container={ref.current} />
+            <NodeContextMenu position={cursorPosition} container={ref.current} />
         </div>
     );
 };

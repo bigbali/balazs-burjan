@@ -1,11 +1,5 @@
 import { useRendererStore } from '../../hook/useRenderer';
 
-export enum WeightPattern {
-    GRAVITATIONAL = 'gravitational',
-    RANDOM = 'random',
-    MANUAL = 'manual'
-}
-
 export const generateRandomWeightPattern = () => {
     const renderer = useRendererStore.getState().renderer;
 

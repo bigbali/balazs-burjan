@@ -5,7 +5,7 @@ import type {
     SetStateAction,
     CSSProperties
 } from 'react';
-import { useId, useState } from 'react';
+import { useEffect, useId, useState } from 'react';
 import { debounce } from 'lodash';
 import type { Either } from '../../util/type';
 
@@ -14,6 +14,7 @@ type BaseFieldRangeInputProps = {
     max?: number,
     step?: number,
     defaultValue?: number,
+    value?: number,
     debounceRange?: boolean,
     label: string,
     labelStyle?: CSSProperties,
@@ -119,6 +120,7 @@ export default function FieldRangeInput ({
     max = 100,
     step = 1,
     defaultValue = 50,
+    value,
     debounceRange = true,
     label,
     onFieldChange,
@@ -129,7 +131,7 @@ export default function FieldRangeInput ({
     rangeStyle,
     ...props
 }: FieldRangeInputProps) {
-    const [value, setValue] = useState<number | null>(defaultValue);
+    const [_value, _setValue] = useState<number | null>(value ?? defaultValue);
     const id = useId();
 
     const fieldCallback = onChange
@@ -138,6 +140,10 @@ export default function FieldRangeInput ({
     const rangeCallback = onChange
         ? onChange
         : onRangeChange;
+
+    useEffect(() => {
+        value && _setValue(value);
+    }, [value]);
 
     return (
         <div {...props}>
@@ -154,14 +160,14 @@ export default function FieldRangeInput ({
                 max={max}
                 min={min}
                 step={step}
-                value={value ?? ''}
+                value={_value ?? min}
                 onChange={(e) => handleFieldRangeInputChange({
                     event: e,
                     min,
                     max,
                     defaultValue,
                     debounce: false,
-                    setter: setValue,
+                    setter: _setValue,
                     callback: fieldCallback
                 })}
             />
@@ -171,14 +177,14 @@ export default function FieldRangeInput ({
                 max={max}
                 min={min}
                 step={step}
-                value={value ?? min}
+                value={ _value ?? min}
                 onChange={(e) => handleFieldRangeInputChange({
                     event: e,
                     min,
                     max,
                     defaultValue,
                     debounce: debounceRange,
-                    setter: setValue,
+                    setter: _setValue,
                     callback: rangeCallback
                 })}
             />

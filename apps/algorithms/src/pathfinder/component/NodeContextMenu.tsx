@@ -12,7 +12,6 @@ type SelectedNodeStore = {
     openAt: (node: Node) => void,
     close: () => void,
     toggle: (node: Node) => void
-    // setNode: (node: Node | null) => boolean
 };
 
 export const useNodeControlsStore = create<SelectedNodeStore>(set => ({
@@ -41,7 +40,7 @@ type NodeControlsProps = {
     container: HTMLDivElement | null
 };
 
-const NodeControls = ({ position, container }: NodeControlsProps) => {
+export default function NodeContextMenu({ position, container }: NodeControlsProps){
     const { node, isOpen, close } = useNodeControlsStore();
 
     type NodeMethod = () => void;
@@ -147,6 +146,4 @@ const NodeControls = ({ position, container }: NodeControlsProps) => {
             )}
         </div>
     );
-};
-
-export default NodeControls;
+}

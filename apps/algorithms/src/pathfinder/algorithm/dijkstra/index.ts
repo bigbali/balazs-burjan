@@ -1,116 +1,112 @@
-import type { MutableRefObject } from 'react';
-import type { BFSDirection } from '../bfs/direction';
+import type { Entry, Paused } from '../../../type';
+import type { Direction } from '../../../type';
 import { PriorityQueue } from './priority-queue';
 import {
     setupPathfinder,
-    generatorRunner
+    generatorRunner,
+    pause
 } from '../../../util';
-import type { Coordinate, Entry } from '../../../type';
-import type { Direction, Grid } from '../../../type';
 import { State } from '../../../type';
 import { useRendererStore } from '../../hook/useRenderer';
-
-type BeginDijkstraParams = {
-    origin: Coordinate,
-    target: Coordinate,
-    grid: Grid,
-    delay: MutableRefObject<number>,
-    state: MutableRefObject<State>,
-    resume: boolean,
-    options: {
-        direction: BFSDirection
-    }
-};
-
-const pq = new PriorityQueue();
+import usePathfinderStore from '../../../renderer/usePathfinderStore';
 
 type DijkstraEntry = Entry<{ weight: number | null }>;
-export type BeginDijkstra = (params: BeginDijkstraParams) => Promise<DijkstraEntry>;
 
-const directions = [
-    [-1, 0],
-    [1, 0],
-    [0, -1],
-    [0, 1]
-] as const satisfies Direction[];
-
-export const resetDijkstra = (callback: () => void) => {
-    pq.clear();
-    callback();
+type DijkstraParams = {
+    resume: boolean
 };
 
-export const beginDijkstra: BeginDijkstra = async ({ delay, state, resume }) => {
-    const renderer = useRendererStore.getState().renderer;
+export default class Dijkstra {
+    static readonly directions = [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1]
+    ] as const satisfies Direction[];
 
-    if (!renderer) {
-        throw Error('no renderer');
+    static priorityQueue = new PriorityQueue();
+
+    static begin = async ({ resume }: DijkstraParams): Promise<DijkstraEntry | Paused> => {
+        const renderer = useRendererStore.getState().renderer;
+
+        if (!renderer) {
+            throw Error('no renderer');
+        }
+
+        setupPathfinder(
+            this.priorityQueue,
+            [0, {
+                node: renderer.origin,
+                parent: null
+            }],
+            resume
+        );
+
+        return await generatorRunner(this.run());
+    };
+
+    static reset (callback?: () => void)  {
+        usePathfinderStore.getState().setState(State.IDLE);
+        this.priorityQueue.clear();
+        callback && callback();
     }
 
-    setupPathfinder(
-        pq,
-        [0, {
-            node: renderer.origin,
-            parent: null
-        }],
-        resume
-    );
+    static *run() {
+        const renderer = useRendererStore.getState().renderer;
 
-    return await generatorRunner(dijkstraGenerator(state), delay);
-};
-
-function* dijkstraGenerator(
-    state: MutableRefObject<State>
-) {
-    const renderer = useRendererStore.getState().renderer;
-
-    if (!renderer) {
-        throw Error('no renderer');
-    }
-
-    while (!pq.isEmpty()) {
-        const [, current] = pq.pop() || [];
-
-        if (!current) continue;
-
-        const node = current.node;
-
-        if (node.isTarget) {
-            return current;
+        if (!renderer) {
+            throw Error('no renderer');
         }
 
-        if (state.current === State.PATHFINDER_PAUSED) {
-            return null;
-        }
+        while (!this.priorityQueue.isEmpty()) {
+            const [, current] = this.priorityQueue.pop() || [];
 
-        if (node.isVisited) {
-            continue;
-        }
+            if (!current) continue;
 
-        if (node.isObstruction) {
-            continue;
-        }
+            const node = current.node;
 
-        node.setVisited();
+            const state = usePathfinderStore.getState().state;
 
-        for (const [dx, dy] of directions) {
-            const x = node.x + dx;
-            const y = node.y + dy;
-
-            const adjacentNode = renderer.getNodeAtIndex(x, y);
-
-            if (adjacentNode && !adjacentNode.isVisited && !adjacentNode.isObstruction) {
-                const weight = adjacentNode.weight;
-
-                pq.push(weight ?? 0, {
-                    node: adjacentNode,
-                    parent: current,
-                    weight
-                });
+            if (state === State.PATHFINDER_PAUSED) {
+                return pause();
+            } else if (state === State.IDLE) {
+                return null;
             }
+
+            if (node.isTarget) {
+                return current;
+            }
+
+            if (node.isVisited) {
+                continue;
+            }
+
+            if (node.isObstruction) {
+                continue;
+            }
+
+            node.setVisited();
+
+            for (const [dx, dy] of this.directions) {
+                const x = node.x + dx;
+                const y = node.y + dy;
+
+                const adjacentNode = renderer.getNodeAtIndex(x, y);
+
+                if (adjacentNode && !adjacentNode.isVisited && !adjacentNode.isObstruction) {
+                    const weight = adjacentNode.weight;
+
+                    this.priorityQueue.push(weight ?? 0, {
+                        node: adjacentNode,
+                        parent: current,
+                        weight
+                    });
+                }
+            }
+
+            yield;
         }
 
-        yield;
+        return null;
     }
-
-    return null;
 }

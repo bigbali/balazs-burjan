@@ -1,20 +1,20 @@
-import type { Dispatch, SetStateAction } from 'react';
-import { generateGravitationalWeightPattern, generateRandomWeightPattern, WeightPattern } from './weight-pattern';
+import { generateGravitationalWeightPattern, generateRandomWeightPattern } from './weight-pattern';
+import type { OptionsComponentProps } from '../../../type';
 
-type DijkstraOptionsType = {
+export enum WeightPattern {
+    GRAVITATIONAL = 'gravitational',
+    RANDOM = 'random'
+}
+
+export type DijkstraOptions = {
     weightPattern: WeightPattern,
 };
 
-export const dijkstraDefaultOptions: DijkstraOptionsType = {
+export const DIJSKTRA_DEFAULT_OPTIONS: DijkstraOptions = {
     weightPattern: WeightPattern.GRAVITATIONAL
 };
 
-export type DijkstraOptionsProps = {
-    options: DijkstraOptionsType,
-    setOptions: Dispatch<SetStateAction<DijkstraOptionsType>>
-};
-
-export const DijkstraOptions = ({ options, setOptions }: DijkstraOptionsProps) => {
+export const DijkstraOptionsComponent = ({ options, setOptions }: OptionsComponentProps<DijkstraOptions>) => {
     return (
         <div className='flex flex-col gap-2'>
             <div className='flex gap-2'>

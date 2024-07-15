@@ -5,6 +5,9 @@ import react from 'eslint-plugin-react';
 import hooks from 'eslint-plugin-react-hooks';
 import next from '@next/eslint-plugin-next';
 import globals from 'globals';
+// check this
+'next/core-web-vitals',
+'next/typescript';
 
 /** @type { import("eslint").Linter.FlatConfig[] } */
 export default [

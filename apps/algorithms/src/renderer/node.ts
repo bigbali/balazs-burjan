@@ -23,10 +23,10 @@ export default class Node {
         this.isTarget = isTarget;
         this.isOrigin = isOrigin;
 
-        this.dx = (this.renderer.nodeSize + this.renderer.borderSize) * x + this.renderer.borderSize;
+        this.dx = (this.renderer.nodeSize + this.renderer.borderSize) * x + this.renderer.borderSize + this.renderer.padding.x;
         this.dy =
             (this.renderer.nodeSize + this.renderer.borderSize) * y +
-            this.renderer.borderSize;
+            this.renderer.borderSize + this.renderer.padding.y;
 
         this.isVisited = false;
     }

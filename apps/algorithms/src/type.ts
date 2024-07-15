@@ -1,4 +1,4 @@
-import type { MutableRefObject } from 'react';
+import type {  Dispatch, MutableRefObject, SetStateAction } from 'react';
 import type Node from './renderer/node';
 
 /**
@@ -29,6 +29,12 @@ export type Resolution = {
  */
 export type Direction = [number, number];
 
+export enum Pathfinder {
+    BREADTH_FIRST = 'Breadth First Search',
+    DEPTH_FIRST = 'Depth First Search',
+    DIJKSTRA = 'Dijkstra\'s Algorithm'
+}
+
 export const enum NodeColor {
     OUTLINE = 'rgb(127, 127, 127)',
     HIGHLIGHT = 'rgb(138, 24, 219)',
@@ -40,31 +46,31 @@ export const enum NodeColor {
     DEFAULT = 'rgb(230, 230, 230)'
 }
 
-export enum PathfinderState {
-    STOPPED = 'stopped',
-    RUNNING = 'running',
-    PAUSED = 'paused',
-    // DONE = 'done'
-}
-
-export type Grid = Node[][];
-
 export type ObstructionGeneratorOptions<T> = {
-    delay: MutableRefObject<number>,
     options: T
 };
 
-export type ObstructionGenerator<T = void> = (options: ObstructionGeneratorOptions<T>) => boolean | void;
-export type AsyncObstructionGenerator<T = void> = (options: ObstructionGeneratorOptions<T>) => Promise<boolean | void>;
+export type PathfinderResult = {
+    entry: Entry
+};
 
-// export type RunAction = <T>(action: () => Promise<T>) => Promise<void>;
+export type Paused = {
+    paused: true
+};
+
+export type ObstructionGenerator<T = void> =
+    (options: ObstructionGeneratorOptions<T>, resume: boolean) => boolean | Paused;
+export type AsyncObstructionGenerator<T = void> =
+    (options: ObstructionGeneratorOptions<T>, resume: boolean) => Promise<boolean | Paused>;
+
 export enum State {
     IDLE = 'idle',
-    OBSTRUCTION_GENERATOR = 'obstruction generator',
+    OBSTRUCTION_GENERATOR_RUNNING = 'obstruction generator running',
     OBSTRUCTION_GENERATOR_PAUSED = 'obstruction generator paused',
-    PATHFINDER = 'pathfinder',
+    OBSTRUCTION_GENERATOR_RESUMING = 'obstruction generator resuming',
+    PATHFINDER_RUNNING = 'pathfinder running',
     PATHFINDER_PAUSED = 'pathfinder paused',
-    PATHFINDER_CONTINUE = 'pathfinder continue',
+    PATHFINDER_RESUMING = 'pathfinder resuming',
 }
 
 export type RunAction = (action: State) => Promise<void>;
@@ -87,4 +93,7 @@ export const enum MouseButton {
     RIGHT
 }
 
-
+export type OptionsComponentProps<T> = {
+    options: T,
+    setOptions: Dispatch<SetStateAction<T>>
+};

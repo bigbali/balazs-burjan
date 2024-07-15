@@ -1,12 +1,21 @@
-import type { Dispatch, SetStateAction } from 'react';
-import { DFSDirection } from './direction';
+import type { OptionsComponentProps } from '../../../type';
 
-export type DFSOptionsProps = {
-    options: DFSDirection,
-    setOptions: Dispatch<SetStateAction<DFSDirection>>
+export enum DFSDirection {
+    LRBT = 'left, right, down, up',
+    LRTB = 'top to bottom, right to left',
+    RLTB = 'bottom to top, left to right',
+    RLBT = 'bottom to top, right to left'
+}
+
+export type DFSOptions = {
+    direction: DFSDirection
 };
 
-export const DFSOptions = ({ options, setOptions }: DFSOptionsProps) => {
+export const DEPTH_FIRST_SEARCH_DEFAULT_OPTIONS: DFSOptions = {
+    direction: DFSDirection.LRBT
+};
+
+export const DFSOptionsComponent = ({ options, setOptions }: OptionsComponentProps<DFSOptions>) => {
     return (
         <div className='flex gap-2'>
             <label htmlFor='dfsdirection'>
@@ -14,10 +23,10 @@ export const DFSOptions = ({ options, setOptions }: DFSOptionsProps) => {
             </label>
             <select
                 id='dfsdirection'
-                className='border border-slate-3 rounded-md capitalize px-4'
-                value={options}
+                className='px-4 capitalize border rounded-md border-slate-3'
+                value={options.direction}
                 onChange={(e) => {
-                    setOptions(e.currentTarget.value as DFSDirection);
+                    setOptions({ direction: e.currentTarget.value as DFSDirection });
                 }}>
                 {Object.values(DFSDirection).map((value) => (
                     <option key={value} value={value}>

@@ -1,27 +1,29 @@
-import type { MutableRefObject } from 'react';
-import type { ObstructionGeneratorOptionsProps } from '..';
-import { createRef } from 'react';
+import { type OGOptionsComponentProps } from '..';
 import { FieldRangeInput } from 'ui-react19';
 
-enum CAPreset {
+enum CellularAutomatonOptionsPreset {
     MAZE = 'Maze',
     MAZECTRIC = 'Mazectric',
     CWOL = 'Conway\'s way of life',
     HIGHLIFE = 'HighLife'
 }
 
-type InitialPattern = { type: 'random', probability: number } | { type: 'manual' };
+type InitialPattern = {
+    type: 'random',
+    probability: number
+} | {
+    type: 'use existing'
+};
 
-export type CellularAutomataOptions = {
+export type CellularAutomatonOptions = {
     setAlive: number,
     keepAlive: {
         min: number,
         max: number
     },
     steps: number,
-    preset?: CAPreset,
+    preset: CellularAutomatonOptionsPreset,
     initialPattern: InitialPattern,
-    interrupt?: MutableRefObject<boolean>
 };
 
 const DEFAULT_OPTIONS = {
@@ -29,52 +31,51 @@ const DEFAULT_OPTIONS = {
     initialPattern: {
         type: 'random',
         probability: 50
-    },
-    interrupt: createRef<boolean>() as MutableRefObject<boolean>
-} satisfies Partial<CellularAutomataOptions>;
+    }
+} satisfies Partial<CellularAutomatonOptions>;
 
-const CA_PRESETS_MAP: Record<CAPreset, CellularAutomataOptions> = {
-    [CAPreset.MAZECTRIC]: {
+const CELLULAR_AUTOMATON_PRESETS_MAP: Record<CellularAutomatonOptionsPreset, CellularAutomatonOptions> = {
+    [CellularAutomatonOptionsPreset.MAZECTRIC]: {
         ...DEFAULT_OPTIONS,
         setAlive: 2,
         keepAlive: {
             min: 1,
             max: 4
         },
-        preset: CAPreset.MAZECTRIC
+        preset: CellularAutomatonOptionsPreset.MAZECTRIC
     },
-    [CAPreset.MAZE]: {
+    [CellularAutomatonOptionsPreset.MAZE]: {
         ...DEFAULT_OPTIONS,
         setAlive: 2,
         keepAlive: {
             min: 1,
             max: 5
         },
-        preset: CAPreset.MAZE
+        preset: CellularAutomatonOptionsPreset.MAZE
     },
-    [CAPreset.CWOL]: {
+    [CellularAutomatonOptionsPreset.CWOL]: {
         ...DEFAULT_OPTIONS,
         setAlive: 3,
         keepAlive: {
             min: 2,
             max: 3
         },
-        preset: CAPreset.CWOL
+        preset: CellularAutomatonOptionsPreset.CWOL
     },
-    [CAPreset.HIGHLIFE]: {
+    [CellularAutomatonOptionsPreset.HIGHLIFE]: {
         ...DEFAULT_OPTIONS,
         setAlive: 4,
         keepAlive: {
             min: 3,
             max: 6
         },
-        preset: CAPreset.HIGHLIFE
+        preset: CellularAutomatonOptionsPreset.HIGHLIFE
     }
 } as const;
 
-export const CA_DEFAULT_OPTIONS = CA_PRESETS_MAP[CAPreset.CWOL];
+export const CA_DEFAULT_OPTIONS = CELLULAR_AUTOMATON_PRESETS_MAP[CellularAutomatonOptionsPreset.CWOL];
 
-const CAOptions = ({ options, setOptions }: ObstructionGeneratorOptionsProps<CellularAutomataOptions>) => {
+const OGCellularAutomatonOptionsComponent = ({ options, setOptions }: OGOptionsComponentProps<CellularAutomatonOptions>) => {
     if (!options) {
         return null;
     }
@@ -89,7 +90,7 @@ const CAOptions = ({ options, setOptions }: ObstructionGeneratorOptionsProps<Cel
                 className='capitalize border rounded-md border-slate-3'
                 value={options.preset}
                 onChange={(e) => { // this does not allow reselecting an option
-                    const newPreset = CA_PRESETS_MAP[e.currentTarget.value as CAPreset];
+                    const newPreset = CELLULAR_AUTOMATON_PRESETS_MAP[e.currentTarget.value as CellularAutomatonOptionsPreset];
                     setOptions({
                         ...newPreset,
                         // don't override steps with default
@@ -97,7 +98,7 @@ const CAOptions = ({ options, setOptions }: ObstructionGeneratorOptionsProps<Cel
                     });
                 }}
             >
-                {Object.values(CAPreset).map((value) => {
+                {Object.values(CellularAutomatonOptionsPreset).map((value) => {
                     return (
                         <option
                             key={value}
@@ -213,21 +214,9 @@ const CAOptions = ({ options, setOptions }: ObstructionGeneratorOptionsProps<Cel
                     })}
                     title='Keep cell state as alive if there are at most this many alive adjacent cells'
                 />
-                <button
-                    className='px-4 py-2 font-medium text-white rounded-lg bg-slate-700'
-                    onClick={() => {
-                        if (!options.interrupt) {
-                            options.interrupt = createRef() as MutableRefObject<boolean>;
-                        }
-                        options.interrupt.current = true;
-                    }}
-                    title='Stop the Obstruction Generator'
-                >
-                    Interrupt
-                </button>
             </div>
         </>
     );
 };
 
-export default CAOptions;
+export default OGCellularAutomatonOptionsComponent;

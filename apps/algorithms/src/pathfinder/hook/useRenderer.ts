@@ -11,7 +11,7 @@ export const useRendererStore = create<RendererStore>((set) => ({
     setRenderer: (renderer) => set({ renderer })
 }));
 
-export default function useRenderer(/* canvas: HTMLCanvasElement, resolution: Resolution */) {
+export default function useRenderer() {
     const { renderer, setRenderer } = useRendererStore();
 
     return {

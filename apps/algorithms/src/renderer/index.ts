@@ -1,16 +1,7 @@
 import type { Resolution } from '../type';
 import { Dimensions } from '../type';
 import Node from './node';
-
-const INITIAL_ORIGIN = {
-    x: 0,
-    y: 0
-};
-
-const INITIAL_TARGET = {
-    x: Dimensions.DEFAULT - 1,
-    y: Dimensions.DEFAULT - 1
-};
+import usePathfinderStore from './usePathfinderStore';
 
 export default class Renderer {
     canvas: HTMLCanvasElement;
@@ -19,9 +10,10 @@ export default class Renderer {
     resolution: Resolution;
     origin!: Node;
     target!: Node;
-    nodeSize: number;
+    nodeSize!: number;
     showNumbers = true;
     borderSize = 1;
+    padding!: Resolution;
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvas = canvas;
@@ -38,11 +30,6 @@ export default class Renderer {
         this.canvas.height =
             canvas.parentElement!.clientHeight * window.devicePixelRatio;
 
-        this.nodeSize =
-            this.canvas.width / this.resolution.x -
-            this.borderSize / this.resolution.x -
-            this.borderSize;
-
         this.initialize();
 
         canvas.addEventListener('contextmenu', function (event) {
@@ -51,8 +38,11 @@ export default class Renderer {
     }
 
     getNodeAtCursor(x: number, y: number) {
+        const _x = Math.floor((x - this.padding.x) / (this.nodeSize + this.borderSize));
+        const _y = Math.floor((y - this.padding.y) / (this.nodeSize + this.borderSize));
+
         return this.nodes.get(
-            `${Math.floor(x / (this.nodeSize + this.borderSize))},${Math.floor(y / (this.nodeSize + this.borderSize))}`
+            `${_x},${_y}`
         ) ?? null;
     }
 
@@ -95,12 +85,13 @@ export default class Renderer {
         return false;
     };
 
-
     initialize() {
+        this.#ensureContainment(true);
+
         for (let x = 0; x < this.resolution.x; x++) {
             for (let y = 0; y < this.resolution.y; y++) {
-                const isOrigin = x === INITIAL_ORIGIN.x && y === INITIAL_ORIGIN.y;
-                const isTarget = x === INITIAL_TARGET.x && y === INITIAL_TARGET.y;
+                const isOrigin = x === 0 && y === 0;
+                const isTarget = x === this.resolution.x - 1 && y === this.resolution.y - 1;
 
                 const node = new Node(this, x, y, false, isTarget, isOrigin);
 
@@ -121,7 +112,7 @@ export default class Renderer {
     update() {
         this.nodes.clear();
 
-        this.#updateNodeSize();
+        this.#ensureContainment();
 
         for (let x = 0; x < this.resolution.x; x++) {
             for (let y = 0; y < this.resolution.y; y++) {
@@ -153,7 +144,10 @@ export default class Renderer {
     }
 
     reset() {
-        this.initialize();
+        usePathfinderStore.getState().setResult(null);
+
+        // reset algorithm cache
+        this.update();
     }
 
     paint() {
@@ -167,10 +161,13 @@ export default class Renderer {
     }
 
     #updateNodeSize() {
-        this.nodeSize =
-            this.canvas.width / this.resolution.x -
-            this.borderSize / this.resolution.x -
-            this.borderSize;
+        const sizeX = (this.canvas.width / this.resolution.x) - this.borderSize;
+        const sizeY = (this.canvas.height / this.resolution.y) - this.borderSize;
+
+        // set nodeSize to whichever value is smaller in order to ensure that we fit in both x and y axis
+        this.nodeSize = sizeX < sizeY ? sizeX : sizeY;
+
+        return sizeX < sizeY ? 'vertical' : 'horizontal';
     }
 
     #ensureOriginAndTargetAreWithinBounds() {
@@ -210,5 +207,27 @@ export default class Renderer {
         if (target && target !== this.target) {
             this.setTarget(target);
         }
+    }
+
+    #ensureContainment(initial?: boolean) {
+        if (initial) {
+            const orientation = this.#updateNodeSize();
+            const { setColumns, setRows } = usePathfinderStore.getState();
+
+            if (orientation === 'horizontal') {
+                this.resolution.x = Math.floor(this.canvas.width / (this.nodeSize + this.borderSize));
+                setColumns(this.resolution.x);
+            } else {
+                this.resolution.y = Math.floor(this.canvas.height / (this.nodeSize + this.borderSize));
+                setRows(this.resolution.y);
+            }
+        } else {
+            this.#updateNodeSize();
+        }
+
+        this.padding = {
+            x: (this.canvas.width - (this.nodeSize + this.borderSize) * this.resolution.x + this.borderSize) / 2 - this.borderSize,
+            y:  (this.canvas.height - (this.nodeSize + this.borderSize) * this.resolution.y + this.borderSize) / 2 - this.borderSize
+        };
     }
 }

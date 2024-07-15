@@ -1,103 +1,129 @@
-import type { MutableRefObject } from 'react';
-import type { BFSDirection } from './direction';
-import type { Coordinate, Entry } from '../../../type';
 import {
     setupPathfinder,
-    generatorRunner
+    generatorRunner,
+    pause
 } from '../../../util';
-import { Directions } from './direction';
-import type { Direction, Grid } from '../../../type';
-import { State } from '../../../type';
+import type { Paused } from '../../../type';
+import { State, type Direction, type Entry } from '../../../type';
 import { useRendererStore } from '../../hook/useRenderer';
+import usePathfinderStore from '../../../renderer/usePathfinderStore';
+import type { BFSOptions } from './options';
+import { BFSDirection } from './options';
 
-type BeginBFSParams = {
-    origin: Coordinate,
-    target: Coordinate,
-    grid: Grid,
-    delay: MutableRefObject<number>,
-    state: MutableRefObject<State>,
+const orthogonal = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1]
+] as const satisfies Direction[];
+
+const diagonal = [
+    [-1, -1],
+    [1, 1],
+    [1, -1],
+    [-1, 1]
+] as const satisfies Direction[];
+
+const hybrid = [
+    [-1, 0],
+    [1, 0],
+    [0, -1],
+    [0, 1],
+    [-1, -1],
+    [1, 1],
+    [1, -1],
+    [-1, 1]
+] as const satisfies Direction[];
+
+type BreadthFirstSearchParams = {
     resume: boolean,
-    options: {
-        direction: BFSDirection
-    }
+    options: BFSOptions
 };
 
-export type BeginBFS = (params: BeginBFSParams) => Promise<Entry | null>;
+export default class BreadthFirstSearch {
+    static readonly directions = {
+        [BFSDirection.ORTHOGONAL]: orthogonal,
+        [BFSDirection.DIAGONAL]: diagonal,
+        [BFSDirection.HYBRID]: hybrid
+    } as const;
 
-let queue: Entry[] = [];
-let directions: Direction[] = [];
+    static queue: Entry[] = [];
 
-export const resetBFS = (callback: () => void) => {
-    queue = [];
-    callback();
-};
+    static begin = async ({ options, resume }: BreadthFirstSearchParams): Promise<Entry | Paused> => {
+        const renderer = useRendererStore.getState().renderer;
 
-export const beginBFS: BeginBFS = async ({ delay, state, resume, options }) => {
-    const renderer = useRendererStore.getState().renderer;
+        if (!renderer) {
+            throw Error('no renderer');
+        }
 
-    if (!renderer) {
-        throw Error('no renderer');
+        setupPathfinder(
+            this.queue,
+            {
+                node: renderer.origin,
+                parent: null
+            },
+            resume
+        );
+
+        return await generatorRunner(this.run(this.directions[options.direction]));
+    };
+
+    static reset (callback?: () => void)  {
+        usePathfinderStore.getState().setState(State.IDLE);
+        this.queue.clear();
+        callback && callback();
     }
 
-    directions = Directions[options.direction];
+    static *run(directions: Direction[]) {
+        const renderer = useRendererStore.getState().renderer;
 
-    setupPathfinder(
-        queue,
-        {
-            node: renderer.origin,
-            parent: null
-        },
-        resume
-    );
-
-    return await generatorRunner(bfsGenerator(state), delay);
-};
-
-function* bfsGenerator(state: MutableRefObject<State>) {
-    const renderer = useRendererStore.getState().renderer;
-
-    if (!renderer) {
-        throw Error('no renderer');
-    }
-
-    while (queue.length > 0) {
-        const current = queue.shift()!;
-        const node = current.node;
-
-        if (state.current === State.PATHFINDER_PAUSED) {
-            return current;
+        if (!renderer) {
+            throw Error('no renderer');
         }
 
-        if (node?.isTarget) {
-            return current;
-        }
+        while (BreadthFirstSearch.queue.length > 0) {
+            const current = BreadthFirstSearch.queue.shift()!;
+            const node = current.node;
 
-        if (node?.isVisited) {
-            continue;
-        }
+            const state = usePathfinderStore.getState().state;
 
-        if (node?.isObstruction) {
-            continue;
-        }
-
-        node?.setVisited();
-
-        for (const [dx, dy] of directions) {
-            const x = node.x + dx;
-            const y = node.y + dy;
-
-            const adjacentNode = renderer.getNodeAtIndex(x, y);
-
-            if (adjacentNode && !adjacentNode.isVisited && !adjacentNode.isObstruction) {
-                queue.push({
-                    node: adjacentNode,
-                    parent: current
-                });
+            if (state === State.PATHFINDER_PAUSED) {
+                return pause();
+            } else if (state === State.IDLE) {
+                return null;
             }
+
+            if (node?.isTarget) {
+                return current;
+            }
+
+            if (node?.isVisited) {
+                continue;
+            }
+
+            if (node?.isObstruction) {
+                continue;
+            }
+
+            node?.setVisited();
+
+            for (const [dx, dy] of directions) {
+                const x = node.x + dx;
+                const y = node.y + dy;
+
+                const adjacentNode = renderer.getNodeAtIndex(x, y);
+
+                if (adjacentNode && !adjacentNode.isVisited && !adjacentNode.isObstruction) {
+                    BreadthFirstSearch.queue.push({
+                        node: adjacentNode,
+                        parent: current
+                    });
+                }
+            }
+
+            yield;
         }
 
-        yield;
+        return null;
     }
-
-    return null;
 }

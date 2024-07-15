@@ -1,49 +1,38 @@
-import type { MutableRefObject } from 'react';
-import type { Grid, Resolution } from '../type';
-import type Node from '../renderer/node';
-
-// export const isOutOfBounds = (x: number, y: number, grid: Grid) => {
-//     if (y >= grid.length || y < 0) return true;
-//     if (x >= grid[0]!.length || x < 0) return true;
-
-//     return false;
-// };
-
-// export const isObstruction = (x: number, y: number, grid: Grid) => {
-//     return grid[y]![x]!.obstruction?.[0];
-// };
+import usePathfinderStore from '../renderer/usePathfinderStore';
+import type { Paused } from '../type';
 
 type GeneratorRunner = <T>(
-    generator: Generator<unknown, T, unknown>,
-    delay: MutableRefObject<number>
-) => Promise<T>;
+    generator: Generator<unknown, T, unknown>
+) => Promise<T | Paused>;
 
 type AsyncGeneratorRunner = <T>(
-    generator: AsyncGenerator<unknown, T, unknown>,
-    delay: MutableRefObject<number>
-) => Promise<T>;
+    generator: AsyncGenerator<unknown, T, unknown>
+) => Promise<T | Paused>;
 
 /**
  * A generator runner that recursively calls itself.
  * @param generator
- * @param delay - a ref object that contains a number
  * @returns the result of the generator
  */
-export const generatorRunner: GeneratorRunner = async (generator, delay) => {
+export const generatorRunner: GeneratorRunner = async (generator) => {
+    const interval = usePathfinderStore.getState().stepInterval;
     const result = generator.next();
 
     if (result.done) {
         return result.value;
     }
 
-    await new Promise<void>((resolve) => {
-        setTimeout(() => resolve(), delay.current);
-    });
+    let timeout: NodeJS.Timeout;
+    await new Promise((resolve) => {
+        timeout = setTimeout(resolve, interval.current);
+    }).then(() => clearTimeout(timeout));
 
-    return await generatorRunner(generator, delay);
+
+    return await generatorRunner(generator);
 };
 
-export const asyncGeneratorRunner: AsyncGeneratorRunner = async (generator, delay) => {
+export const asyncGeneratorRunner: AsyncGeneratorRunner = async (generator) => {
+    const interval = usePathfinderStore.getState().stepInterval;
     const result = await generator.next();
 
     if (result.done) {
@@ -52,70 +41,42 @@ export const asyncGeneratorRunner: AsyncGeneratorRunner = async (generator, dela
 
     let timeout: NodeJS.Timeout;
     await new Promise((resolve) => {
-        timeout = setTimeout(resolve, delay.current);
+        timeout = setTimeout(resolve, interval.current);
     }).then(() => clearTimeout(timeout));
 
-    return await asyncGeneratorRunner(generator, delay);
+    return await asyncGeneratorRunner(generator);
 };
 
-// type SetupPathfinder = <T>(
-//     entries: {
-//         push: (...args: any[]) => any
-//     },
-//     initialEntry: T,
-//     grid: Grid,
-//     visited: boolean[][],
-//     resume: boolean
-// ) => void;
+export const pause = (): Paused => ({ paused: true });
 
-// TODO wtf?
-// export const setupPathfinder: SetupPathfinder = (entries, initialEntry, grid, visited, resume) => {
-//     if (!resume) {
-//         Array.isArray(initialEntry)
-//             ? entries.push(...initialEntry)
-//             : entries.push(initialEntry);
-//     }
-
-//     // if we are resuming, do not reset the visited matrix
-//     if (!resume) {
-//         visited.length = 0;
-//         for (let y = 0; y < grid.length; y++) {
-//             const row: boolean[] = [];
-//             visited.push(row);
-
-//             for (let x = 0; x < grid[0]!.length; x++) {
-//                 row.push(false);
-//             }
-//         }
-//     }
-// };
+type ArrayLike = {
+    push: (...args: any[]) => any,
+    clear: () => void,
+};
 
 type SetupPathfinder = <T>(
-    entries: {
-        push: (...args: any[]) => any;
-    },
+    entries: ArrayLike,
     initialEntry: T,
     resume: boolean
 ) => void;
 
 
+declare global {
+  interface Array<T>  {
+    clear(): void
+  }
+}
+
+Array.prototype.clear = function(this: []) {
+    this.length = 0;
+};
+
 export const setupPathfinder: SetupPathfinder = (entries, initialEntry, resume) => {
     if (!resume) {
+        entries.clear();
+
         Array.isArray(initialEntry)
             ? entries.push(...initialEntry)
             : entries.push(initialEntry);
     }
-
-    // if we are resuming, do not reset the visited matrix
-    // if (!resume) {
-    //     visited.length = 0;
-    //     for (let y = 0; y < grid.length; y++) {
-    //         const row: boolean[] = [];
-    //         visited.push(row);
-
-    //         for (let x = 0; x < grid[0]!.length; x++) {
-    //             row.push(false);
-    //         }
-    //     }
-    // }
 };

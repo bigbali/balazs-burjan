@@ -1,47 +1,59 @@
 import type { RunAction } from '../../type';
 import { State } from '../../type';
 
-type AlgorithmControlsProps = {
+type PathfinderControlsProps = {
     state: State,
     run: RunAction
 };
 
-const START_BUTTON_CONTENT_MAP = {
-    [State.IDLE]: 'Start',
-    [State.PATHFINDER]: 'Pause',
-    [State.PATHFINDER_CONTINUE]: 'Pause',
-    [State.PATHFINDER_PAUSED]: 'Continue'
-} as const;
+export default function PathfinderControls({ state, run }: PathfinderControlsProps) {
+    let button;
+    let disabled = false;
 
-const START_BUTTON_CLASS_MAP = {
-    [State.IDLE]: 'bg-sky-700',
-    [State.PATHFINDER]: 'bg-orange-500',
-    [State.PATHFINDER_CONTINUE]: 'bg-orange-500',
-    [State.PATHFINDER_PAUSED]: 'bg-green-500'
-} as const;
+    if (state === State.PATHFINDER_RUNNING || state === State.PATHFINDER_RESUMING) {
+        button = (
+            <button
+                className='flex-1 px-4 py-2 font-medium text-white bg-green-700 rounded-lg'
+                onClick={() => void run(State.PATHFINDER_PAUSED)}
+            >
+                Pause
+            </button>
+        );
+    } else if (state === State.PATHFINDER_PAUSED) {
+        button = (
+            <button
+                className='flex-1 px-4 py-2 font-medium text-white bg-green-700 rounded-lg'
+                onClick={() => void run(State.PATHFINDER_RESUMING)}
+            >
+                Resume
+            </button>
+        );
+    } else {
+        if (state === State.OBSTRUCTION_GENERATOR_RESUMING || state === State.OBSTRUCTION_GENERATOR_RUNNING) {
+            disabled = true;
+        }
 
-export default function AlgorithmControls({ state, run }: Readonly<AlgorithmControlsProps>) {
-    const className = START_BUTTON_CLASS_MAP[state as keyof typeof START_BUTTON_CONTENT_MAP] ?? 'bg-gray-500';
-    const content = START_BUTTON_CONTENT_MAP[state as keyof typeof START_BUTTON_CONTENT_MAP] ?? 'Please wait...';
-
-    const onClick = (() => {
-        if (state === State.IDLE) return () => run(State.PATHFINDER);
-        if (state === State.PATHFINDER || state === State.PATHFINDER_CONTINUE) return () => run(State.PATHFINDER_PAUSED);
-        if (state === State.PATHFINDER_PAUSED) return () => run(State.PATHFINDER_CONTINUE);
-    })();
-
-    const disabled = !state.startsWith(State.PATHFINDER) && state !== State.IDLE;
+        button = (
+            <button
+                className='flex-1 px-4 py-2 font-medium text-white bg-green-700 rounded-lg disabled:bg-slate-400'
+                onClick={() => void run(State.PATHFINDER_RUNNING)}
+                disabled={disabled}
+            >
+                Run
+            </button>
+        );
+    }
 
     return (
-        <button
-            className={`
-                ${className}
-                text-white font-medium px-4 py-2 rounded-lg disabled:opacity-75 disabled:cursor-not-allowed
-            `}
-            disabled={disabled}
-            onClick={onClick}
-        >
-            {content}
-        </button>
+        <div className='flex gap-[1rem] justify-stretch w-full'>
+            {button}
+            <button
+                className='flex-1 px-4 py-2 font-medium text-white bg-red-700 rounded-lg disabled:bg-red-400'
+                onClick={() => run(State.IDLE)}
+                disabled={disabled}
+            >
+                Stop
+            </button>
+        </div>
     );
 }

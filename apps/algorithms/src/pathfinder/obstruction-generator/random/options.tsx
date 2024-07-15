@@ -1,15 +1,15 @@
-import type { ObstructionGeneratorOptionsProps } from '..';
+import { type OGOptionsComponentProps } from '..';
 import { FieldRangeInput } from 'ui-react19';
 
-export type RandomOptions = {
+export type OGRandomOptions = {
     probability: number
 };
 
-export const RANDOM_DEFAULT_OPTIONS: RandomOptions = {
+export const RANDOM_DEFAULT_OPTIONS: OGRandomOptions = {
     probability: 50
 };
 
-const RandomObstructionGeneratorOptions = ({ options, setOptions }: ObstructionGeneratorOptionsProps<RandomOptions>) => {
+const OGRandomOptionsComponent = ({ options, setOptions }: OGOptionsComponentProps<OGRandomOptions>) => {
     const handleChange = (probability: number) => setOptions({ probability });
 
     return (
@@ -24,4 +24,4 @@ const RandomObstructionGeneratorOptions = ({ options, setOptions }: ObstructionG
     );
 };
 
-export default RandomObstructionGeneratorOptions;
+export default OGRandomOptionsComponent;

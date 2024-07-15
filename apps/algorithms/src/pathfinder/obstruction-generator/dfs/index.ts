@@ -1,69 +1,88 @@
+import { State, type AsyncObstructionGenerator } from '../../../type';
+import type Node from '../../../renderer/node';
 import shuffle from 'lodash/shuffle';
 import {
-    generatorRunner
+    generatorRunner,
+    pause
 } from '../../../util';
-import type { AsyncObstructionGenerator, Direction } from '../../../type';
 import { useRendererStore } from '../../hook/useRenderer';
-import type Node from '../../../renderer/node';
-import type Renderer from '../../../renderer';
+import usePathfinderStore from '../../../renderer/usePathfinderStore';
 
-const stack: Node[] = [];
-const directions = [
-    [-2, 0],
-    [2, 0],
-    [0, -2],
-    [0, 2]
-] as const satisfies Direction[];
+export default class OGRandomizedDepthFirstSearch {
+    static directions = [
+        [-2, 0],
+        [2, 0],
+        [0, -2],
+        [0, 2]
+    ] as const;
 
-export const beginDFSObstructionGenerator: AsyncObstructionGenerator = async ({ delay }) => {
-    const renderer = useRendererStore.getState().renderer;
+    static stack: Node[] = [];
 
-    if (!renderer) {
-        throw Error('no renderer');
-    }
+    static begin: AsyncObstructionGenerator = async (_, resume: boolean) => {
+        const renderer = useRendererStore.getState().renderer;
 
-    for (const node of Array.from(renderer.nodes.values())) {
-        if (node.isOrigin || node.isTarget) {
-            continue;
+        if (!renderer) {
+            throw Error('no renderer');
         }
 
-        node.setObstruction(true);
-    }
-
-    stack.push(renderer.origin);
-
-    return await generatorRunner(dfsObstructionGenerator(renderer), delay);
-};
-
-function* dfsObstructionGenerator(renderer: Renderer) {
-    while (stack.length > 0) {
-        const node = stack.pop()!;
-
-        for (const [dx, dy] of shuffle(directions)) {
-            const x = node.x + dx;
-            const y = node.y + dy;
-
-            const adjacentNode = renderer.getNodeAtIndex(x, y);
-
-            if (adjacentNode && adjacentNode.isObstruction) {
-                adjacentNode.setObstruction(false);
-
-                const mx = node.x + (dx / 2);
-                const my = node.y + (dy / 2);
-
-                const mNode = renderer.getNodeAtIndex(mx, my);
-
-                if (mNode) {
-                    mNode.setObstruction(false);
-
-                    stack.push(adjacentNode);
+        if (!resume) {
+            for (const node of Array.from(renderer.nodes.values())) {
+                if (node.isOrigin || node.isTarget) {
+                    continue;
                 }
+
+                node.setObstruction(true);
             }
         }
 
-        yield;
+        this.stack.push(renderer.origin);
+
+        return await generatorRunner(this.run());
+    };
+
+    static *run() {
+        const renderer = useRendererStore.getState().renderer;
+
+        if (!renderer) {
+            throw Error('no renderer');
+        }
+
+        while (this.stack.length > 0) {
+            const state = usePathfinderStore.getState().state;
+
+            if (state === State.OBSTRUCTION_GENERATOR_PAUSED) {
+                return pause();
+            } else if (state === State.IDLE) {
+                return false;
+            }
+
+            const node = this.stack.pop()!;
+
+            for (const [dx, dy] of shuffle(this.directions)) {
+                const x = node.x + dx;
+                const y = node.y + dy;
+
+                const adjacentNode = renderer.getNodeAtIndex(x, y);
+
+                if (adjacentNode && adjacentNode.isObstruction) {
+                    adjacentNode.setObstruction(false);
+
+                    const mx = node.x + (dx / 2);
+                    const my = node.y + (dy / 2);
+
+                    const mNode = renderer.getNodeAtIndex(mx, my);
+
+                    if (mNode) {
+                        mNode.setObstruction(false);
+
+                        this.stack.push(adjacentNode);
+                    }
+                }
+            }
+
+            yield;
+        }
+
+        return true;
     }
-
-    return true;
 }
-

@@ -1,113 +1,97 @@
-import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import type { Entry, RunAction } from '../../type';
+import type { Entry, Paused, RunAction } from '../../type';
+import { Pathfinder } from '../../type';
 import { useState } from 'react';
-import { PATHFINDER_MAP, Pathfinder, usePathfinderOptions } from '../algorithm';
+import { PATHFINDER_MAP, usePathfinderOptions } from '../algorithm';
 import { FieldRangeInput, Expander } from 'ui-react19';
 import { State, Delay, Dimensions } from '../../type';
 import AlgorithmControls from './AlgorithmControls';
-import { OBSTRUCTION_GENERATOR_MAP, ObstructionGenerator, useObstructionGeneratorOptions } from '../obstruction-generator';
+import { OG_MAP, ObstructionGenerator, useObstructionGeneratorOptions } from '../obstruction-generator';
 import ObstructionGeneratorControls from './ObstructionGeneratorControls';
-import useRenderer from '../hook/useRenderer';
+import { useRendererStore } from '../hook/useRenderer';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import usePathfinderStore from '../../renderer/usePathfinderStore';
 
 type MenuProps = {
     ModeSelector: React.JSX.Element,
-    rows: number,
-    columns: number,
-    state: State,
-    delayRef: MutableRefObject<Delay>,
-    stateRef: MutableRefObject<State>,
-    setRows: (value: number) => void,
-    setColumns: (value: number) => void,
-    setPathfinderState: (state: State) => void,
-    setResult: Dispatch<SetStateAction<Entry>>
 };
 
-const pending: { result: Promise<boolean | void> | null } = { result: null };
-
-export default function Menu({
-    ModeSelector,
-    rows,
-    columns,
-    state,
-    delayRef,
-    stateRef,
-    setRows,
-    setColumns,
-    setPathfinderState,
-    setResult
-}: MenuProps) {
-    const [pathfinder, setPathfinder] = useState(Pathfinder.BREADTH_FIRST);
+export default function PathfinderContextMenu({ ModeSelector }: MenuProps) {
+    const {
+        columns,
+        rows,
+        pathfinder,
+        state,
+        stepInterval,
+        setColumns,
+        setRows,
+        setResult,
+        setState,
+        setPathfinder
+    } = usePathfinderStore();
     const [pathfinderOptions, PathfinderOptions] = usePathfinderOptions(pathfinder);
-    const [obstructionGenerator, setObstructionGenerator] = useState(ObstructionGenerator.CELLULAR_AUTOMATA);
+    const [obstructionGenerator, setObstructionGenerator] = useState(ObstructionGenerator.CELLULAR_AUTOMATON);
     const [obstructionGeneratorOptions, ObstructionGeneratorOptions] = useObstructionGeneratorOptions(obstructionGenerator);
 
-    const { renderer } = useRenderer();
+    const renderer = useRendererStore(state => state.renderer);
 
     const runPathfinder = async (resume: boolean) => {
-        const result = await PATHFINDER_MAP[pathfinder]({
-            delay: delayRef,
-            state: stateRef,
-            resume,
-            // @ts-ignore NOTE move to algo like in case  dijkstra
-            options: { direction: pathfinderOptions }
+        const result = await PATHFINDER_MAP[pathfinder].begin({
+            resume, // @ts-ignore
+            options: pathfinderOptions
         });
 
-        if (pending.result !== null) {
-            setResult(result);
-        }
+        setResult(result);
+
+        return result;
     };
 
-    const reset = () => {
-        setPathfinderState(State.IDLE);
+    const reset = (pathfinder: Pathfinder) => {
+        setState(State.IDLE);
         setResult(null);
 
-        renderer?.reset();
+        PATHFINDER_MAP[pathfinder].reset();
+
+        useRendererStore.getState().renderer?.reset();
+
+        // ??? renderer is null
+        // renderer?.reset();
     };
 
-    const runObstructionGenerator = async () => {
-        return await OBSTRUCTION_GENERATOR_MAP[obstructionGenerator]({
-            delay: delayRef, //@ts-ignore
+    const runObstructionGenerator = async (resume: boolean) => {
+        return await OG_MAP[obstructionGenerator].begin({
+            delay: stepInterval, //@ts-ignore
             options: obstructionGeneratorOptions
-        });
+        }, resume);
     };
 
     const run: RunAction = async (actionType) => {
-        setPathfinderState(actionType);
+        setState(actionType);
+
+        let res: Entry | Paused | boolean;
 
         switch (actionType) {
-            case State.OBSTRUCTION_GENERATOR:
-                pending.result = runObstructionGenerator();
-                await pending.result;
+            case State.PATHFINDER_RESUMING:
+                res = await runPathfinder(true);
                 break;
-            // case State.OBSTRUCTION_GENERATOR_CONTINUE:
-            //     pending.value = runObstructionGenerator(true);
-            //     await pending.value;
-            //     break;
-            case State.OBSTRUCTION_GENERATOR_PAUSED:
-                pending.result = null;
-                return;
-            case State.PATHFINDER:
-                pending.result = runPathfinder(false);
-                await pending.result;
+            case State.PATHFINDER_RUNNING:
+                res = await runPathfinder(false);
                 break;
-            case State.PATHFINDER_CONTINUE:
-                pending.result = runPathfinder(true);
-                await pending.result;
+            case State.OBSTRUCTION_GENERATOR_RUNNING:
+                res = await runObstructionGenerator(false);
                 break;
-            case State.PATHFINDER_PAUSED:
-                pending.result = null;
-                return;
+            case State.OBSTRUCTION_GENERATOR_RESUMING:
+                res = await runObstructionGenerator(true);
+                break;
             default:
                 return;
         }
 
-        if (pending.result !== null) {
-            setPathfinderState(State.IDLE);
-            pending.result = null;
+        if ( res && typeof res !== 'boolean' && 'paused' in res) {
             return;
         }
+
+        setState(State.IDLE);
     };
 
     return (
@@ -126,7 +110,7 @@ export default function Menu({
             </label>
             <FieldRangeInput
                 label='Rows'
-                defaultValue={rows}
+                value={rows}
                 min={Dimensions.MIN}
                 max={Dimensions.MAX}
                 step={1}
@@ -136,7 +120,7 @@ export default function Menu({
             />
             <FieldRangeInput
                 label='Columns'
-                defaultValue={columns}
+                value={columns}
                 min={Dimensions.MIN}
                 max={Dimensions.MAX}
                 step={1}
@@ -152,7 +136,7 @@ export default function Menu({
                 step={1}
                 className='flex gap-2'
                 fieldStyle={{ marginLeft: 'auto' }}
-                onChange={(velocity) => (delayRef.current = velocity)}
+                onChange={(interval) => (stepInterval.current = interval)}
                 debounceRange={false}
             />
             <div className='flex gap-2'>
@@ -210,15 +194,19 @@ export default function Menu({
             <div className='flex flex-col justify-between h-full gap-4'>
                 <div className='flex flex-col gap-2'>
                     <Expander label='Algorithm' openInitial>
-                        <fieldset className='px-4 pt-3 pb-4'>
-                            {PathfinderOptions}
+                        <fieldset className='flex flex-col gap-[1rem] px-4 pt-3 pb-4'>
+                            <div className='flex flex-col gap-4'>
+                                {PathfinderOptions}
+                            </div>
+                            <AlgorithmControls state={state} run={run} />
                         </fieldset>
                     </Expander>
                     <Expander label='Obstructions' openInitial>
-                        <fieldset className='px-4 pt-3 pb-4'>
+                        <fieldset className='flex flex-col gap-[1rem] px-4 pt-3 pb-4'>
                             <div className='flex flex-col gap-4'>
                                 {ObstructionGeneratorOptions}
                             </div>
+                            <ObstructionGeneratorControls state={state} run={run} />
                         </fieldset>
                     </Expander>
                     <Expander label='Help'>
@@ -229,7 +217,7 @@ export default function Menu({
                                     icon={faInfoCircle}
                                     className='w-[1.2rem] h-[1.2rem]'
                                 />
-                        Toggle obstructions using the left mouse button.
+                                Toggle obstructions using the left mouse button.
                             </p>
                             <p className='flex items-center gap-[1rem]'>
                                 <FontAwesomeIcon
@@ -237,32 +225,22 @@ export default function Menu({
                                     icon={faInfoCircle}
                                     className='w-[1.2rem] h-[1.2rem]'
                                 />
-                        Open the node context menu using the right mouse button.
+                                Open the node context menu using the right mouse button.
                             </p>
                         </div>
                     </Expander>
                 </div>
-                <div className='flex flex-col gap-4'>
-                    <div className='flex gap-2'>
-                        <button
-                            className='px-4 py-2 font-medium text-white rounded-lg bg-slate-700'
-                            onClick={() => {
-                                void run(State.OBSTRUCTION_GENERATOR);
-                            }}
-                        >
-                            Generate Obstructions
-                        </button>
-                        <ObstructionGeneratorControls state={state} run={run} />
-                    </div>
-                    <div className='flex gap-2'>
-                        <AlgorithmControls state={state} run={run} />
-                        <button
-                            className='px-4 py-2 font-medium text-white bg-red-700 rounded-lg'
-                            onClick={reset}
-                        >
-                            Reset
-                        </button>
-                    </div>
+                <p className='px-2 mt-auto font-medium capitalize'>
+                    State:&nbsp;
+                    [{state}]
+                </p>
+                <div className='gap-4 px-2'>
+                    <button
+                        className='w-full px-4 py-2 font-medium text-white bg-red-700 rounded-lg'
+                        onClick={() => reset(pathfinder)}
+                    >
+                            Clear Grid
+                    </button>
                 </div>
             </div>
         </div>

@@ -1,12 +1,20 @@
-import type { Dispatch, SetStateAction } from 'react';
-import { BFSDirection } from './direction';
+import type { OptionsComponentProps } from '../../../type';
 
-export type BFSOptionsProps = {
-    options: BFSDirection,
-    setOptions: Dispatch<SetStateAction<BFSDirection>>
+export enum BFSDirection {
+    ORTHOGONAL = 'orthogonal',
+    DIAGONAL = 'diagonal',
+    HYBRID = 'hybrid'
+}
+
+export type BFSOptions = {
+    direction: BFSDirection
 };
 
-export const BFSOptions = ({ options, setOptions }: BFSOptionsProps) => {
+export const BREADTH_FIRST_SEARCH_DEFAULT_OPTIONS: BFSOptions = {
+    direction: BFSDirection.ORTHOGONAL
+};
+
+export const BFSOptionsComponent = ({ options, setOptions }: OptionsComponentProps<BFSOptions>) => {
     return (
         <div className='flex gap-2'>
             <label htmlFor='bfsdirection'>
@@ -14,10 +22,10 @@ export const BFSOptions = ({ options, setOptions }: BFSOptionsProps) => {
             </label>
             <select
                 id='bfsdirection'
-                className='border border-slate-3 rounded-md capitalize px-4'
-                value={options}
+                className='px-4 capitalize border rounded-md border-slate-3'
+                value={options.direction}
                 onChange={(e) => {
-                    setOptions(e.currentTarget.value as BFSDirection);
+                    setOptions({ direction: e.currentTarget.value as BFSDirection });
                 }}>
                 {Object.values(BFSDirection).map((value) => (
                     <option key={value} value={value}>

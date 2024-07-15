@@ -1,5 +1,5 @@
 import dynamic from 'next/dynamic';
-import { startTransition, useCallback, useMemo, useState } from 'react';
+import { startTransition, useState } from 'react';
 
 enum Mode {
     PATHFINDER = 'pathfinder',
@@ -16,8 +16,8 @@ export default function Algorithms() {
         [Mode.SORT]: () => <h1>NOT IMPLEMENTED</h1>
     } as const;
 
-    const Visualizer = useMemo(() => ALGORITHM_VISUALIZER_MAP[mode], [mode]);
-    const ModeSelector = useCallback(() => (
+    const Visualizer = ALGORITHM_VISUALIZER_MAP[mode];
+    const ModeSelector = () =>
         <div className='flex gap-4'>
             <label htmlFor='mode'>
                 Mode
@@ -43,8 +43,7 @@ export default function Algorithms() {
                 )
                 )}
             </select>
-        </div>
-    ), [mode]);
+        </div>;
 
     return (
         <Visualizer

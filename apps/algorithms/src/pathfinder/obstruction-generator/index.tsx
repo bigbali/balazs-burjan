@@ -1,47 +1,43 @@
-import type { Dispatch, Reducer } from 'react';
-import { useCallback, useEffect, useReducer } from 'react';
-import { beginCAObstructionGenerator } from './cellular-automata';
-import CAOptions, { CA_DEFAULT_OPTIONS } from './cellular-automata/options';
-import { beginDFSObstructionGenerator } from './dfs';
-import { beginRandomObstructionGenerator } from './random';
-import RandomObstructionGeneratorOptions, { RANDOM_DEFAULT_OPTIONS } from './random/options';
+import type { Dispatch, Reducer, ReducerAction } from 'react';
 import type { ValueOf } from '../../type';
+import { useCallback, useEffect, useReducer } from 'react';
+import OGCellularAutomaton from './cellular-automata';
+import OGCellularAutomatonOptionsComponent, { CA_DEFAULT_OPTIONS } from './cellular-automata/options';
+import OGRandomOptionsComponent, { RANDOM_DEFAULT_OPTIONS } from './random/options';
+import OGRandomizedDepthFirstSearch from './dfs';
+import OGRandom from './random';
+import OGDFSOptionsComponent from './dfs/options';
 
 export enum ObstructionGenerator {
     DFS = 'randomized depth first search',
     RANDOM = 'random',
-    CELLULAR_AUTOMATA = 'cellular automata'
+    CELLULAR_AUTOMATON = 'cellular automaton'
 }
 
-export type ObstructionGeneratorOptionsProps<T> = {
+export type OGOptionsComponentProps<T> = {
     options: T,
-    setOptions: Dispatch<Partial<T>>
+    setOptions: Dispatch<ReducerAction<typeof reducer>>
 };
 
-export const OBSTRUCTION_GENERATOR_MAP = {
-    [ObstructionGenerator.DFS]: beginDFSObstructionGenerator,
-    [ObstructionGenerator.RANDOM]: beginRandomObstructionGenerator,
-    [ObstructionGenerator.CELLULAR_AUTOMATA]: beginCAObstructionGenerator
+export const OG_MAP = {
+    [ObstructionGenerator.DFS]: OGRandomizedDepthFirstSearch,
+    [ObstructionGenerator.RANDOM]: OGRandom,
+    [ObstructionGenerator.CELLULAR_AUTOMATON]: OGCellularAutomaton
 } as const;
 
-// TODO remove when ready
-const DFSOpt: React.FC = () => {
-    return null;
-};
-
-export const OBSTRUCTION_GENERATOR_OPTIONS_MAP = {
-    [ObstructionGenerator.DFS]: DFSOpt,
-    [ObstructionGenerator.RANDOM]: RandomObstructionGeneratorOptions,
-    [ObstructionGenerator.CELLULAR_AUTOMATA]: CAOptions
+export const OG_OPTIONS_COMPONENT_MAP = {
+    [ObstructionGenerator.DFS]: OGDFSOptionsComponent,
+    [ObstructionGenerator.RANDOM]: OGRandomOptionsComponent,
+    [ObstructionGenerator.CELLULAR_AUTOMATON]: OGCellularAutomatonOptionsComponent
 } as const;
 
-export const OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP = {
+export const OG_DEFAULT_OPTIONS_MAP = {
     [ObstructionGenerator.DFS]: {},
     [ObstructionGenerator.RANDOM]: RANDOM_DEFAULT_OPTIONS,
-    [ObstructionGenerator.CELLULAR_AUTOMATA]: CA_DEFAULT_OPTIONS
+    [ObstructionGenerator.CELLULAR_AUTOMATON]: CA_DEFAULT_OPTIONS
 } as const;
 
-export type ObstructionGeneratorOptions = ValueOf<typeof OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP>;
+export type ObstructionGeneratorOptions = ValueOf<typeof OG_DEFAULT_OPTIONS_MAP>;
 type ObstructionGeneratorOptionsPayload<T> = Partial<T & { remount: boolean }>;
 
 const reducer = <T extends ObstructionGeneratorOptions>(
@@ -64,11 +60,11 @@ export const useObstructionGeneratorOptions = (generator: ObstructionGenerator) 
         Reducer<ObstructionGeneratorOptions, ObstructionGeneratorOptionsPayload<ObstructionGeneratorOptions>>
     >(
         reducer,
-        OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP[generator]
+        OG_DEFAULT_OPTIONS_MAP[generator]
     );
 
     const Element = useCallback(() => {
-        const Element = OBSTRUCTION_GENERATOR_OPTIONS_MAP[generator];
+        const Element = OG_OPTIONS_COMPONENT_MAP[generator];
         // @ts-ignore
         return <Element options={options} setOptions={setOptions} key={generator} />;
         // we need to reassign Element only after `options` has changed
@@ -77,7 +73,7 @@ export const useObstructionGeneratorOptions = (generator: ObstructionGenerator) 
 
     useEffect(() => {
         setOptions({
-            ...OBSTRUCTION_GENERATOR_DEFAULT_OPTIONS_MAP[generator],
+            ...OG_DEFAULT_OPTIONS_MAP[generator],
             remount: generator !== prevGenerator
         });
         prevGenerator = generator;

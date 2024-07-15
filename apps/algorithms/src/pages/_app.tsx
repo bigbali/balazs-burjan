@@ -8,13 +8,13 @@ const Algorithms: AppType = ({ Component }) => {
 
     useEffect(() => {
         if (ref.current) {
-            // set the height to 100vh - Header height, filling the screen vertically
+            // make sure the overall height is 100vh including the external Header component
             ref.current.style.height = `calc(100vh - ${ref.current.offsetTop}px)`;
         }
     });
 
     return (
-        <Layout title='Algorithms' description='See how algorithms work with your own eyes.' ref={ref}>
+        <Layout title='Algorithms' description='See with your own eyes the steps these algorithms take to get results!' ref={ref}>
             <Component />
         </Layout>
     );
