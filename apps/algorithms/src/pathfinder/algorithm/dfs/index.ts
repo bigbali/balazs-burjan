@@ -1,12 +1,11 @@
 import type { Direction, Entry, Paused } from '../../../type';
 import { State } from '../../../type';
 import { setupPathfinder, generatorRunner, pause } from '../../../util';
-import { useRendererStore } from '../../hook/useRenderer';
-import usePathfinderStore from '../../../renderer/usePathfinderStore';
+import { usePathfinderRendererStore } from '../../hook/usePathfinderRenderer';
+import usePathfinderStore from '../../hook/usePathfinderStore';
 import { DFSDirection, type DFSOptions } from './options';
 
 type DepthFirstSearchParams = {
-    resume: boolean,
     options: DFSOptions
 };
 
@@ -48,8 +47,8 @@ export default class DepthFirstSearch {
 
     static stack: Entry[] = [];
 
-    static begin = async ({ options, resume }: DepthFirstSearchParams): Promise<Entry | Paused> => {
-        const renderer = useRendererStore.getState().renderer;
+    static begin = async ({ options }: DepthFirstSearchParams, resume: boolean): Promise<Entry | Paused> => {
+        const renderer = usePathfinderRendererStore.getState().renderer;
 
         if (!renderer) throw Error('no renderer');
 
@@ -67,13 +66,13 @@ export default class DepthFirstSearch {
     };
 
     static reset (callback?: () => void)  {
-        usePathfinderStore.getState().setState(State.IDLE);
+        usePathfinderStore.getState().setPathfinderState(State.IDLE);
         this.stack.clear();
         callback && callback();
     }
 
     static *run(directions: Direction[]) {
-        const renderer = useRendererStore.getState().renderer;
+        const renderer = usePathfinderRendererStore.getState().renderer;
 
         if (!renderer) throw Error('no renderer');
 
@@ -81,9 +80,9 @@ export default class DepthFirstSearch {
             const current = this.stack.pop()!;
             const node = current.node;
 
-            const state = usePathfinderStore.getState().state;
+            const state = usePathfinderStore.getState().pathfinderState;
 
-            if (state === State.PATHFINDER_PAUSED) {
+            if (state === State.PAUSED) {
                 return pause();
             } else if (state === State.IDLE) {
                 return null;

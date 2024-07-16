@@ -1,42 +1,44 @@
-import type { RunAction } from '../../type';
 import { State } from '../../type';
+import usePathfinderStore from '../hook/usePathfinderStore';
 
 type PathfinderControlsProps = {
-    state: State,
-    run: RunAction
+    run: (state: State, resume?: boolean) => any
 };
 
-export default function PathfinderControls({ state, run }: PathfinderControlsProps) {
-    let button;
-    let disabled = false;
+const c = 'flex-1 px-4 py-2 font-medium text-white rounded-lg bg-green-700 disabled:bg-slate-400';
 
-    if (state === State.PATHFINDER_RUNNING || state === State.PATHFINDER_RESUMING) {
+export default function PathfinderControls({ run }: PathfinderControlsProps) {
+    const pState = usePathfinderStore(state => state.pathfinderState);
+    const ogState = usePathfinderStore(state => state.obstructionGeneratorState);
+
+    let button;
+    let disabled = ogState === State.RUNNING;
+
+    if (pState === State.RUNNING) {
         button = (
             <button
-                className='flex-1 px-4 py-2 font-medium text-white bg-green-700 rounded-lg'
-                onClick={() => void run(State.PATHFINDER_PAUSED)}
+                className={c}
+                onClick={() => void run(State.PAUSED)}
+                disabled={disabled}
             >
                 Pause
             </button>
         );
-    } else if (state === State.PATHFINDER_PAUSED) {
+    } else if (pState === State.PAUSED) {
         button = (
             <button
-                className='flex-1 px-4 py-2 font-medium text-white bg-green-700 rounded-lg'
-                onClick={() => void run(State.PATHFINDER_RESUMING)}
+                className={c}
+                onClick={() => void run(State.RUNNING, true)}
+                disabled={disabled}
             >
                 Resume
             </button>
         );
     } else {
-        if (state === State.OBSTRUCTION_GENERATOR_RESUMING || state === State.OBSTRUCTION_GENERATOR_RUNNING) {
-            disabled = true;
-        }
-
         button = (
             <button
-                className='flex-1 px-4 py-2 font-medium text-white bg-green-700 rounded-lg disabled:bg-slate-400'
-                onClick={() => void run(State.PATHFINDER_RUNNING)}
+                className={c}
+                onClick={() => void run(State.RUNNING)}
                 disabled={disabled}
             >
                 Run

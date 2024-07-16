@@ -5,8 +5,8 @@ import {
 } from '../../../util';
 import type { Paused } from '../../../type';
 import { State, type Direction, type Entry } from '../../../type';
-import { useRendererStore } from '../../hook/useRenderer';
-import usePathfinderStore from '../../../renderer/usePathfinderStore';
+import { usePathfinderRendererStore } from '../../hook/usePathfinderRenderer';
+import usePathfinderStore from '../../hook/usePathfinderStore';
 import type { BFSOptions } from './options';
 import { BFSDirection } from './options';
 
@@ -49,8 +49,8 @@ export default class BreadthFirstSearch {
 
     static queue: Entry[] = [];
 
-    static begin = async ({ options, resume }: BreadthFirstSearchParams): Promise<Entry | Paused> => {
-        const renderer = useRendererStore.getState().renderer;
+    static begin = async ({ options }: BreadthFirstSearchParams, resume?: boolean): Promise<Entry | Paused> => {
+        const renderer = usePathfinderRendererStore.getState().renderer;
 
         if (!renderer) {
             throw Error('no renderer');
@@ -69,25 +69,25 @@ export default class BreadthFirstSearch {
     };
 
     static reset (callback?: () => void)  {
-        usePathfinderStore.getState().setState(State.IDLE);
+        usePathfinderStore.getState().setPathfinderState(State.IDLE);
         this.queue.clear();
         callback && callback();
     }
 
     static *run(directions: Direction[]) {
-        const renderer = useRendererStore.getState().renderer;
+        const renderer = usePathfinderRendererStore.getState().renderer;
 
         if (!renderer) {
             throw Error('no renderer');
         }
 
-        while (BreadthFirstSearch.queue.length > 0) {
-            const current = BreadthFirstSearch.queue.shift()!;
+        while (this.queue.length > 0) {
+            const current = this.queue.shift()!;
             const node = current.node;
 
-            const state = usePathfinderStore.getState().state;
+            const state = usePathfinderStore.getState().pathfinderState;
 
-            if (state === State.PATHFINDER_PAUSED) {
+            if (state === State.PAUSED) {
                 return pause();
             } else if (state === State.IDLE) {
                 return null;
@@ -114,7 +114,7 @@ export default class BreadthFirstSearch {
                 const adjacentNode = renderer.getNodeAtIndex(x, y);
 
                 if (adjacentNode && !adjacentNode.isVisited && !adjacentNode.isObstruction) {
-                    BreadthFirstSearch.queue.push({
+                    this.queue.push({
                         node: adjacentNode,
                         parent: current
                     });

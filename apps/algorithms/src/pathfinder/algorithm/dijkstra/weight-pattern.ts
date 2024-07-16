@@ -1,7 +1,7 @@
-import { useRendererStore } from '../../hook/useRenderer';
+import { usePathfinderRendererStore } from '../../hook/usePathfinderRenderer';
 
 export const generateRandomWeightPattern = () => {
-    const renderer = useRendererStore.getState().renderer;
+    const renderer = usePathfinderRendererStore.getState().renderer;
 
     if (!renderer) {
         throw Error('no renderer');
@@ -15,7 +15,7 @@ export const generateRandomWeightPattern = () => {
 };
 
 export const generateGravitationalWeightPattern = () => {
-    const renderer = useRendererStore.getState().renderer;
+    const renderer = usePathfinderRendererStore.getState().renderer;
 
     if (!renderer) {
         throw Error('no renderer');

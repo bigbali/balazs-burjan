@@ -1,12 +1,12 @@
 import { State, type AsyncObstructionGenerator } from '../../../type';
-import type Node from '../../../renderer/node';
+import type PathfinderNode from '../../renderer/node';
 import shuffle from 'lodash/shuffle';
 import {
     generatorRunner,
     pause
 } from '../../../util';
-import { useRendererStore } from '../../hook/useRenderer';
-import usePathfinderStore from '../../../renderer/usePathfinderStore';
+import { usePathfinderRendererStore } from '../../hook/usePathfinderRenderer';
+import usePathfinderStore from '../../hook/usePathfinderStore';
 
 export default class OGRandomizedDepthFirstSearch {
     static directions = [
@@ -16,10 +16,10 @@ export default class OGRandomizedDepthFirstSearch {
         [0, 2]
     ] as const;
 
-    static stack: Node[] = [];
+    static stack: PathfinderNode[] = [];
 
     static begin: AsyncObstructionGenerator = async (_, resume: boolean) => {
-        const renderer = useRendererStore.getState().renderer;
+        const renderer = usePathfinderRendererStore.getState().renderer;
 
         if (!renderer) {
             throw Error('no renderer');
@@ -41,16 +41,16 @@ export default class OGRandomizedDepthFirstSearch {
     };
 
     static *run() {
-        const renderer = useRendererStore.getState().renderer;
+        const renderer = usePathfinderRendererStore.getState().renderer;
 
         if (!renderer) {
             throw Error('no renderer');
         }
 
         while (this.stack.length > 0) {
-            const state = usePathfinderStore.getState().state;
+            const state = usePathfinderStore.getState().obstructionGeneratorState;
 
-            if (state === State.OBSTRUCTION_GENERATOR_PAUSED) {
+            if (state === State.PAUSED) {
                 return pause();
             } else if (state === State.IDLE) {
                 return false;

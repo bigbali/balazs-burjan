@@ -1,4 +1,3 @@
-import type { Entry, Paused, RunAction } from '../../type';
 import { Pathfinder } from '../../type';
 import { useState } from 'react';
 import { PATHFINDER_MAP, usePathfinderOptions } from '../algorithm';
@@ -7,98 +6,82 @@ import { State, Delay, Dimensions } from '../../type';
 import AlgorithmControls from './AlgorithmControls';
 import { OG_MAP, ObstructionGenerator, useObstructionGeneratorOptions } from '../obstruction-generator';
 import ObstructionGeneratorControls from './ObstructionGeneratorControls';
-import { useRendererStore } from '../hook/useRenderer';
+import { usePathfinderRendererStore } from '../hook/usePathfinderRenderer';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import usePathfinderStore from '../../renderer/usePathfinderStore';
+import usePathfinderStore from '../hook/usePathfinderStore';
 
-type MenuProps = {
-    ModeSelector: React.JSX.Element,
-};
-
-export default function PathfinderContextMenu({ ModeSelector }: MenuProps) {
+export default function PathfinderContextMenu() {
     const {
         columns,
         rows,
         pathfinder,
-        state,
+        pathfinderState,
+        obstructionGeneratorState,
         stepInterval,
         setColumns,
         setRows,
         setResult,
-        setState,
+        setPathfinderState,
+        setObstructionGeneratorState,
         setPathfinder
     } = usePathfinderStore();
     const [pathfinderOptions, PathfinderOptions] = usePathfinderOptions(pathfinder);
     const [obstructionGenerator, setObstructionGenerator] = useState(ObstructionGenerator.CELLULAR_AUTOMATON);
     const [obstructionGeneratorOptions, ObstructionGeneratorOptions] = useObstructionGeneratorOptions(obstructionGenerator);
 
-    const renderer = useRendererStore(state => state.renderer);
-
-    const runPathfinder = async (resume: boolean) => {
-        const result = await PATHFINDER_MAP[pathfinder].begin({
-            resume, // @ts-ignore
-            options: pathfinderOptions
-        });
-
-        setResult(result);
-
-        return result;
-    };
+    const renderer = usePathfinderRendererStore(state => state.renderer);
 
     const reset = (pathfinder: Pathfinder) => {
-        setState(State.IDLE);
+        setPathfinderState(State.IDLE);
+        setObstructionGeneratorState(State.IDLE);
         setResult(null);
 
         PATHFINDER_MAP[pathfinder].reset();
 
-        useRendererStore.getState().renderer?.reset();
+        usePathfinderRendererStore.getState().renderer?.reset();
 
         // ??? renderer is null
         // renderer?.reset();
     };
 
-    const runObstructionGenerator = async (resume: boolean) => {
-        return await OG_MAP[obstructionGenerator].begin({
-            delay: stepInterval, //@ts-ignore
-            options: obstructionGeneratorOptions
-        }, resume);
+    const runPathfinder = async (state: State, resume?: boolean) => {
+        setPathfinderState(state);
+
+        if (state === State.RUNNING) {
+            const result = await PATHFINDER_MAP[pathfinder].begin({
+                // @ts-ignore
+                options: pathfinderOptions
+            }, resume);
+
+            if (result && typeof result !== 'boolean' && 'paused' in result) {
+                return;
+            }
+
+            setResult(result);
+            setPathfinderState(State.IDLE);
+        }
     };
 
-    const run: RunAction = async (actionType) => {
-        setState(actionType);
+    const runObstructionGenerator = async (state: State, resume?: boolean) => {
+        setObstructionGeneratorState(state);
 
-        let res: Entry | Paused | boolean;
+        if (state === State.RUNNING) {
+            const result = await OG_MAP[obstructionGenerator].begin({
+                // @ts-ignore
+                options: obstructionGeneratorOptions
+            }, resume);
 
-        switch (actionType) {
-            case State.PATHFINDER_RESUMING:
-                res = await runPathfinder(true);
-                break;
-            case State.PATHFINDER_RUNNING:
-                res = await runPathfinder(false);
-                break;
-            case State.OBSTRUCTION_GENERATOR_RUNNING:
-                res = await runObstructionGenerator(false);
-                break;
-            case State.OBSTRUCTION_GENERATOR_RESUMING:
-                res = await runObstructionGenerator(true);
-                break;
-            default:
+            if (result && typeof result !== 'boolean' && 'paused' in result) {
                 return;
-        }
+            }
 
-        if ( res && typeof res !== 'boolean' && 'paused' in res) {
-            return;
+            setObstructionGeneratorState(State.IDLE);
         }
-
-        setState(State.IDLE);
     };
 
     return (
-        <div className='flex flex-col h-full gap-2 p-2 bg-white border rounded-lg w-[35rem] border-theme-border-light'>
-            <div className='flex justify-between gap-4 mb-4'>
-                {ModeSelector}
-            </div>
+        <>
             <label className='flex items-center justify-between'>
                 Hide grid numbers
                 <input
@@ -198,7 +181,7 @@ export default function PathfinderContextMenu({ ModeSelector }: MenuProps) {
                             <div className='flex flex-col gap-4'>
                                 {PathfinderOptions}
                             </div>
-                            <AlgorithmControls state={state} run={run} />
+                            <AlgorithmControls run={runPathfinder} />
                         </fieldset>
                     </Expander>
                     <Expander label='Obstructions' openInitial>
@@ -206,7 +189,7 @@ export default function PathfinderContextMenu({ ModeSelector }: MenuProps) {
                             <div className='flex flex-col gap-4'>
                                 {ObstructionGeneratorOptions}
                             </div>
-                            <ObstructionGeneratorControls state={state} run={run} />
+                            <ObstructionGeneratorControls run={runObstructionGenerator} />
                         </fieldset>
                     </Expander>
                     <Expander label='Help'>
@@ -230,10 +213,16 @@ export default function PathfinderContextMenu({ ModeSelector }: MenuProps) {
                         </div>
                     </Expander>
                 </div>
-                <p className='px-2 mt-auto font-medium capitalize'>
-                    State:&nbsp;
-                    [{state}]
-                </p>
+                <div className='mt-auto'>
+                    <p className='px-2 font-medium capitalize'>
+                    Pathfinder State:&nbsp;
+                    [{pathfinderState}]
+                    </p>
+                    <p className='px-2 font-medium capitalize'>
+                    Obstruction Generator State:&nbsp;
+                    [{obstructionGeneratorState}]
+                    </p>
+                </div>
                 <div className='gap-4 px-2'>
                     <button
                         className='w-full px-4 py-2 font-medium text-white bg-red-700 rounded-lg'
@@ -243,6 +232,6 @@ export default function PathfinderContextMenu({ ModeSelector }: MenuProps) {
                     </button>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

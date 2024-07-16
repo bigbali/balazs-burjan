@@ -1,16 +1,16 @@
 import PathfinderContextMenu from './component/PathfinderContextMenu';
-import Grid from './component/Grid';
+import PathfinderCanvas from './component/PathfinderCanvas';
 import type React from 'react';
+import type { VisualizerProps } from '../type';
+import Menu from '../shared-component/Menu';
 
-export type PathfinderVisualizerProps = {
-    ModeSelector: React.JSX.Element,
-};
-
-export default function PathfinderVisualizer({ ModeSelector }: PathfinderVisualizerProps) {
+export default function PathfinderVisualizer({ ModeSelector }: VisualizerProps) {
     return (
         <div className='w-full h-full p-2 overflow-hidden flex gap-[1rem] justify-between'>
-            <Grid />
-            <PathfinderContextMenu ModeSelector={ModeSelector} />
+            <PathfinderCanvas />
+            <Menu ModeSelector={ModeSelector}>
+                <PathfinderContextMenu />
+            </Menu>
         </div>
     );
 }

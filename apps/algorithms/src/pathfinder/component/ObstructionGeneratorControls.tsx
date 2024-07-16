@@ -1,42 +1,44 @@
-import type { RunAction } from '../../type';
 import { State } from '../../type';
+import usePathfinderStore from '../hook/usePathfinderStore';
 
 type ObstructionGeneratorControlsProps = {
-    state: State,
-    run: RunAction
+    run: (state: State, resume?: boolean) => any
 };
 
-export default function ObstructionGeneratorControls({ state, run }: ObstructionGeneratorControlsProps) {
-    let button;
-    let disabled = false;
+const c = 'flex-1 px-4 py-2 font-medium text-white rounded-lg bg-cyan-700 disabled:bg-slate-400';
 
-    if (state === State.OBSTRUCTION_GENERATOR_RUNNING || state === State.OBSTRUCTION_GENERATOR_RESUMING) {
+export default function ObstructionGeneratorControls({ run }: ObstructionGeneratorControlsProps) {
+    const ogState = usePathfinderStore(state => state.obstructionGeneratorState);
+    const pState = usePathfinderStore(state => state.pathfinderState);
+
+    let button;
+    let disabled = pState === State.RUNNING;
+
+    if (ogState === State.RUNNING) {
         button = (
             <button
-                className='flex-1 px-4 py-2 font-medium text-white rounded-lg bg-cyan-700'
-                onClick={() => void run(State.OBSTRUCTION_GENERATOR_PAUSED)}
+                className={c}
+                onClick={() => void run(State.PAUSED)}
+                disabled={disabled}
             >
                 Pause
             </button>
         );
-    } else if (state === State.OBSTRUCTION_GENERATOR_PAUSED) {
+    } else if (ogState === State.PAUSED) {
         button = (
             <button
-                className='flex-1 px-4 py-2 font-medium text-white rounded-lg bg-cyan-700'
-                onClick={() => void run(State.OBSTRUCTION_GENERATOR_RESUMING)}
+                className={c}
+                onClick={() => void run(State.RUNNING, true)}
+                disabled={disabled}
             >
                 Resume
             </button>
         );
     } else {
-        if (state === State.PATHFINDER_RESUMING || state === State.PATHFINDER_RUNNING) {
-            disabled = true;
-        }
-
         button = (
             <button
-                className='flex-1 px-4 py-2 font-medium text-white rounded-lg bg-cyan-700 disabled:bg-slate-400'
-                onClick={() => void run(State.OBSTRUCTION_GENERATOR_RUNNING)}
+                className={c}
+                onClick={() => void run(State.RUNNING)}
                 disabled={disabled}
             >
                 Run

@@ -32,7 +32,9 @@ export default [
             parser: tsParser,
             globals: {
                 ...globals.browser,
-                ...globals.node
+                ...globals.node,
+                React: true,
+                NodeJS: true
             }
         },
         rules: {
@@ -113,23 +115,6 @@ export default [
                     }
                 }
             ]
-        }
-    },
-    {
-        files: ['**/*.jsx', '**/*.tsx'],
-        languageOptions: {
-            globals: {
-                React: true,
-                NodeJS: true
-            }
-        }
-    },
-    {
-        files: ['**/*.js', '**/*.ts'],
-        languageOptions: {
-            globals: {
-                NodeJS: true
-            }
         }
     }
 ];

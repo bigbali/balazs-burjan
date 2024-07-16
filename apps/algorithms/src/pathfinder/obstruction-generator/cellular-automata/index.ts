@@ -3,8 +3,8 @@ import { State, type AsyncObstructionGenerator } from '../../../type';
 import {
     asyncGeneratorRunner,
     pause } from '../../../util';
-import { useRendererStore } from '../../hook/useRenderer';
-import usePathfinderStore from '../../../renderer/usePathfinderStore';
+import { usePathfinderRendererStore } from '../../hook/usePathfinderRenderer';
+import usePathfinderStore from '../../hook/usePathfinderStore';
 
 export default class OGCellularAutomaton {
     static directions = [
@@ -19,7 +19,7 @@ export default class OGCellularAutomaton {
     ] as const;
 
     static begin: AsyncObstructionGenerator<CellularAutomatonOptions> = async ({ options }, resume) => {
-        const renderer = useRendererStore.getState().renderer;
+        const renderer = usePathfinderRendererStore.getState().renderer;
 
         if (!renderer) {
             throw Error('no renderer');
@@ -41,7 +41,7 @@ export default class OGCellularAutomaton {
     };
 
     static async *run(options: CellularAutomatonOptions) {
-        const renderer = useRendererStore.getState().renderer!;
+        const renderer = usePathfinderRendererStore.getState().renderer!;
 
         if (!renderer) {
             throw Error('no renderer');
@@ -72,9 +72,9 @@ export default class OGCellularAutomaton {
         }
 
         for (let i = 0; i < options.steps; i++) {
-            const state = usePathfinderStore.getState().state;
+            const state = usePathfinderStore.getState().obstructionGeneratorState;
 
-            if (state === State.OBSTRUCTION_GENERATOR_PAUSED) {
+            if (state === State.PAUSED) {
                 return pause();
             } else if (state === State.IDLE) {
                 return false;

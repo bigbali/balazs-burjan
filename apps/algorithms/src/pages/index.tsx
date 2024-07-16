@@ -7,16 +7,18 @@ enum Mode {
 }
 
 const PathfinderVisualizer = dynamic(() => import('../pathfinder'), { ssr: false });
+const SorterVisualizer = dynamic(() => import('../sorter'), { ssr: false });
+
+const ALGORITHM_VISUALIZER_MAP = {
+    [Mode.PATHFINDER]: PathfinderVisualizer,
+    [Mode.SORT]: SorterVisualizer
+} as const;
 
 export default function Algorithms() {
     const [mode, setMode] = useState(() => Mode.PATHFINDER);
 
-    const ALGORITHM_VISUALIZER_MAP = {
-        [Mode.PATHFINDER]: PathfinderVisualizer,
-        [Mode.SORT]: () => <h1>NOT IMPLEMENTED</h1>
-    } as const;
-
     const Visualizer = ALGORITHM_VISUALIZER_MAP[mode];
+
     const ModeSelector = () =>
         <div className='flex gap-4'>
             <label htmlFor='mode'>

@@ -8,17 +8,17 @@ import {
     useRef,
     useState } from 'react';
 import NodeContextMenu, { useNodeControlsStore } from './NodeContextMenu';
-import useRenderer from '../hook/useRenderer';
+import usePathfinderRenderer from '../hook/usePathfinderRenderer';
 import { useWindowResize } from 'ui-react19';
-import usePathfinderStore from '../../renderer/usePathfinderStore';
+import usePathfinderStore from '../hook/usePathfinderStore';
 import useBacktraceHighlight from '../hook/useBacktraceHighlight';
 import { PATHFINDER_MAP } from '../algorithm';
 
 let isMouseDown = false;
 let isObstructionMode = true;
 
-const Grid = () => {
-    const { renderer, initialize } = useRenderer();
+const PathfinderCanvas = () => {
+    const { renderer, initialize } = usePathfinderRenderer();
     const [cursorPosition, setCursorPosition] = useState<Coordinate | null>(null);
     const nodeContext = useNodeControlsStore();
 
@@ -74,7 +74,8 @@ const Grid = () => {
         // if the node menu is open while the window is resized, we hold a reference to a node that is no longer renderer,
         // thus we set it to null in order to prevent interacting with it
         nodeContext.close();
-        usePathfinderStore.getState().setState(State.IDLE);
+        usePathfinderStore.getState().setPathfinderState(State.IDLE);
+        usePathfinderStore.getState().setObstructionGeneratorState(State.IDLE);
         PATHFINDER_MAP[usePathfinderStore.getState().pathfinder].reset();
 
         renderer?.reset();
@@ -87,6 +88,8 @@ const Grid = () => {
     }, [canvas.current]);
 
     useEffect(() => {
+        PATHFINDER_MAP[usePathfinderStore.getState().pathfinder].reset();
+
         renderer?.setResolution({ x: columns, y: rows });
     }, [columns, rows]);
 
@@ -104,4 +107,4 @@ const Grid = () => {
     );
 };
 
-export default Grid;
+export default PathfinderCanvas;

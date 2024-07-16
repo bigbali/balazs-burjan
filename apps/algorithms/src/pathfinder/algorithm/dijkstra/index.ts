@@ -7,14 +7,10 @@ import {
     pause
 } from '../../../util';
 import { State } from '../../../type';
-import { useRendererStore } from '../../hook/useRenderer';
-import usePathfinderStore from '../../../renderer/usePathfinderStore';
+import { usePathfinderRendererStore } from '../../hook/usePathfinderRenderer';
+import usePathfinderStore from '../../hook/usePathfinderStore';
 
 type DijkstraEntry = Entry<{ weight: number | null }>;
-
-type DijkstraParams = {
-    resume: boolean
-};
 
 export default class Dijkstra {
     static readonly directions = [
@@ -26,8 +22,8 @@ export default class Dijkstra {
 
     static priorityQueue = new PriorityQueue();
 
-    static begin = async ({ resume }: DijkstraParams): Promise<DijkstraEntry | Paused> => {
-        const renderer = useRendererStore.getState().renderer;
+    static begin = async (resume?: boolean): Promise<DijkstraEntry | Paused> => {
+        const renderer = usePathfinderRendererStore.getState().renderer;
 
         if (!renderer) {
             throw Error('no renderer');
@@ -46,13 +42,13 @@ export default class Dijkstra {
     };
 
     static reset (callback?: () => void)  {
-        usePathfinderStore.getState().setState(State.IDLE);
+        usePathfinderStore.getState().setPathfinderState(State.IDLE);
         this.priorityQueue.clear();
         callback && callback();
     }
 
     static *run() {
-        const renderer = useRendererStore.getState().renderer;
+        const renderer = usePathfinderRendererStore.getState().renderer;
 
         if (!renderer) {
             throw Error('no renderer');
@@ -65,9 +61,9 @@ export default class Dijkstra {
 
             const node = current.node;
 
-            const state = usePathfinderStore.getState().state;
+            const state = usePathfinderStore.getState().pathfinderState;
 
-            if (state === State.PATHFINDER_PAUSED) {
+            if (state === State.PAUSED) {
                 return pause();
             } else if (state === State.IDLE) {
                 return null;

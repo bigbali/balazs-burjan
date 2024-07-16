@@ -1,6 +1,6 @@
 import type { ObstructionGeneratorOptions } from '../../../type';
 import type { OGRandomOptions } from './options';
-import { useRendererStore } from '../../hook/useRenderer';
+import { usePathfinderRendererStore } from '../../hook/usePathfinderRenderer';
 
 type Options = ObstructionGeneratorOptions<OGRandomOptions>;
 
@@ -10,7 +10,7 @@ export default class OGRandom {
     }
 
     static run({ probability: p }: OGRandomOptions) {
-        const renderer = useRendererStore.getState().renderer;
+        const renderer = usePathfinderRendererStore.getState().renderer;
 
         if (!renderer) {
             throw Error('no renderer');

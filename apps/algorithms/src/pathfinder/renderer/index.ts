@@ -1,15 +1,15 @@
-import type { Resolution } from '../type';
-import { Dimensions } from '../type';
-import Node from './node';
-import usePathfinderStore from './usePathfinderStore';
+import type { Resolution } from '../../type';
+import { Dimensions } from '../../type';
+import PathfinderNode from './node';
+import usePathfinderStore from '../hook/usePathfinderStore';
 
-export default class Renderer {
+export default class PathfinderRenderer {
     canvas: HTMLCanvasElement;
     context: CanvasRenderingContext2D;
-    nodes: Map<string, Node>;
+    nodes: Map<string, PathfinderNode>;
     resolution: Resolution;
-    origin!: Node;
-    target!: Node;
+    origin!: PathfinderNode;
+    target!: PathfinderNode;
     nodeSize!: number;
     showNumbers = true;
     borderSize = 1;
@@ -55,7 +55,7 @@ export default class Renderer {
         this.update();
     }
 
-    setOrigin(newOrigin: Node) {
+    setOrigin(newOrigin: PathfinderNode) {
         this.origin.isOrigin = false;
         this.origin.paint();
 
@@ -64,7 +64,7 @@ export default class Renderer {
         this.origin.paint();
     }
 
-    setTarget(newTarget: Node) {
+    setTarget(newTarget: PathfinderNode) {
         this.target.isTarget = false;
         this.target.paint();
 
@@ -93,7 +93,7 @@ export default class Renderer {
                 const isOrigin = x === 0 && y === 0;
                 const isTarget = x === this.resolution.x - 1 && y === this.resolution.y - 1;
 
-                const node = new Node(this, x, y, false, isTarget, isOrigin);
+                const node = new PathfinderNode(this, x, y, false, isTarget, isOrigin);
 
                 isOrigin && (this.origin = node);
                 isTarget && (this.target = node);
@@ -119,7 +119,7 @@ export default class Renderer {
                 const isOrigin = x === this.origin.x && y === this.origin.y;
                 const isTarget = x === this.target.x && y === this.target.y;
 
-                const node = new Node(this, x, y, false, isTarget, isOrigin);
+                const node = new PathfinderNode(this, x, y, false, isTarget, isOrigin);
 
                 this.nodes.set(`${x},${y}`, node);
             }
@@ -148,6 +148,12 @@ export default class Renderer {
 
         // reset algorithm cache
         this.update();
+    }
+
+    resetVisited() {
+        for (const node of this.nodes.values()) {
+            node.setVisited(false);
+        }
     }
 
     paint() {

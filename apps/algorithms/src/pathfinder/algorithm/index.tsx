@@ -5,7 +5,7 @@ import DepthFirstSearch from './dfs';
 import { DEPTH_FIRST_SEARCH_DEFAULT_OPTIONS, DFSOptionsComponent } from './dfs/options';
 import Dijkstra from './dijkstra';
 import { DIJSKTRA_DEFAULT_OPTIONS as DIJKSTRA_DEFAULT_OPTIONS, DijkstraOptionsComponent } from './dijkstra/options';
-import { useRendererStore } from '../hook/useRenderer';
+import { usePathfinderRendererStore } from '../hook/usePathfinderRenderer';
 import { Pathfinder } from '../../type';
 
 export const PATHFINDER_MAP = {
@@ -35,7 +35,7 @@ export const usePathfinderOptions = <T extends Pathfinder>(algorithm: T) => {
 
     useEffect(() => {
         PATHFINDER_MAP[algorithm].reset();
-        useRendererStore.getState().renderer?.reset();
+        usePathfinderRendererStore.getState().renderer?.reset();
     }, [options, algorithm]);
 
     const Element = ALGORITHM_OPTIONS_COMPONENT_MAP[algorithm];

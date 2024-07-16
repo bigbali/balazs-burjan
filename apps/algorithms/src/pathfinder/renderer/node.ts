@@ -1,8 +1,8 @@
-import type Renderer from '.';
-import { NodeColor } from '../type';
+import type PathfinderRenderer from '.';
+import { NodeColor } from '../../type';
 
-export default class Node {
-    renderer: Renderer;
+export default class PathfinderNode {
+    renderer: PathfinderRenderer;
     x: number;
     y: number;
     dx: number;
@@ -15,7 +15,7 @@ export default class Node {
     isVisited = false;
     weight: number | null = null;
 
-    constructor(renderer: Renderer, x: number, y: number, isObstruction: boolean, isTarget: boolean, isOrigin: boolean) {
+    constructor(renderer: PathfinderRenderer, x: number, y: number, isObstruction: boolean, isTarget: boolean, isOrigin: boolean) {
         this.renderer = renderer;
         this.x = x;
         this.y = y;
@@ -41,8 +41,13 @@ export default class Node {
         this.renderer.setTarget(this);
     }
 
-    setVisited() {
-        this.isVisited = true;
+    setVisited(state?: boolean) {
+        if (state === false) {
+            this.isVisited = false;
+        } else {
+            this.isVisited = true;
+        }
+
         this.paint();
     }
 

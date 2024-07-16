@@ -1,5 +1,5 @@
 import type {  Dispatch, MutableRefObject, SetStateAction } from 'react';
-import type Node from './renderer/node';
+import type PathfinderNode from './pathfinder/renderer/node';
 
 /**
  * The amount of nodes in a column or row.
@@ -65,15 +65,9 @@ export type AsyncObstructionGenerator<T = void> =
 
 export enum State {
     IDLE = 'idle',
-    OBSTRUCTION_GENERATOR_RUNNING = 'obstruction generator running',
-    OBSTRUCTION_GENERATOR_PAUSED = 'obstruction generator paused',
-    OBSTRUCTION_GENERATOR_RESUMING = 'obstruction generator resuming',
-    PATHFINDER_RUNNING = 'pathfinder running',
-    PATHFINDER_PAUSED = 'pathfinder paused',
-    PATHFINDER_RESUMING = 'pathfinder resuming',
+    RUNNING = 'running',
+    PAUSED = 'paused'
 }
-
-export type RunAction = (action: State) => Promise<void>;
 
 export type Coordinate = {
     x: number,
@@ -81,7 +75,7 @@ export type Coordinate = {
 };
 
 export type Entry<T = {}> = (({
-    node: Node,
+    node: PathfinderNode,
     parent: Entry
 }) & T) | null;
 
@@ -96,4 +90,9 @@ export const enum MouseButton {
 export type OptionsComponentProps<T> = {
     options: T,
     setOptions: Dispatch<SetStateAction<T>>
+};
+
+
+export type VisualizerProps = {
+    ModeSelector: React.JSX.Element,
 };

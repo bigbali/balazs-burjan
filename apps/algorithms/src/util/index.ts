@@ -1,4 +1,5 @@
-import usePathfinderStore from '../renderer/usePathfinderStore';
+import { usePathfinderRendererStore } from '../pathfinder/hook/usePathfinderRenderer';
+import usePathfinderStore from '../pathfinder/hook/usePathfinderStore';
 import type { Paused } from '../type';
 
 type GeneratorRunner = <T>(
@@ -57,7 +58,7 @@ type ArrayLike = {
 type SetupPathfinder = <T>(
     entries: ArrayLike,
     initialEntry: T,
-    resume: boolean
+    resume?: boolean
 ) => void;
 
 
@@ -74,6 +75,7 @@ Array.prototype.clear = function(this: []) {
 export const setupPathfinder: SetupPathfinder = (entries, initialEntry, resume) => {
     if (!resume) {
         entries.clear();
+        usePathfinderRendererStore.getState().renderer?.resetVisited();
 
         Array.isArray(initialEntry)
             ? entries.push(...initialEntry)
