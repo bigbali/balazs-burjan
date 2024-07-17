@@ -1,5 +1,6 @@
 import { usePathfinderRendererStore } from '../pathfinder/hook/usePathfinderRenderer';
 import usePathfinderStore from '../pathfinder/hook/usePathfinderStore';
+import useSorterStore from '../sorter/hook/useSorterStore';
 import type { Paused } from '../type';
 
 type GeneratorRunner = <T>(
@@ -30,6 +31,23 @@ export const generatorRunner: GeneratorRunner = async (generator) => {
 
 
     return await generatorRunner(generator);
+};
+
+export const sorterGeneratorRunner: GeneratorRunner = async (generator) => {
+    const interval = useSorterStore.getState().stepInterval;
+    const result = generator.next();
+
+    if (result.done) {
+        return result.value;
+    }
+
+    let timeout: NodeJS.Timeout;
+    await new Promise((resolve) => {
+        timeout = setTimeout(resolve, interval.current);
+    }).then(() => clearTimeout(timeout));
+
+
+    return await sorterGeneratorRunner(generator);
 };
 
 export const asyncGeneratorRunner: AsyncGeneratorRunner = async (generator) => {
