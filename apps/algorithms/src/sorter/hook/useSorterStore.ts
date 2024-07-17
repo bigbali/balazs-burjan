@@ -19,7 +19,7 @@ export type SorterStore = {
 
 const useSorterStore = create<SorterStore>((set) => ({
     renderer: null,
-    values: [],
+    values: [9,8,7,6,5,4,3,2,1],
     state: State.IDLE,
     stepInterval: { current: Delay.DEFAULT },
     setRenderer: (renderer) => set({ renderer }),

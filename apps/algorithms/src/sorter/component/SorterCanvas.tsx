@@ -3,12 +3,12 @@ import SorterRenderer from '../renderer';
 import useSorterStore from '../hook/useSorterStore';
 
 export default function SorterCanvas() {
-    const { renderer, setRenderer } = useSorterStore();
+    const { values, setRenderer } = useSorterStore();
     const canvas = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
-        if (canvas.current && !renderer) {
-            setRenderer(new SorterRenderer(canvas.current, [1,2,3,6,9,4,5,6]));
+        if (canvas.current) {
+            setRenderer(new SorterRenderer(canvas.current, values));
         }
     }, [canvas.current]);
 
