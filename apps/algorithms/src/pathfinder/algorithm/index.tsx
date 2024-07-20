@@ -27,11 +27,11 @@ const ALGORITHM_OPTIONS_COMPONENT_MAP = {
 } as const;
 
 export const usePathfinderOptions = <T extends Pathfinder>(algorithm: T) => {
-    const [options, setOptions] = useState(DEFAULT_OPTIONS_MAP[algorithm]);
+    const [options, setOptions] = useState(() => DEFAULT_OPTIONS_MAP[algorithm]);
 
-    useEffect(() => {
+    if (options !== DEFAULT_OPTIONS_MAP[algorithm]) {
         setOptions(DEFAULT_OPTIONS_MAP[algorithm]);
-    }, [algorithm]);
+    }
 
     useEffect(() => {
         PATHFINDER_MAP[algorithm].reset();

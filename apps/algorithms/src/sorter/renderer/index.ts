@@ -1,4 +1,4 @@
-import { NodeColor, type Resolution } from '../../type';
+import { NodeColor, SorterColor, type Resolution } from '../../type';
 
 export default class SorterRenderer {
     canvas: HTMLCanvasElement;
@@ -12,6 +12,7 @@ export default class SorterRenderer {
     };
     swap: number[] = [];
     noSwap: number[] = [];
+    highlighted: number[] = [];
 
     constructor(canvas: HTMLCanvasElement, values: number[]) {
         this.canvas = canvas;
@@ -24,9 +25,20 @@ export default class SorterRenderer {
 
         this.draw(values);
 
+        this.context.lineWidth = 6;
+
         canvas.addEventListener('contextmenu', function (event) {
             event.preventDefault();
         });
+    }
+
+    resize() {
+        this.canvas.width =
+            this.canvas.parentElement!.clientWidth * window.devicePixelRatio;
+        this.canvas.height =
+            this.canvas.parentElement!.clientHeight * window.devicePixelRatio;
+
+        this.draw(this.values);
     }
 
     highlightSwap(...indexes: number[]) {
@@ -37,14 +49,23 @@ export default class SorterRenderer {
         this.noSwap = [...indexes];
     }
 
-    draw(values: number[]) {
+    highlight(...indexes: number[]) {
+        this.highlighted = [...indexes];
+    }
+
+    setScaling(scaling: number) {
+        this.scaling = scaling;
+        this.draw(this.values, true);
+    }
+
+    draw(values: number[], keepHighlighted?: boolean) {
         this.values = values;
 
         if (values.length === 0) {
             return;
         }
 
-        const maxHeight = this.canvas.height * this.scaling - this.padding.y * 2;
+        const maxHeight = (this.canvas.height - this.padding.y * 2) * this.scaling;
         const width = 20;
 
         const columnsWidth = width * this.values.length;
@@ -91,35 +112,40 @@ export default class SorterRenderer {
                 h = centerY ? ((value / max) * maxHeight * -1) / 2 : (value / max) * maxHeight * -1;
             }
 
-            this.context.fillStyle = NodeColor.TARGET;
+            this.context.fillStyle = SorterColor.DEFAULT;
             this.context.fillRect(x, origoY, width, h);
 
+            const strokeX = x - 3;
+            const strokeWidth =  width + 6;
+            const strokeHeight = h > 0 ? h + 3 : h - 3;
+
             if (this.swap.includes(i)) {
-                this.context.lineWidth = 6;
-                this.context.strokeStyle = NodeColor.BACKTRACE;
-                this.context.strokeRect(x - 3, origoY, width + 6, h > 0 ? h + 3 : h - 3);
+                this.context.strokeStyle = SorterColor.SWAP;
+                this.context.strokeRect(strokeX, origoY, strokeWidth, strokeHeight);
             }
 
             if (this.noSwap.includes(i)) {
-                this.context.lineWidth = 6;
-                this.context.strokeStyle = NodeColor.HIGHLIGHT;
-                this.context.strokeRect(x - 2, origoY, width + 4, h > 0 ? h + 3 : h - 3);
+                this.context.strokeStyle = SorterColor.UNCHANGED;
+                this.context.strokeRect(strokeX, origoY, strokeWidth, strokeHeight);
+            }
+
+            if (this.highlighted.includes(i)) {
+                this.context.strokeStyle = SorterColor.HIGHLIGHT;
+                this.context.strokeRect(strokeX, origoY, strokeWidth, strokeHeight);
             }
 
             this.context.fillStyle = NodeColor.TARGET;
-            this.context.fillText(value.toString(), x + width / 2, this.canvas.height - 32);
+            this.context.fillText(value.toString(), x + width / 2, this.canvas.height - this.padding.y / 2);
             i++;
+        }
+
+        if (keepHighlighted) {
+            return;
         }
 
         this.swap = [];
         this.noSwap = [];
-    }
-
-    resize() {
-        this.canvas.width =
-            this.canvas.parentElement!.clientWidth * window.devicePixelRatio;
-        this.canvas.height =
-            this.canvas.parentElement!.clientHeight * window.devicePixelRatio;
+        this.highlighted = [];
     }
 
     reset() {

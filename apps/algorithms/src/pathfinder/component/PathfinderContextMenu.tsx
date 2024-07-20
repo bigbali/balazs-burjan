@@ -10,6 +10,7 @@ import { usePathfinderRendererStore } from '../hook/usePathfinderRenderer';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePathfinderStore from '../hook/usePathfinderStore';
+import Checkbox from 'ui-react19/Checkbox';
 
 export default function PathfinderContextMenu() {
     const {
@@ -84,11 +85,9 @@ export default function PathfinderContextMenu() {
         <>
             <label className='flex items-center justify-between'>
                 Hide grid numbers
-                <input
-                    type='checkbox'
+                <Checkbox
                     defaultChecked={renderer?.showNumbers}
-                    onChange={() => renderer?.setShowNumbers((state) => !state)}
-                    className='w-[1rem] h-[1rem]'
+                    onCheckedChange={() => renderer?.setShowNumbers((state) => !state)}
                 />
             </label>
             <FieldRangeInput

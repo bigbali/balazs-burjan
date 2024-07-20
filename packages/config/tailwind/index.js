@@ -1,32 +1,79 @@
-/** @type {import('tailwindcss').Config} */
+// import { fontFamily } from 'tailwindcss/defaultTheme';
+const { fontFamily } = require('tailwindcss/defaultTheme');
+
+/** @type {import'tailwindcss'.Config} */
 export default {
-    plugins: [],
+    darkMode: ['class'],
     theme: {
+        container: {
+            center: true,
+            padding: '2rem',
+            screens: {
+                '2xl': '1400px'
+            }
+        },
         extend: {
             colors: {
-                theme: {
-                    primary: '#cc1212',
-                    bg: {
-
-                    },
-                    control: {
-                        bg: {
-                            light: '#DADDDD',
-                            dark: '#262629'
-                        }
-                    },
-                    border: {
-                        light: '#CBD5E1',
-                        dark: '#323538'
-                    }
+                border: 'var(--border)',
+                input: 'var(--input)',
+                ring: 'var(--ring)',
+                background: 'var(--background)',
+                foreground: 'var(--foreground)',
+                primary: {
+                    DEFAULT: 'var(--primary)',
+                    foreground: 'var(--primary-foreground)'
+                },
+                secondary: {
+                    DEFAULT: 'var(--secondary)',
+                    foreground: 'var(--secondary-foreground)'
+                },
+                tertiary: {
+                    DEFAULT: 'var(--tertiary)'
+                },
+                destructive: {
+                    DEFAULT: 'var(--destructive)',
+                    foreground: 'var(--destructive-foreground)'
+                },
+                muted: {
+                    DEFAULT: 'var(--muted)',
+                    foreground: 'var(--muted-foreground)'
+                },
+                accent: {
+                    DEFAULT: 'var(--accent)',
+                    foreground: 'var(--accent-foreground)'
+                },
+                popover: {
+                    DEFAULT: 'var(--popover)',
+                    foreground: 'var(--popover-foreground)'
+                },
+                card: {
+                    DEFAULT: 'var(--card)',
+                    foreground: 'var(--card-foreground)'
                 }
             },
             borderRadius: {
-                1: '0.25rem',
-                2: '0.5rem',
-                3: '0.75rem',
-                4: '1rem'
+                lg: 'var(--radius)',
+                md: 'calc(var(--radius - 2px))',
+                sm: 'calc(var(--radius - 4px))'
+            },
+            fontFamily: {
+                sans: ['var(--font-sans)', ...fontFamily.sans]
+            },
+            keyframes: {
+                'accordion-down': {
+                    from: { height: '0' },
+                    to: { height: 'var(--radix-accordion-content-height)' }
+                },
+                'accordion-up': {
+                    from: { height: 'var(--radix-accordion-content-height)' },
+                    to: { height: '0' }
+                }
+            },
+            animation: {
+                'accordion-down': 'accordion-down 0.2s ease-out',
+                'accordion-up': 'accordion-up 0.2s ease-out'
             }
         }
-    }
+    },
+    plugins: [require('tailwindcss-animate')]
 };

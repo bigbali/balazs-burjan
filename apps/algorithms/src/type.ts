@@ -46,6 +46,13 @@ export const enum NodeColor {
     DEFAULT = 'rgb(230, 230, 230)'
 }
 
+export const enum SorterColor {
+    HIGHLIGHT = '#ed07f5',
+    SWAP = '#f5b907',
+    UNCHANGED = '#20C850',
+    DEFAULT = '#1E80E6'
+}
+
 export type ObstructionGeneratorOptions<T> = {
     options: T
 };
@@ -96,3 +103,9 @@ export type OptionsComponentProps<T> = {
 export type VisualizerProps = {
     ModeSelector: React.JSX.Element,
 };
+
+export type Result<T = {}> = {
+    state: 'paused'
+} | ({
+    state: 'done',
+} & T);

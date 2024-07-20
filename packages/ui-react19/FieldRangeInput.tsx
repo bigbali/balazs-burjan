@@ -6,8 +6,11 @@ import type {
     CSSProperties
 } from 'react';
 import { useEffect, useId, useState } from 'react';
-import { debounce } from 'lodash';
-import type { Either } from '../../util/type';
+import { debounce, isInteger } from 'lodash';
+import Slider from './Slider';
+import type { Either } from 'c:/Users/bigba/Desktop/Projects/my-turborepo/packages/util/type';
+import Input from './Input';
+import cn from './util/cn';
 
 type BaseFieldRangeInputProps = {
     min?: number,
@@ -19,7 +22,8 @@ type BaseFieldRangeInputProps = {
     label: string,
     labelStyle?: CSSProperties,
     fieldStyle?: CSSProperties,
-    rangeStyle?: CSSProperties
+    rangeStyle?: CSSProperties,
+    containerStyle?: CSSProperties
 };
 
 type GeneralOnChange = {
@@ -41,10 +45,12 @@ type FieldRangeInputProps = BaseFieldRangeInputProps
     & Omit<HTMLAttributes<HTMLDivElement>, 'onChange'>;
 
 type FieldRangeInputHandlerOptions = {
-    event: ChangeEvent<HTMLInputElement>,
+    event?: ChangeEvent<HTMLInputElement>,
+    values?: number[],
     min: number,
     max: number,
     defaultValue: number,
+    step: number,
     debounce?: boolean,
     callback: (value: number) => void,
     setter: Dispatch<SetStateAction<number | null>>
@@ -60,9 +66,11 @@ const waitForPossibleRangeInput = debounce((callback: () => void) => callback(),
 
 export const handleFieldRangeInputChange = ({
     event,
+    values,
     min,
     max,
     defaultValue,
+    step,
     debounce,
     callback,
     setter
@@ -71,7 +79,15 @@ export const handleFieldRangeInputChange = ({
     waitForPossibleFieldInput.cancel();
     waitForPossibleRangeInput.cancel();
 
-    const parsedValue = Number.parseInt(event.target.value);
+    let parsedValue = 0;
+
+    if (event) {
+        parsedValue = Number.isInteger(step)
+            ? Number.parseInt(event.target.value)
+            : Number.parseFloat(event.target.value);
+    } else if (values) {
+        parsedValue = values[0]!;
+    }
 
     if (Number.isNaN(parsedValue)) {
         setter(null);
@@ -129,6 +145,7 @@ export default function FieldRangeInput ({
     labelStyle,
     fieldStyle,
     rangeStyle,
+    containerStyle,
     ...props
 }: FieldRangeInputProps) {
     const [_value, _setValue] = useState<number | null>(value ?? defaultValue);
@@ -152,42 +169,46 @@ export default function FieldRangeInput ({
                     {label}
                 </label>
             )}
-            <input
-                className='text-center border rounded-md border-theme-border-light'
-                style={{ maxWidth: `calc(${max.toString().length}ch + 3rem)`, paddingInlineStart: '0.5rem', ...fieldStyle }}
-                id={id}
-                type='number'
-                max={max}
-                min={min}
-                step={step}
-                value={_value ?? min}
-                onChange={(e) => handleFieldRangeInputChange({
-                    event: e,
-                    min,
-                    max,
-                    defaultValue,
-                    debounce: false,
-                    setter: _setValue,
-                    callback: fieldCallback
-                })}
-            />
-            <input
-                style={rangeStyle}
-                type='range'
-                max={max}
-                min={min}
-                step={step}
-                value={ _value ?? min}
-                onChange={(e) => handleFieldRangeInputChange({
-                    event: e,
-                    min,
-                    max,
-                    defaultValue,
-                    debounce: debounceRange,
-                    setter: _setValue,
-                    callback: rangeCallback
-                })}
-            />
+            <div className='flex gap-[1rem] ml-auto flex-1 w-[20rem] max-w-[20rem]' style={containerStyle}>
+                <Input
+                    type='number'
+                    className='pr-0 text-center border rounded-md border-theme-border-light'
+                    style={{ maxWidth: `calc(${max.toString().length}ch + 3rem)`, paddingInlineStart: '0.5rem', ...fieldStyle }}
+                    id={id}
+                    max={max}
+                    min={min}
+                    step={step}
+                    value={_value ?? min}
+                    onChange={(event) => handleFieldRangeInputChange({
+                        event,
+                        min,
+                        max,
+                        defaultValue,
+                        step,
+                        debounce: false,
+                        setter: _setValue,
+                        callback: fieldCallback
+                    })}
+
+                />
+                <Slider
+                    min={min}
+                    max={max}
+                    step={step}
+                    value={[_value ?? min]}
+                    style={rangeStyle}
+                    onValueChange={(values) => handleFieldRangeInputChange({
+                        values,
+                        min,
+                        max,
+                        step,
+                        defaultValue,
+                        debounce: debounceRange,
+                        setter: _setValue,
+                        callback: rangeCallback
+                    })}
+                />
+            </div>
         </div>
     );
 }
