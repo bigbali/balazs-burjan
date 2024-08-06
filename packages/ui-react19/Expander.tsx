@@ -19,7 +19,7 @@ export default function Expander ({ open, openInitial, onToggle, label, children
     const isOnToggleTriggeredByStateChange = useRef(false);
 
     return (
-        <div className='border rounded-lg border-slate-300'>
+        <div className='border'>
             <details
                 {...props}
                 open={open || openInternal}
@@ -37,7 +37,7 @@ export default function Expander ({ open, openInitial, onToggle, label, children
                     }
                 }}
             >
-                <summary className='cursor-pointer'>
+                <summary className='text-sm cursor-pointer'>
                     {label}
                 </summary>
                 {children}

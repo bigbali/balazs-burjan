@@ -1,4 +1,4 @@
-import { useState, type ChangeEventHandler } from 'react';
+import { useEffect, useState, type ChangeEventHandler } from 'react';
 import useSorterStore from '../hook/useSorterStore';
 import { toNumber } from 'lodash';
 import BubbleSort from '../algorithm/bubble';
@@ -10,24 +10,31 @@ import { Delay, State } from '../../type';
 import { FieldRangeInput } from 'ui-react19';
 import Input from 'ui-react19/Input';
 import Label from 'ui-react19/Label';
-import Select, { SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from 'ui-react19/Select';
+import Select, { SelectContent, SelectItem, SelectTrigger, SelectValue } from 'ui-react19/Select';
+import SorterResult from './SorterResult';
+import InsertionSort from '../algorithm/insertion';
 
 enum Sorter {
     BUBBLE = 'bubble sort',
     BOGO = 'bogo sort',
-    SELECTION = 'selection sort'
+    SELECTION = 'selection sort',
+    INSERTION = 'insertion sort',
 }
 
 const SORTER_MAP = {
     [Sorter.BUBBLE]: BubbleSort,
     [Sorter.BOGO]: BogoSort,
-    [Sorter.SELECTION]: SelectionSort
+    [Sorter.SELECTION]: SelectionSort,
+    [Sorter.INSERTION]: InsertionSort
 } as const;
 
 export default function SorterContextMenu() {
     const { renderer, values, state, setValues, setState, setStepInterval } = useSorterStore();
     const [sorter, setSorter] = useState<Sorter>(Sorter.BUBBLE);
     const [text, setText] = useState(() => values.join(', '));
+    const [result, setResult] = useState<Result<number[]> | null>(null);
+
+    useEffect(() => () => setState(State.IDLE), [sorter]);
 
     const onValuesChange: ChangeEventHandler<HTMLInputElement> = (e) => {
         const parsedValues = e.currentTarget.value.split(',').map(a => toNumber(a.trim())).filter(a => !isNaN(a));
@@ -49,9 +56,11 @@ export default function SorterContextMenu() {
                 valuesCopy = structuredClone(values);
             }
 
-            const result = await SORTER_MAP[sorter].begin(valuesCopy);
+            const result = await SORTER_MAP[sorter].begin(valuesCopy) as Result<number[]>;
 
-            if ((result as Result).state === 'paused') {
+            setResult(result);
+
+            if (result.state === 'paused' || result.state === 'cancelled') {
                 return;
             }
 
@@ -73,6 +82,7 @@ export default function SorterContextMenu() {
                     className='font-mono text-base'
                 />
             </Label>
+            <SorterResult state={state} result={result} />
             <Label className='flex flex-col gap-[0.5rem]'>
                 <span className='text-muted-foreground'>
                     Algorithm
@@ -81,20 +91,15 @@ export default function SorterContextMenu() {
                     value={sorter}
                     onValueChange={(value) => setSorter(value as Sorter)}
                 >
-                    <SelectTrigger className='w-full capitalize'>
-                        <SelectValue   />
-                    </SelectTrigger>
-                    <SelectContent>
-                        {Object.values(Sorter).map((sorter) => (
-                            <SelectItem
-                                className='capitalize'
-                                value={sorter}
-                                key={sorter}
-                            >
-                                {sorter}
-                            </SelectItem>
-                        ))}
-                    </SelectContent>
+                    {Object.values(Sorter).map((sorter) => (
+                        <SelectItem
+                            className='capitalize'
+                            value={sorter}
+                            key={sorter}
+                        >
+                            {sorter}
+                        </SelectItem>
+                    ))}
                 </Select>
             </Label>
             <FieldRangeInput

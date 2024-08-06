@@ -6,7 +6,7 @@ import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 
 import cn from './util/cn';
 
-const Select = SelectPrimitive.Root;
+const SelectWrapper = SelectPrimitive.Root;
 
 const SelectGroup = SelectPrimitive.Group;
 
@@ -131,7 +131,7 @@ const SelectSeparator = React.forwardRef<
 SelectSeparator.displayName = SelectPrimitive.Separator.displayName;
 
 export {
-    Select,
+    SelectWrapper,
     SelectGroup,
     SelectValue,
     SelectTrigger,
@@ -143,4 +143,17 @@ export {
     SelectScrollDownButton
 };
 
-export default Select;
+type SelectProps = SelectPrimitive.SelectProps;
+
+export default function Select({ children, ...props }: SelectProps) {
+    return (
+        <SelectWrapper {...props}>
+            <SelectTrigger className='w-full capitalize'>
+                <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+                {children}
+            </SelectContent>
+        </SelectWrapper>
+    );
+}

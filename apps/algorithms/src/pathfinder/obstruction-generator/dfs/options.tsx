@@ -1,3 +1,7 @@
 export default function OGDFSOptionsComponent() {
-    return <p>This obstruction generator has no available options.</p>;
+    return (
+        <p className='text-sm'>
+            This obstruction generator has no available options.
+        </p>
+    );
 }

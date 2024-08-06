@@ -1,0 +1,9 @@
+:root {
+    --primary: hsl(210, 60%, 42%);
+    --primary-foreground: hsl(210 40% 98%);
+
+    --secondary: hsl(210, 55%, 60%);
+    --secondary-foreground: hsl(210 40% 98%);
+
+    --destructive: hsl(0, 69%, 47%);
+}

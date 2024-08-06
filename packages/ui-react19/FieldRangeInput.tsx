@@ -6,11 +6,10 @@ import type {
     CSSProperties
 } from 'react';
 import { useEffect, useId, useState } from 'react';
-import { debounce, isInteger } from 'lodash';
+import { debounce } from 'lodash';
 import Slider from './Slider';
 import type { Either } from 'c:/Users/bigba/Desktop/Projects/my-turborepo/packages/util/type';
 import Input from './Input';
-import cn from './util/cn';
 
 type BaseFieldRangeInputProps = {
     min?: number,
@@ -165,14 +164,14 @@ export default function FieldRangeInput ({
     return (
         <div {...props}>
             {label && (
-                <label htmlFor={id} style={labelStyle}>
+                <label htmlFor={id} style={labelStyle} className='flex items-center text-sm font-medium'>
                     {label}
                 </label>
             )}
             <div className='flex gap-[1rem] ml-auto flex-1 w-[20rem] max-w-[20rem]' style={containerStyle}>
                 <Input
                     type='number'
-                    className='pr-0 text-center border rounded-md border-theme-border-light'
+                    className='w-auto h-auto py-1 pr-0 text-center border border-theme-border-light'
                     style={{ maxWidth: `calc(${max.toString().length}ch + 3rem)`, paddingInlineStart: '0.5rem', ...fieldStyle }}
                     id={id}
                     max={max}

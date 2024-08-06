@@ -11,6 +11,9 @@ import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePathfinderStore from '../hook/usePathfinderStore';
 import Checkbox from 'ui-react19/Checkbox';
+import Select, { SelectContent, SelectItem, SelectTrigger, SelectValue } from 'ui-react19/Select';
+import Label from 'ui-react19/Label';
+import Button from 'ui-react19/Button';
 
 export default function PathfinderContextMenu() {
     const {
@@ -83,13 +86,13 @@ export default function PathfinderContextMenu() {
 
     return (
         <>
-            <label className='flex items-center justify-between'>
+            <Label className='flex items-center justify-between'>
                 Hide grid numbers
                 <Checkbox
                     defaultChecked={renderer?.showNumbers}
                     onCheckedChange={() => renderer?.setShowNumbers((state) => !state)}
                 />
-            </label>
+            </Label>
             <FieldRangeInput
                 label='Rows'
                 value={rows}
@@ -121,58 +124,44 @@ export default function PathfinderContextMenu() {
                 onChange={(interval) => (stepInterval.current = interval)}
                 debounceRange={false}
             />
-            <div className='flex gap-2'>
-                <label htmlFor='algorithm' className='capitalize'>
+            <Label className='flex flex-col gap-[0.5rem]'>
+                <span className='text-muted-foreground'>
                     Pathfinder Algorithm
-                </label>
-                <select
-                    id='algorithm'
-                    className='ml-auto capitalize border rounded-md border-slate-3'
+                </span>
+                <Select
                     value={pathfinder}
-                    onChange={(e) =>
-                        setPathfinder(e.currentTarget.value as Pathfinder)
-                    }
+                    onValueChange={(value) => setPathfinder(value as Pathfinder)}
                 >
-                    {Object.values(Pathfinder).map((value) => {
-                        return (
-                            <option
-                                key={value}
-                                value={value}
-                                className='capitalize'
-                            >
-                                {value}
-                            </option>
-                        );
-                    })}
-                </select>
-            </div>
-            <div className='flex gap-2'>
-                <label htmlFor='algorithm' className='capitalize'>
+                    {Object.values(Pathfinder).map((value) => (
+                        <SelectItem
+                            className='capitalize'
+                            value={value}
+                            key={value}
+                        >
+                            {value}
+                        </SelectItem>
+                    ))}
+                </Select>
+            </Label>
+            <Label className='flex flex-col gap-[0.5rem]'>
+                <span className='text-muted-foreground'>
                     Obstruction Algorithm
-                </label>
-                <select
-                    id='obstruction-generator'
-                    className='ml-auto capitalize border rounded-md border-slate-3 h-fit'
+                </span>
+                <Select
                     value={obstructionGenerator}
-                    onChange={(e) =>
-                        setObstructionGenerator(
-                            e.currentTarget.value as ObstructionGenerator
-                        )
-                    }
+                    onValueChange={(value) => setObstructionGenerator(value as ObstructionGenerator)}
                 >
-                    {Object.values(ObstructionGenerator).map((value) => {
-                        return (
-                            <option
-                                key={value}
-                                value={value}
-                                className='capitalize'
-                            >
-                                {value}
-                            </option>
-                        );
-                    })}
-                </select>
-            </div>
+                    {Object.values(ObstructionGenerator).map((value) => (
+                        <SelectItem
+                            className='capitalize'
+                            value={value}
+                            key={value}
+                        >
+                            {value}
+                        </SelectItem>
+                    ))}
+                </Select>
+            </Label>
             <div className='flex flex-col justify-between h-full gap-4'>
                 <div className='flex flex-col gap-2'>
                     <Expander label='Algorithm' openInitial>
@@ -192,12 +181,12 @@ export default function PathfinderContextMenu() {
                         </fieldset>
                     </Expander>
                     <Expander label='Help'>
-                        <div className='flex flex-col gap-4 m-4 font-medium'>
+                        <div className='flex flex-col gap-4 m-4 text-sm font-medium'>
                             <p className='flex items-center gap-[1rem]'>
                                 <FontAwesomeIcon
                                     color='#323538'
                                     icon={faInfoCircle}
-                                    className='w-[1.2rem] h-[1.2rem]'
+                                    className='w-4 h-4'
                                 />
                                 Toggle obstructions using the left mouse button.
                             </p>
@@ -205,30 +194,42 @@ export default function PathfinderContextMenu() {
                                 <FontAwesomeIcon
                                     color='#323538'
                                     icon={faInfoCircle}
-                                    className='w-[1.2rem] h-[1.2rem]'
+                                    className='w-4 h-4'
                                 />
                                 Open the node context menu using the right mouse button.
                             </p>
                         </div>
                     </Expander>
                 </div>
-                <div className='mt-auto'>
+                <div className='mt-auto text-sm'>
                     <p className='px-2 font-medium capitalize'>
                     Pathfinder State:&nbsp;
-                    [{pathfinderState}]
+                        <span className='font-semibold'>
+                            [{pathfinderState}]
+                        </span>
                     </p>
                     <p className='px-2 font-medium capitalize'>
                     Obstruction Generator State:&nbsp;
-                    [{obstructionGeneratorState}]
+                        <span className='font-semibold'>
+                            [{obstructionGeneratorState}]
+                        </span>
                     </p>
                 </div>
-                <div className='gap-4 px-2'>
-                    <button
-                        className='w-full px-4 py-2 font-medium text-white bg-red-700 rounded-lg'
+                <div className='flex gap-4 px-2'>
+                    <Button
+                        className='flex-1'
                         onClick={() => reset(pathfinder)}
+                        variant='destructive'
                     >
-                            Clear Grid
-                    </button>
+                            Clear Obstructions
+                    </Button>
+                    <Button
+                        className='flex-1'
+                        onClick={() => reset(pathfinder)}
+                        variant='destructive'
+                    >
+                            Clear Visited
+                    </Button>
                 </div>
             </div>
         </>

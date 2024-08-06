@@ -104,8 +104,25 @@ export type VisualizerProps = {
     ModeSelector: React.JSX.Element,
 };
 
-export type Result<T = {}> = {
+export type Result<T = {}> = SorterResultPaused<T> | SorterResultCancelled<T> | SorterResultDone<T>;
+
+export type SorterResultPaused<T> = {
     state: 'paused'
-} | ({
+} | {
+    state: 'paused',
+    result: T
+};
+
+export type SorterResultCancelled<T> = {
+    state: 'cancelled'
+} | {
+    state: 'cancelled',
+    result: T
+};
+
+export type SorterResultDone<T> = {
+    state: 'done'
+} | {
     state: 'done',
-} & T);
+    result: T
+};

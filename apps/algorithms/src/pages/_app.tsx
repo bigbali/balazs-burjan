@@ -2,6 +2,7 @@ import type { AppType } from 'next/app';
 import { useEffect, useRef } from 'react';
 import { Layout } from 'ui-react19';
 import 'config/tailwind/tailwind.css';
+import '../style/main.css';
 
 const Algorithms: AppType = ({ Component }) => {
     const ref = useRef<HTMLElement>(null);

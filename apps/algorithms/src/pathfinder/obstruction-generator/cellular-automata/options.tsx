@@ -1,5 +1,7 @@
+import Label from 'ui-react19/Label';
 import { type OGOptionsComponentProps } from '..';
 import { FieldRangeInput } from 'ui-react19';
+import Select, { SelectItem } from 'ui-react19/Select';
 
 enum CellularAutomatonOptionsPreset {
     MAZE = 'Maze',
@@ -82,66 +84,64 @@ const OGCellularAutomatonOptionsComponent = ({ options, setOptions }: OGOptionsC
 
     return (
         <>
-            <label htmlFor='ca-preset'>
-                Preset
-            </label>
-            <select
-                id='ca-preset'
-                className='capitalize border rounded-md border-slate-3'
-                value={options.preset}
-                onChange={(e) => { // this does not allow reselecting an option
-                    const newPreset = CELLULAR_AUTOMATON_PRESETS_MAP[e.currentTarget.value as CellularAutomatonOptionsPreset];
-                    setOptions({
-                        ...newPreset,
-                        // don't override steps with default
-                        steps: options.steps
-                    });
-                }}
-            >
-                {Object.values(CellularAutomatonOptionsPreset).map((value) => {
-                    return (
-                        <option
-                            key={value}
-                            value={value}
+            <Label className='flex flex-col gap-[0.5rem]'>
+                <span className='text-muted-foreground'>
+                    Preset
+                </span>
+                <Select
+                    value={options.preset}
+                    onValueChange={(value) => {
+                        const newPreset = CELLULAR_AUTOMATON_PRESETS_MAP[value as CellularAutomatonOptionsPreset];
+                        setOptions({
+                            ...newPreset,
+                            // don't override steps with default
+                            steps: options.steps
+                        });
+                    }}
+                >
+                    {Object.values(CellularAutomatonOptionsPreset).map((value) => (
+                        <SelectItem
                             className='capitalize'
+                            value={value}
+                            key={value}
                         >
                             {value}
-                        </option>
-                    );
-                })}
-            </select>
-            <label htmlFor='ca-initial-pattern'>
-                Starting Pattern
-            </label>
-            <select
-                id='ca-initial-pattern'
-                className='capitalize border rounded-md border-slate-3'
-                value={options.initialPattern.type}
-                onChange={(e) => {
-                    const initialPatternType = e.currentTarget.value as typeof options.initialPattern.type;
-                    const initialPattern = initialPatternType === 'random'
-                        ? { type: initialPatternType, probability: 50 }
-                        : { type: initialPatternType };
+                        </SelectItem>
+                    ))}
+                </Select>
+            </Label>
+            <Label className='flex flex-col gap-[0.5rem]'>
+                <span className='text-muted-foreground'>
+                    Starting Pattern
+                </span>
+                <Select
+                    value={options.initialPattern.type}
+                    onValueChange={(value) => {
+                        const initialPatternType = value as typeof options.initialPattern.type;
+                        const initialPattern = initialPatternType === 'random'
+                            ? { type: initialPatternType, probability: 50 }
+                            : { type: initialPatternType };
 
-                    setOptions({
-                        initialPattern: { ...initialPattern },
-                        steps: options.steps
-                    });
-                }}
-            >
-                <option
-                    value='random'
-                    className='capitalize'
+                        setOptions({
+                            initialPattern: { ...initialPattern },
+                            steps: options.steps
+                        });
+                    }}
                 >
-                    Generate Random
-                </option>
-                <option
-                    value='manual'
-                    className='capitalize'
-                >
-                    Use Existing
-                </option>
-            </select>
+                    <SelectItem
+                        value='random'
+                        className='capitalize'
+                    >
+                        Generate Random
+                    </SelectItem>
+                    <SelectItem
+                        value='manual'
+                        className='capitalize'
+                    >
+                        Use Existing
+                    </SelectItem>
+                </Select>
+            </Label>
             <div className='flex flex-col flex-wrap gap-2'>
                 {options.initialPattern.type === 'random' && (
                     <FieldRangeInput

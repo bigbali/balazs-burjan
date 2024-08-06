@@ -1,4 +1,6 @@
+import Label from 'ui-react19/Label';
 import type { OptionsComponentProps } from '../../../type';
+import Select, { SelectItem } from 'ui-react19/Select';
 
 export enum BFSDirection {
     ORTHOGONAL = 'orthogonal',
@@ -16,23 +18,24 @@ export const BREADTH_FIRST_SEARCH_DEFAULT_OPTIONS: BFSOptions = {
 
 export const BFSOptionsComponent = ({ options, setOptions }: OptionsComponentProps<BFSOptions>) => {
     return (
-        <div className='flex gap-2'>
-            <label htmlFor='bfsdirection'>
-                Directions:
-            </label>
-            <select
-                id='bfsdirection'
-                className='px-4 capitalize border rounded-md border-slate-3'
+        <Label className='flex flex-col gap-[0.5rem]'>
+            <span className='text-muted-foreground'>
+                Algorithm
+            </span>
+            <Select
                 value={options.direction}
-                onChange={(e) => {
-                    setOptions({ direction: e.currentTarget.value as BFSDirection });
-                }}>
+                onValueChange={(value) => setOptions({ direction: value as BFSDirection })}
+            >
                 {Object.values(BFSDirection).map((value) => (
-                    <option key={value} value={value}>
+                    <SelectItem
+                        className='capitalize'
+                        value={value}
+                        key={value}
+                    >
                         {value}
-                    </option>
+                    </SelectItem>
                 ))}
-            </select>
-        </div>
+            </Select>
+        </Label>
     );
 };

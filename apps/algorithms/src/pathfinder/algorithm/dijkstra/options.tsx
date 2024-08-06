@@ -1,5 +1,8 @@
 import { generateGravitationalWeightPattern, generateRandomWeightPattern } from './weight-pattern';
 import type { OptionsComponentProps } from '../../../type';
+import Label from 'ui-react19/Label';
+import Select, { SelectItem } from 'ui-react19/Select';
+import Button from 'ui-react19/Button';
 
 export enum WeightPattern {
     GRAVITATIONAL = 'gravitational',
@@ -16,43 +19,44 @@ export const DIJSKTRA_DEFAULT_OPTIONS: DijkstraOptions = {
 
 export const DijkstraOptionsComponent = ({ options, setOptions }: OptionsComponentProps<DijkstraOptions>) => {
     return (
-        <div className='flex flex-col gap-2'>
-            <div className='flex gap-2'>
-                <label htmlFor='dijkstraweight'>
-                    Weight Pattern:
-                </label>
-                <select
-                    id='dijsktraweight'
-                    className='px-4 capitalize border rounded-md border-slate-3'
+        <div className='flex flex-col gap-4'>
+            <Label className='flex flex-col gap-[0.5rem]'>
+                <span className='text-muted-foreground'>
+                Algorithm
+                </span>
+                <Select
                     value={options.weightPattern}
-                    onChange={(e) => {
-                        setOptions({
-                            ...options,
-                            weightPattern: e.currentTarget.value as WeightPattern
-                        });
-                    }}>
+                    onValueChange={(value) => setOptions({
+                        ...options,
+                        weightPattern: value as WeightPattern
+                    })}
+                >
                     {Object.values(WeightPattern).map((value) => (
-                        <option key={value} value={value}>
+                        <SelectItem
+                            className='capitalize'
+                            value={value}
+                            key={value}
+                        >
                             {value}
-                        </option>
+                        </SelectItem>
                     ))}
-                </select>
-            </div>
+                </Select>
+            </Label>
             {options.weightPattern === WeightPattern.RANDOM && (
-                <button
-                    className='w-full px-4 py-2 font-medium text-white rounded-lg bg-sky-700'
+                <Button
+                    className='bg-[#4272c4]'
                     onClick={() => generateRandomWeightPattern()}
                 >
                     Generate Random Weight Pattern
-                </button>
+                </Button>
             )}
             {options.weightPattern === WeightPattern.GRAVITATIONAL && (
-                <button
-                    className='w-full px-4 py-2 font-medium text-white rounded-lg bg-sky-700'
+                <Button
+                    className='bg-[#4d8eb4]'
                     onClick={() => generateGravitationalWeightPattern()}
                 >
                     Generate Gravitational Weight Pattern
-                </button>
+                </Button>
             )}
         </div>
     );

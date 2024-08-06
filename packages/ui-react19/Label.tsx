@@ -6,7 +6,7 @@ import cn from './util/cn';
 
 import * as LabelPrimitive from '@radix-ui/react-label';
 
-const labelVariants = cva('text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70');
+const labelVariants = cva('text-sm font-medium leading-none cursor-pointer peer-disabled:cursor-not-allowed peer-disabled:opacity-70');
 
 type LabelProps = RefAttributes<HTMLLabelElement>
 & ComponentPropsWithoutRef<typeof LabelPrimitive.Root>

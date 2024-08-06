@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import BreadthFirstSearch from './bfs';
 import { BREADTH_FIRST_SEARCH_DEFAULT_OPTIONS, BFSOptionsComponent } from './bfs/options';
 import DepthFirstSearch from './dfs';
@@ -29,9 +29,11 @@ const ALGORITHM_OPTIONS_COMPONENT_MAP = {
 export const usePathfinderOptions = <T extends Pathfinder>(algorithm: T) => {
     const [options, setOptions] = useState(() => DEFAULT_OPTIONS_MAP[algorithm]);
 
-    if (options !== DEFAULT_OPTIONS_MAP[algorithm]) {
-        setOptions(DEFAULT_OPTIONS_MAP[algorithm]);
-    }
+    useLayoutEffect(() => {
+        if (options !== DEFAULT_OPTIONS_MAP[algorithm]) {
+            setOptions(DEFAULT_OPTIONS_MAP[algorithm]);
+        }
+    }, [algorithm]),
 
     useEffect(() => {
         PATHFINDER_MAP[algorithm].reset();

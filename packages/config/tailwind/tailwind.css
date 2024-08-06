@@ -2,45 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* input[type="range"] {
-    -webkit-appearance: none;
-    appearance: none;
-    height: 0.4rem;
-    display: flex;
-    align-self: center;
-    background: var(--input);
-    cursor: pointer;
-}
-
-::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 1.125rem;
-    height: 1.125rem;
-    background: var(--primary);
-    border-radius: 999px;
-}
-
-::-webkit-slider-thumb:hover {
-    filter: brightness(0.8);
-    transform: scale(1.1);
-}
-
-::-moz-range-thumb {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 1.125rem;
-    height: 1.125rem;
-    background: var(--primary);
-    border-radius: 999px;
-    border: none;
-}
-
-::-moz-range-thumb:hover {
-    filter: brightness(0.8);
-    transform: scale(1.1);
-} */
-
 details > summary {
     margin-left: 8px;
 }
@@ -78,7 +39,7 @@ details > summary {
 
     --ring: hsl(215 20.2% 65.1%);
  
-    --radius: 0.5rem;
+    --border-radius: 8px;
 
     --font-sans: 'Raleway';
   }
@@ -112,8 +73,6 @@ details > summary {
     --destructive-foreground: 210 40% 98%;
  
     --ring: 216 34% 17%;
- 
-    --radius: 0.5rem;
   }
 }
  

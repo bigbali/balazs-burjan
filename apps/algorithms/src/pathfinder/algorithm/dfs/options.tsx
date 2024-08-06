@@ -1,4 +1,6 @@
+import Select, { SelectItem } from 'ui-react19/Select';
 import type { OptionsComponentProps } from '../../../type';
+import Label from 'ui-react19/Label';
 
 export enum DFSDirection {
     LRBT = 'left, right, down, up',
@@ -17,23 +19,24 @@ export const DEPTH_FIRST_SEARCH_DEFAULT_OPTIONS: DFSOptions = {
 
 export const DFSOptionsComponent = ({ options, setOptions }: OptionsComponentProps<DFSOptions>) => {
     return (
-        <div className='flex gap-2'>
-            <label htmlFor='dfsdirection'>
-                Directions:
-            </label>
-            <select
-                id='dfsdirection'
-                className='px-4 capitalize border rounded-md border-slate-3'
+        <Label className='flex flex-col gap-[0.5rem]'>
+            <span className='text-muted-foreground'>
+                Algorithm
+            </span>
+            <Select
                 value={options.direction}
-                onChange={(e) => {
-                    setOptions({ direction: e.currentTarget.value as DFSDirection });
-                }}>
+                onValueChange={(value) => setOptions({ direction: value as DFSDirection })}
+            >
                 {Object.values(DFSDirection).map((value) => (
-                    <option key={value} value={value}>
+                    <SelectItem
+                        className='capitalize'
+                        value={value}
+                        key={value}
+                    >
                         {value}
-                    </option>
+                    </SelectItem>
                 ))}
-            </select>
-        </div>
+            </Select>
+        </Label>
     );
 };

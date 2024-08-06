@@ -8,28 +8,44 @@ export default class BubbleSort {
         return sorterGeneratorRunner(this.run(values));
     }
 
-    static *run(values: number[]): Generator<void, Result, void> {
+    static *run(values: number[]): Generator<void, Result<number[]>, void> {
+        const sorter = useSorterStore.getState();
+
+        if (!sorter.renderer) {
+            throw Error('no renderer');
+        }
+
         let sorted = false;
         while (!sorted) {
             let change = false;
             for (let i = 0; i < values.length; i++) {
-                const state = useSorterStore.getState().state;
-                if (state === State.PAUSED) {
-                    return {
-                        state: 'paused'
-                    };
-                }
-
                 if (i > 0 && values[i]! < values[i - 1]!) {
                     const swap = values[i];
                     values[i] = values[i - 1]!;
                     values[i - 1] = swap!;
                     change = true;
-                    useSorterStore.getState().renderer?.highlightSwap(i, i - 1);
+                    sorter.renderer.highlightSwap(i, i - 1);
                 } else {
-                    useSorterStore.getState().renderer?.highlightNoSwap(i, i - 1);
+                    sorter.renderer.highlightNoSwap(i, i - 1);
                 }
-                useSorterStore.getState().renderer?.draw(values);
+
+                sorter.renderer.draw(values);
+
+                const state = useSorterStore.getState().state;
+                if (state === State.PAUSED) {
+                    return {
+                        state: 'paused',
+                        result: [...values]
+                    };
+                }
+
+                if (state === State.IDLE) {
+                    return {
+                        state: 'cancelled',
+                        result: [...values]
+                    };
+                }
+
                 yield;
             }
 
@@ -38,10 +54,11 @@ export default class BubbleSort {
             }
         }
 
-        useSorterStore.getState().renderer?.draw(values);
+        sorter.renderer.draw(values);
 
         return {
-            state: 'done'
+            state: 'done',
+            result: [...values]
         };
     }
 }

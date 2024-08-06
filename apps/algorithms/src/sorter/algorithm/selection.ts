@@ -1,3 +1,4 @@
+import { State, type Result } from '../../type';
 import { sorterGeneratorRunner } from '../../util';
 import useSorterStore from '../hook/useSorterStore';
 
@@ -6,32 +7,54 @@ export default class SelectionSort {
         return sorterGeneratorRunner(this.run(values));
     }
 
-    static *run(values: number[]) {
-        const renderer = useSorterStore.getState().renderer!;
+    static *run(values: number[]): Generator<void, Result<number[]>, void> {
+        const sorter = useSorterStore.getState();
+
+        if (!sorter.renderer) {
+            throw Error('no renderer');
+        }
 
         for (let i = 0; i < values.length - 1; i += 1) {
             let min = i;
 
             for (let j = i + 1; j < values.length; j += 1) {
-                renderer.highlight(j);
+                sorter.renderer.highlight(j);
 
                 if (values[j]! < values[min]!) {
                     min = j;
                 }
 
-                renderer.draw(values);
+                sorter.renderer.draw(values);
+
+                const state = useSorterStore.getState().state;
+                if (state === State.PAUSED) {
+                    return {
+                        state: 'paused',
+                        result: [...values]
+                    };
+                }
+
+                if (state === State.IDLE) {
+                    return {
+                        state: 'cancelled',
+                        result: [...values]
+                    };
+                }
 
                 yield;
             }
 
             if (min !== i) {
                 [values[i], values[min]] = [values[min]!, values[i]!];
-                renderer.highlightSwap(i, min);
+                sorter.renderer.highlightSwap(i, min);
             }
         }
 
-        renderer.draw(values);
+        sorter.renderer.draw(values);
 
-        return true;
+        return {
+            state: 'done',
+            result: [...values]
+        };
     }
 }
