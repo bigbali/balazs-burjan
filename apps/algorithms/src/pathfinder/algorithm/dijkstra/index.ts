@@ -9,8 +9,13 @@ import {
 import { State } from '../../../type';
 import { usePathfinderRendererStore } from '../../hook/usePathfinderRenderer';
 import usePathfinderStore from '../../hook/usePathfinderStore';
+import type { DijkstraOptions } from './options';
 
 type DijkstraEntry = Entry<{ weight: number | null }>;
+
+type DijkstraParams = {
+    options: DijkstraOptions
+};
 
 export default class Dijkstra {
     static readonly directions = [
@@ -22,7 +27,7 @@ export default class Dijkstra {
 
     static priorityQueue = new PriorityQueue();
 
-    static begin = async (resume?: boolean): Promise<DijkstraEntry | Paused> => {
+    static begin = async ({ options }: DijkstraParams, resume?: boolean): Promise<DijkstraEntry | Paused> => {
         const renderer = usePathfinderRendererStore.getState().renderer;
 
         if (!renderer) {
@@ -55,12 +60,6 @@ export default class Dijkstra {
         }
 
         while (!this.priorityQueue.isEmpty()) {
-            const [, current] = this.priorityQueue.pop() || [];
-
-            if (!current) continue;
-
-            const node = current.node;
-
             const state = usePathfinderStore.getState().pathfinderState;
 
             if (state === State.PAUSED) {
@@ -68,6 +67,12 @@ export default class Dijkstra {
             } else if (state === State.IDLE) {
                 return null;
             }
+
+            const [, current] = this.priorityQueue.pop() || [];
+
+            if (!current) continue;
+
+            const node = current.node;
 
             if (node.isTarget) {
                 return current;

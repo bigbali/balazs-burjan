@@ -11,7 +11,7 @@ import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePathfinderStore from '../hook/usePathfinderStore';
 import Checkbox from 'ui-react19/Checkbox';
-import Select, { SelectContent, SelectItem, SelectTrigger, SelectValue } from 'ui-react19/Select';
+import Select, { SelectItem } from 'ui-react19/Select';
 import Label from 'ui-react19/Label';
 import Button from 'ui-react19/Button';
 
@@ -47,6 +47,11 @@ export default function PathfinderContextMenu() {
 
         // ??? renderer is null
         // renderer?.reset();
+    };
+
+    const clearObstructions = () => {
+        setObstructionGeneratorState(State.IDLE);
+        usePathfinderRendererStore.getState().renderer?.clearObstructions();
     };
 
     const runPathfinder = async (state: State, resume?: boolean) => {
@@ -218,7 +223,7 @@ export default function PathfinderContextMenu() {
                 <div className='flex gap-4 px-2'>
                     <Button
                         className='flex-1'
-                        onClick={() => reset(pathfinder)}
+                        onClick={clearObstructions}
                         variant='destructive'
                     >
                             Clear Obstructions
@@ -228,7 +233,7 @@ export default function PathfinderContextMenu() {
                         onClick={() => reset(pathfinder)}
                         variant='destructive'
                     >
-                            Clear Visited
+                            Reset
                     </Button>
                 </div>
             </div>

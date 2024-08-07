@@ -52,7 +52,6 @@ export default class DepthFirstSearch {
 
         if (!renderer) throw Error('no renderer');
 
-
         setupPathfinder(
             DepthFirstSearch.stack,
             {
@@ -77,9 +76,6 @@ export default class DepthFirstSearch {
         if (!renderer) throw Error('no renderer');
 
         while (this.stack.length > 0) {
-            const current = this.stack.pop()!;
-            const node = current.node;
-
             const state = usePathfinderStore.getState().pathfinderState;
 
             if (state === State.PAUSED) {
@@ -87,6 +83,9 @@ export default class DepthFirstSearch {
             } else if (state === State.IDLE) {
                 return null;
             }
+
+            const current = this.stack.pop()!;
+            const node = current.node;
 
             if (node.isTarget) {
                 return current;

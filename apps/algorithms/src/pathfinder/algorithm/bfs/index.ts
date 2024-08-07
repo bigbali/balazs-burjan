@@ -36,7 +36,6 @@ const hybrid = [
 ] as const satisfies Direction[];
 
 type BreadthFirstSearchParams = {
-    resume: boolean,
     options: BFSOptions
 };
 
@@ -82,9 +81,6 @@ export default class BreadthFirstSearch {
         }
 
         while (this.queue.length > 0) {
-            const current = this.queue.shift()!;
-            const node = current.node;
-
             const state = usePathfinderStore.getState().pathfinderState;
 
             if (state === State.PAUSED) {
@@ -92,6 +88,9 @@ export default class BreadthFirstSearch {
             } else if (state === State.IDLE) {
                 return null;
             }
+
+            const current = this.queue.shift()!;
+            const node = current.node;
 
             if (node?.isTarget) {
                 return current;

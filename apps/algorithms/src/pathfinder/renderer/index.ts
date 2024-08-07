@@ -156,6 +156,14 @@ export default class PathfinderRenderer {
         }
     }
 
+    clearObstructions() {
+        for (const node of this.nodes.values()) {
+            node.setObstruction(false);
+        }
+
+        this.paint();
+    }
+
     paint() {
         this.context.fillStyle = 'black';
 

@@ -4,9 +4,9 @@ import Label from 'ui-react19/Label';
 
 export enum DFSDirection {
     LRBT = 'left, right, down, up',
-    LRTB = 'top to bottom, right to left',
-    RLTB = 'bottom to top, left to right',
-    RLBT = 'bottom to top, right to left'
+    LRTB = 'left, right, up, down',
+    RLTB = 'right, left, up, down',
+    RLBT = 'right, left, down, up'
 }
 
 export type DFSOptions = {
@@ -21,7 +21,7 @@ export const DFSOptionsComponent = ({ options, setOptions }: OptionsComponentPro
     return (
         <Label className='flex flex-col gap-[0.5rem]'>
             <span className='text-muted-foreground'>
-                Algorithm
+                Directions
             </span>
             <Select
                 value={options.direction}
