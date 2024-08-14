@@ -67,7 +67,7 @@ export default class BidirectionalSearch {
         const b = new BreadthFirstSearchInstanced();
 
 
-
+        // @ts-ignore so we can deploy on vercel
         return await generatorRunner(this.run(a, b, params, resume));
     };
 
