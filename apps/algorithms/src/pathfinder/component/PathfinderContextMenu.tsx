@@ -127,7 +127,7 @@ export default function PathfinderContextMenu() {
                 step={1}
                 className='flex gap-2'
                 fieldStyle={{ marginLeft: 'auto' }}
-                onChange={(interval) => (stepInterval.current = interval)}
+                onChange={(interval: number) => (stepInterval.current = interval)}
                 debounceRange={false}
             />
             <Label className='flex flex-col gap-[0.5rem]'>
