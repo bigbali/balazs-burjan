@@ -109,7 +109,7 @@ export default function SorterContextMenu() {
                 min={Delay.MIN}
                 max={Delay.MAX}
                 defaultValue={Delay.DEFAULT}
-                onChange={(value) => setStepInterval(value)}
+                onChange={(value: number) => setStepInterval(value)}
             />
             <FieldRangeInput
                 className='flex gap-[1rem]'
@@ -119,7 +119,7 @@ export default function SorterContextMenu() {
                 max={1}
                 defaultValue={1}
                 step={0.01}
-                onChange={(value) => renderer?.setScaling(value)}
+                onChange={(value: number) => renderer?.setScaling(value)}
             />
             <div className='mt-auto'>
                 <p className='px-2 font-medium capitalize'>
