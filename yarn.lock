@@ -9955,6 +9955,8 @@ __metadata:
     next-auth: "npm:^4.22.1"
     postcss: "npm:^8.4.25"
     postcss-import: "npm:^16.1.0"
+    react: "npm:19.0.0-rc-9c6806964f-20240703"
+    react-dom: "npm:19.0.0-rc-9c6806964f-20240703"
     tailwind-merge: "npm:^2.4.0"
     tailwindcss: "npm:^3.4.4"
     tailwindcss-animate: "npm:^1.0.7"

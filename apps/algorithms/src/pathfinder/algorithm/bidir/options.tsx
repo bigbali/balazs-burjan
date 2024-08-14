@@ -8,15 +8,15 @@ export enum BFSDirection {
     HYBRID = 'hybrid'
 }
 
-export type BFSOptions = {
+export type BidirectionalOptions = {
     direction: BFSDirection
 };
 
-export const BREADTH_FIRST_SEARCH_DEFAULT_OPTIONS: BFSOptions = {
+export const BIDIRECTIONAL_DEFAULT_OPTIONS: BidirectionalOptions = {
     direction: BFSDirection.ORTHOGONAL
 };
 
-export const BFSOptionsComponent = ({ options, setOptions }: OptionsComponentProps<BFSOptions>) => {
+export const BidirectionalOptionsComponent = ({ options, setOptions }: OptionsComponentProps<BidirectionalOptions>) => {
     return (
         <Label className='flex flex-col gap-[0.5rem]'>
             <span className='text-muted-foreground'>

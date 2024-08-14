@@ -27,6 +27,7 @@ export default class Dijkstra {
 
     static priorityQueue = new PriorityQueue();
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     static begin = async ({ options }: DijkstraParams, resume?: boolean): Promise<DijkstraEntry | Paused> => {
         const renderer = usePathfinderRendererStore.getState().renderer;
 

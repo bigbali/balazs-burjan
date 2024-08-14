@@ -9,6 +9,7 @@ import { usePathfinderRendererStore } from '../../hook/usePathfinderRenderer';
 import usePathfinderStore from '../../hook/usePathfinderStore';
 import type { BFSOptions } from './options';
 import { BFSDirection } from './options';
+import type PathfinderNode from '../../renderer/node';
 
 const orthogonal = [
     [-1, 0],
@@ -105,6 +106,84 @@ export default class BreadthFirstSearch {
             }
 
             node?.setVisited();
+
+            for (const [dx, dy] of directions) {
+                const x = node.x + dx;
+                const y = node.y + dy;
+
+                const adjacentNode = renderer.getNodeAtIndex(x, y);
+
+                if (adjacentNode && !adjacentNode.isVisited && !adjacentNode.isObstruction) {
+                    this.queue.push({
+                        node: adjacentNode,
+                        parent: current
+                    });
+                }
+            }
+
+            yield;
+        }
+
+        return null;
+    }
+}
+
+export class BreadthFirstSearchInstanced {
+    readonly directions = {
+        [BFSDirection.ORTHOGONAL]: orthogonal,
+        [BFSDirection.DIAGONAL]: diagonal,
+        [BFSDirection.HYBRID]: hybrid
+    } as const;
+
+    queue: Entry[] = [];
+    visited: PathfinderNode[] = [];
+
+    begin = ({ options }: BreadthFirstSearchParams, start: PathfinderNode, resume?: boolean): Generator<unknown, Entry, unknown> => {
+        const renderer = usePathfinderRendererStore.getState().renderer;
+
+        if (!renderer) {
+            throw Error('no renderer');
+        }
+
+        setupPathfinder(
+            this.queue,
+            {
+                node: start,
+                parent: null
+            },
+            resume
+        );
+
+        return this.run(this.directions[options.direction]);
+    };
+
+    reset (callback?: () => void)  {
+        usePathfinderStore.getState().setPathfinderState(State.IDLE);
+        this.queue.clear();
+        callback && callback();
+    }
+
+    *run(directions: Direction[]) {
+        const renderer = usePathfinderRendererStore.getState().renderer;
+
+        if (!renderer) {
+            throw Error('no renderer');
+        }
+
+        while (this.queue.length > 0) {
+            const current = this.queue.shift()!;
+            const node = current.node;
+
+            if (node?.isVisited) {
+                continue;
+            }
+
+            if (node?.isObstruction) {
+                continue;
+            }
+
+            node?.setVisited();
+            this.visited.push(node);
 
             for (const [dx, dy] of directions) {
                 const x = node.x + dx;

@@ -10,7 +10,7 @@ import { Delay, State } from '../../type';
 import { FieldRangeInput } from 'ui-react19';
 import Input from 'ui-react19/Input';
 import Label from 'ui-react19/Label';
-import Select, { SelectContent, SelectItem, SelectTrigger, SelectValue } from 'ui-react19/Select';
+import Select, { SelectItem } from 'ui-react19/Select';
 import SorterResult from './SorterResult';
 import InsertionSort from '../algorithm/insertion';
 

@@ -15,9 +15,10 @@ export default function useBacktraceHighlight(result: Entry | Paused) {
 
         let entry = result;
         while (entry.parent) {
-            entry = entry.parent;
-
             entry.node.setBacktrace();
+            entry.node.paintVector(entry.parent.node);
+
+            entry = entry.parent;
         }
 
         hasRun = true;

@@ -3,11 +3,11 @@ import usePathfinderStore from '../pathfinder/hook/usePathfinderStore';
 import useSorterStore from '../sorter/hook/useSorterStore';
 import type { Paused } from '../type';
 
-type GeneratorRunner = <T>(
+export type GeneratorRunner = <T>(
     generator: Generator<unknown, T, unknown>
 ) => Promise<T | Paused>;
 
-type AsyncGeneratorRunner = <T>(
+export type AsyncGeneratorRunner = <T>(
     generator: AsyncGenerator<unknown, T, unknown>
 ) => Promise<T | Paused>;
 

@@ -7,7 +7,7 @@
         "build": "next build",
         "dev": "next dev -p 3001",
         "start": "next start -p 3001",
-        "lint": "next lint"
+        "lint": "yarn eslint --ignore-pattern 'node_modules/*' --ignore-pattern '.next/*'"
     },
     "dependencies": {
         "@fortawesome/fontawesome-svg-core": "^6.4.0",

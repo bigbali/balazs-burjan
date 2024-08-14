@@ -1,4 +1,4 @@
-import type {  Dispatch, MutableRefObject, SetStateAction } from 'react';
+import type {  Dispatch, SetStateAction } from 'react';
 import type PathfinderNode from './pathfinder/renderer/node';
 
 /**
@@ -32,7 +32,8 @@ export type Direction = [number, number];
 export enum Pathfinder {
     BREADTH_FIRST = 'Breadth First Search',
     DEPTH_FIRST = 'Depth First Search',
-    DIJKSTRA = 'Dijkstra\'s Algorithm'
+    DIJKSTRA = 'Dijkstra\'s Algorithm',
+    BIDIRECTIONAL = 'Bidirectional Search'
 }
 
 export const enum NodeColor {

@@ -58,6 +58,7 @@ export default function PathfinderContextMenu() {
         setPathfinderState(state);
 
         if (state === State.RUNNING) {
+            // @ts-ignore
             const result = await PATHFINDER_MAP[pathfinder].begin({
                 // @ts-ignore
                 options: pathfinderOptions
