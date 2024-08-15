@@ -1,5 +1,5 @@
 // @ts-check
-import { BASEPATH, PORT } from './src/util/zone.mjs';
+import { BASEPATH } from './src/util/zone.mjs';
 // import MillionLint from '@million/lint';
 
 const pathfinder = BASEPATH + '/' + 'pathfinder';
@@ -8,7 +8,6 @@ const pathfinder = BASEPATH + '/' + 'pathfinder';
 const config = {
     transpilePackages: ['ui-react19', 'util-react19'],
     basePath: BASEPATH,
-    assetPrefix: `http://localhost:${PORT}${BASEPATH}/`,
     experimental: {
         reactCompiler: true
     },
