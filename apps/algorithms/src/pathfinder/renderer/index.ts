@@ -12,6 +12,7 @@ export default class PathfinderRenderer {
     target!: PathfinderNode;
     nodeSize!: number;
     showNumbers = true;
+    showTraceVectors = false;
     borderSize = 1;
     padding!: Resolution;
 
@@ -75,6 +76,11 @@ export default class PathfinderRenderer {
 
     setShowNumbers(fn: (showNumbers: boolean) => boolean) {
         this.showNumbers = fn(this.showNumbers);
+        this.paint();
+    }
+
+    setShowTraceVectors(fn: (showNumbers: boolean) => boolean) {
+        this.showTraceVectors = fn(this.showTraceVectors);
         this.paint();
     }
 
@@ -153,6 +159,12 @@ export default class PathfinderRenderer {
     resetVisited() {
         for (const node of this.nodes.values()) {
             node.setVisited(false);
+        }
+    }
+
+    resetBacktrace() {
+        for (const node of this.nodes.values()) {
+            node.setBacktrace(false);
         }
     }
 

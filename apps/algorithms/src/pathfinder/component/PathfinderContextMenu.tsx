@@ -90,10 +90,17 @@ export default function PathfinderContextMenu() {
     return (
         <>
             <Label className='flex items-center justify-between'>
-                Hide grid numbers
+                Show grid numbers
                 <Checkbox
-                    defaultChecked={renderer?.showNumbers}
+                    defaultChecked={true}
                     onCheckedChange={() => renderer?.setShowNumbers((state) => !state)}
+                />
+            </Label>
+            <Label className='flex items-center justify-between'>
+                Show backtrace vectors
+                <Checkbox
+                    defaultChecked={false}
+                    onCheckedChange={() => renderer?.setShowTraceVectors((state) => !state)}
                 />
             </Label>
             <FieldRangeInput

@@ -69,8 +69,8 @@ export default class PathfinderNode {
         this.paint();
     }
 
-    setBacktrace() {
-        this.isBacktrace = true;
+    setBacktrace(value?: boolean) {
+        this.isBacktrace = value ?? true;
         this.paint();
     }
 

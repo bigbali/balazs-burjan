@@ -95,6 +95,7 @@ export const setupPathfinder: SetupPathfinder = (entries, initialEntry, resume) 
     if (!resume) {
         entries.clear();
         usePathfinderRendererStore.getState().renderer?.resetVisited();
+        usePathfinderRendererStore.getState().renderer?.resetBacktrace();
 
         Array.isArray(initialEntry)
             ? entries.push(...initialEntry)
