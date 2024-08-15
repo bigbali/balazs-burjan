@@ -1,6 +1,5 @@
-import Label from 'ui-react19/Label';
 import type { OptionsComponentProps } from '../../../type';
-import Select, { SelectItem } from 'ui-react19/Select';
+import { Label, Select, SelectItem } from 'ui-react19';
 
 export enum BFSDirection {
     ORTHOGONAL = 'orthogonal',

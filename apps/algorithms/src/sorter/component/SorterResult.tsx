@@ -1,5 +1,4 @@
-import Input from 'ui-react19/Input';
-import Label from 'ui-react19/Label';
+import { Label, Input } from 'ui-react19';
 import type { Result } from '../../type';
 import { State } from '../../type';
 

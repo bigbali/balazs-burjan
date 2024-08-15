@@ -10,10 +10,7 @@ import { usePathfinderRendererStore } from '../hook/usePathfinderRenderer';
 import { faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import usePathfinderStore from '../hook/usePathfinderStore';
-import Checkbox from 'ui-react19/Checkbox';
-import Select, { SelectItem } from 'ui-react19/Select';
-import Label from 'ui-react19/Label';
-import Button from 'ui-react19/Button';
+import { Checkbox, Select, Label, Button, SelectItem } from 'ui-react19';
 
 export default function PathfinderContextMenu() {
     const {

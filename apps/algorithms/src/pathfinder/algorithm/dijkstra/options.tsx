@@ -1,8 +1,6 @@
 import { generateGravitationalWeightPattern, generateRandomWeightPattern } from './weight-pattern';
 import type { OptionsComponentProps } from '../../../type';
-import Label from 'ui-react19/Label';
-import Select, { SelectItem } from 'ui-react19/Select';
-import Button from 'ui-react19/Button';
+import { Label, Select, SelectItem, Button } from 'ui-react19';
 
 export enum WeightPattern {
     GRAVITATIONAL = 'gravitational',

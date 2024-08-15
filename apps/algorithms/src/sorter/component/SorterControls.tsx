@@ -1,6 +1,6 @@
 import { State } from '../../type';
 import useSorterStore from '../hook/useSorterStore';
-import Button from 'ui-react19/Button';
+import { Button } from 'ui-react19';
 
 type PathfinderControlsProps = {
     run: (state: State, resume?: boolean) => any

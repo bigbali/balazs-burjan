@@ -13,6 +13,8 @@ type HeaderProps = {
     auth: boolean
 };
 
+// TODO this should not be in a general component lib, ya?
+
 const Header: FC<HeaderProps> = ({ auth }) => {
     const { basePath, asPath } = useRouter();
     const path = basePath || asPath;

@@ -1,6 +1,5 @@
-import Select, { SelectItem } from 'ui-react19/Select';
+import { Label, Select, SelectItem } from 'ui-react19';
 import type { OptionsComponentProps } from '../../../type';
-import Label from 'ui-react19/Label';
 
 export enum DFSDirection {
     LRBT = 'left, right, down, up',

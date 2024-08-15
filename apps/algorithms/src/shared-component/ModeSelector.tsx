@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import Select, { SelectItem } from 'ui-react19/Select';
+import { Select, SelectItem } from 'ui-react19';
 import { Mode } from '../pages/[mode]';
 
 export default function ModeSelector() {

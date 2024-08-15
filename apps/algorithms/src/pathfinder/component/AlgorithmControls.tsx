@@ -1,4 +1,4 @@
-import Button from 'ui-react19/Button';
+import { Button } from 'ui-react19';
 import { State } from '../../type';
 import usePathfinderStore from '../hook/usePathfinderStore';
 

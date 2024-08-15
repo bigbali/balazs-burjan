@@ -1,7 +1,6 @@
-import Label from 'ui-react19/Label';
 import { type OGOptionsComponentProps } from '..';
 import { FieldRangeInput } from 'ui-react19';
-import Select, { SelectItem } from 'ui-react19/Select';
+import { Label, Select, SelectItem } from 'ui-react19';
 
 enum CellularAutomatonOptionsPreset {
     MAZE = 'Maze',
