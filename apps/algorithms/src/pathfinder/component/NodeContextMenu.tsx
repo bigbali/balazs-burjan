@@ -41,6 +41,8 @@ type NodeControlsProps = {
 };
 
 export default function NodeContextMenu({ position, container }: NodeControlsProps){
+    'use no memo'; // react auto-memoized the node when rendering to ui, so we got stale state to node.isObstruction
+
     const { node, isOpen, close } = useNodeControlsStore();
 
     type NodeMethod = () => void;
@@ -66,6 +68,7 @@ export default function NodeContextMenu({ position, container }: NodeControlsPro
         };
     };
 
+
     useEffect(() => {
         node?.setHighlighted(isOpen);
         return () => node?.setHighlighted(false);
@@ -82,6 +85,7 @@ export default function NodeContextMenu({ position, container }: NodeControlsPro
                 zIndex: 1,
                 ...calcPosition()
             }}
+            key={`${node.x}-${node.y}`}
         >
             {disabled && (
                 <p>
@@ -92,23 +96,23 @@ export default function NodeContextMenu({ position, container }: NodeControlsPro
                         />
                     </span>
                     <span>
-                            This node is already marked as{' '}
+                        This node is already marked as{' '}
                         {node.isOrigin ? (
                             <span
                                 style={{ color: NodeColor.ORIGIN }}
                                 className='font-bold'
                             >
-                                    origin
+                                origin
                             </span>
                         ) : (
                             <span
                                 style={{ color: NodeColor.TARGET }}
                                 className='font-bold'
                             >
-                                    target
+                                target
                             </span>
                         )}
-                            .
+                        .
                     </span>
                 </p>
             )}
@@ -119,14 +123,14 @@ export default function NodeContextMenu({ position, container }: NodeControlsPro
                         style={{ background: NodeColor.ORIGIN }}
                         onClick={set(() => node.setOrigin())}
                     >
-                            Set Origin
+                        Set Origin
                     </button>
                     <button
                         className={buttonClass}
                         style={{ background: NodeColor.TARGET }}
                         onClick={set(() => node.setTarget())}
                     >
-                            Set Target
+                        Set Target
                     </button>
                     <button
                         className={buttonClass}

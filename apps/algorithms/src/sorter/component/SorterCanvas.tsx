@@ -11,7 +11,7 @@ export default function SorterCanvas() {
         if (canvas.current) {
             setRenderer(new SorterRenderer(canvas.current, values));
         }
-    }, [canvas.current]);
+    }, [setRenderer, values]);
 
     useWindowResize(() => {
         requestAnimationFrame(() => renderer?.resize());
@@ -20,8 +20,7 @@ export default function SorterCanvas() {
 
     return (
         <div className='relative grid w-full h-full overflow-hidden place-items-center'>
-            <canvas ref={canvas}>
-            </canvas>
+            <canvas ref={canvas} />
         </div>
     );
 }

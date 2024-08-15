@@ -38,6 +38,7 @@ export const usePathfinderOptions = <T extends Pathfinder>(algorithm: T) => {
         if (options !== DEFAULT_OPTIONS_MAP[algorithm]) {
             setOptions(DEFAULT_OPTIONS_MAP[algorithm]);
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [algorithm]),
 
     useEffect(() => {

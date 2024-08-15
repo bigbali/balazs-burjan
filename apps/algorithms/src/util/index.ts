@@ -81,9 +81,10 @@ type SetupPathfinder = <T>(
 
 
 declare global {
-  interface Array<T>  {
-    clear(): void
-  }
+    // eslint-disable-next-line no-unused-vars
+    interface Array<T>  {
+        clear(): void
+    }
 }
 
 Array.prototype.clear = function(this: []) {

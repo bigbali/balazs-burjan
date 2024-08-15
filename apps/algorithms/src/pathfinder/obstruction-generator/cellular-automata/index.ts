@@ -37,10 +37,11 @@ export default class OGCellularAutomaton {
             }
         }
 
+        // @ts-ignore
         return await asyncGeneratorRunner(this.run(options));
     };
 
-    static async *run(options: CellularAutomatonOptions) {
+    static *run(options: CellularAutomatonOptions) {
         const renderer = usePathfinderRendererStore.getState().renderer!;
 
         if (!renderer) {

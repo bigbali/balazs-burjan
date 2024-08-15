@@ -21,6 +21,7 @@ export default function useBacktraceHighlight(result: Entry | Paused) {
             entry = entry.parent;
         }
 
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         hasRun = true;
     }, [result]);
 }

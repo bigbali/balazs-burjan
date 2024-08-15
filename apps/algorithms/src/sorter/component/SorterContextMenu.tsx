@@ -16,7 +16,7 @@ enum Sorter {
     BUBBLE = 'bubble sort',
     BOGO = 'bogo sort',
     SELECTION = 'selection sort',
-    INSERTION = 'insertion sort',
+    INSERTION = 'insertion sort'
 }
 
 const SORTER_MAP = {
@@ -32,7 +32,7 @@ export default function SorterContextMenu() {
     const [text, setText] = useState(() => values.join(', '));
     const [result, setResult] = useState<Result<number[]> | null>(null);
 
-    useEffect(() => () => setState(State.IDLE), [sorter]);
+    useEffect(() => () => setState(State.IDLE), [setState, sorter]);
 
     const onValuesChange: ChangeEventHandler<HTMLInputElement> = (e) => {
         const parsedValues = e.currentTarget.value.split(',').map(a => toNumber(a.trim())).filter(a => !isNaN(a));

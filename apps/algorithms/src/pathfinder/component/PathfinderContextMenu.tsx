@@ -206,13 +206,13 @@ export default function PathfinderContextMenu() {
                 </div>
                 <div className='mt-auto text-sm'>
                     <p className='px-2 font-medium capitalize'>
-                    Pathfinder State:&nbsp;
+                        Pathfinder State:&nbsp;
                         <span className='font-semibold'>
                             [{pathfinderState}]
                         </span>
                     </p>
                     <p className='px-2 font-medium capitalize'>
-                    Obstruction Generator State:&nbsp;
+                        Obstruction Generator State:&nbsp;
                         <span className='font-semibold'>
                             [{obstructionGeneratorState}]
                         </span>
@@ -224,14 +224,14 @@ export default function PathfinderContextMenu() {
                         onClick={clearObstructions}
                         variant='destructive'
                     >
-                            Clear Obstructions
+                        Clear Obstructions
                     </Button>
                     <Button
                         className='flex-1'
                         onClick={() => reset(pathfinder)}
                         variant='destructive'
                     >
-                            Reset
+                        Reset
                     </Button>
                 </div>
             </div>

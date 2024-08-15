@@ -34,7 +34,7 @@ export default function SorterResult({ state, result }: SorterResultProps) {
     return (
         <Label className='flex flex-col gap-[0.5rem]'>
             <span className='text-muted-foreground'>
-                    Result
+                Result
             </span>
             <Input
                 type='text'

@@ -23,7 +23,7 @@ export default function Algorithms() {
         return (
             <div className='grid items-center w-full h-full'>
                 <p className='text-[2rem] text-center'>
-                This page does not exist.
+                    This page does not exist.
                 </p>
             </div>
         );

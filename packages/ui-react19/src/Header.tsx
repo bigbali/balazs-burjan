@@ -35,10 +35,7 @@ const Header: FC<HeaderProps> = ({ auth }) => {
 
     return (
         <nav className='flex items-center w-full gap-4 p-2 border-b' id='header'>
-            <Link href='https://projects.balazsburjan.com/' className='text-xl font-medium'>
-                Projects
-            </Link>
-            <ul className='flex gap-4 ml-auto capitalize'>
+            <ul className='flex gap-4 mx-auto capitalize'>
                 {PROJECTS.map(project => {
                     const isCurrent = path.includes(project.path);
 

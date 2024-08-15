@@ -85,13 +85,13 @@ const PathfinderCanvas = () => {
         if (canvas.current) {
             initialize(canvas.current);
         }
-    }, [canvas.current]);
+    }, [initialize]);
 
     useEffect(() => {
         PATHFINDER_MAP[usePathfinderStore.getState().pathfinder].reset();
 
         renderer?.setResolution({ x: columns, y: rows });
-    }, [columns, rows]);
+    }, [columns, rows, renderer]);
 
     return (
         <div className='relative grid w-full h-full overflow-hidden place-items-center' ref={ref}>

@@ -1,17 +1,44 @@
 import tsPlugin from '@typescript-eslint/eslint-plugin';
 import tsParser from '@typescript-eslint/parser';
 import js from '@eslint/js';
-import react from 'eslint-plugin-react';
-import hooks from 'eslint-plugin-react-hooks';
-import next from '@next/eslint-plugin-next';
 import globals from 'globals';
-// check this
-'next/core-web-vitals',
-'next/typescript';
+import stylistic from '@stylistic/eslint-plugin';
 
 /** @type { import("eslint").Linter.FlatConfig[] } */
 export default [
     js.configs.recommended,
+    {
+        plugins: {
+            '@stylistic': stylistic
+        },
+        rules: {
+            '@stylistic/linebreak-style': ['error', 'unix'],
+            '@stylistic/max-len': ['warn', 135],
+            '@stylistic/object-curly-spacing': ['warn', 'always'],
+            '@stylistic/quotes': ['warn', 'single'],
+            '@stylistic/jsx-quotes': ['warn', 'prefer-single'],
+            '@stylistic/no-trailing-spaces': 'warn',
+            '@stylistic/semi': 'error',
+            '@stylistic/no-extra-semi': 'warn',
+            '@stylistic/comma-dangle': [
+                'warn',
+                {
+                    arrays: 'never',
+                    objects: 'never',
+                    imports: 'never',
+                    exports: 'never',
+                    functions: 'never'
+                }
+            ],
+            '@stylistic/indent': [
+                'error',
+                4,
+                {
+                    SwitchCase: 1
+                }
+            ]
+        }
+    },
     {
         // general
         files: [
@@ -23,10 +50,7 @@ export default [
             '**/*.cjs'
         ],
         plugins: {
-            '@typescript-eslint': tsPlugin,
-            react,
-            'react-hooks': hooks,
-            next
+            '@typescript-eslint': tsPlugin
         },
         languageOptions: {
             parser: tsParser,
@@ -38,39 +62,18 @@ export default [
             }
         },
         rules: {
-            'linebreak-style': ['error', 'unix'],
-            'max-len': ['warn', 135],
-            'object-curly-spacing': ['warn', 'always'],
-            quotes: ['warn', 'single'],
-            'jsx-quotes': ['warn', 'prefer-single'],
-            'no-trailing-spaces': 'warn',
-            semi: 'error',
-            'no-extra-semi': 'warn',
+            'import/no-anonymous-default-export': 'off',
             'no-unused-vars': 'warn',
-            'comma-dangle': [
+            'no-redeclare': [
+                // 'error',
+                // {
+                //     builtinGlobals: false
+                // },
                 'warn',
                 {
-                    arrays: 'never',
-                    objects: 'never',
-                    imports: 'never',
-                    exports: 'never',
-                    functions: 'never'
+                    builtinGlobals: true
                 }
-            ],
-            indent: [
-                'error',
-                4,
-                {
-                    SwitchCase: 1
-                }
-            ],
-            'no-redeclare': [
-                'error',
-                {
-                    builtinGlobals: false
-                }
-            ],
-            'import/no-anonymous-default-export': 'off'
+            ]
         }
     },
     {
@@ -81,6 +84,9 @@ export default [
         },
         languageOptions: {
             parser: tsParser,
+            parserOptions: {
+                project: 'tsconfig.json'
+            },
             globals: {
                 ...globals.browser,
                 ...globals.node
@@ -92,10 +98,9 @@ export default [
             '@typescript-eslint/no-non-null-assertion': 'off',
             '@typescript-eslint/no-extra-semi': 'off',
             '@typescript-eslint/no-explicit-any': 'off',
-            '@typescript-eslint/no-empty-function': 'off',
-            '@typescript-eslint/no-unsafe-assignment': 'off',
-            '@typescript-eslint/require-await': 'off',
-            '@typescript-eslint/semi': 'error',
+            '@typescript-eslint/no-empty-function': 'warn',
+            '@typescript-eslint/no-unsafe-assignment': 'warn',
+            '@typescript-eslint/require-await': 'warn',
             '@typescript-eslint/naming-convention': [
                 'error',
                 {

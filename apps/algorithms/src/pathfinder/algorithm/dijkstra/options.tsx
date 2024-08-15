@@ -20,7 +20,7 @@ export const DijkstraOptionsComponent = ({ options, setOptions }: OptionsCompone
         <div className='flex flex-col gap-4'>
             <Label className='flex flex-col gap-[0.5rem]'>
                 <span className='text-muted-foreground'>
-                Algorithm
+                    Algorithm
                 </span>
                 <Select
                     value={options.weightPattern}
