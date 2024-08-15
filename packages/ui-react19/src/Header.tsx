@@ -5,8 +5,15 @@ import { useRouter } from 'next/router';
 import type { FC } from 'react';
 
 const PROJECTS = [
-    'algorithms',
-    'messages'
+    {
+        path: 'algorithms',
+        devPath: 'localhost:3001/algorithms/',
+        name: 'Algorithms',
+        disabled: false
+    },
+    { path: 'messages', name: 'Messages', disabled: true },
+    { path: 'drawing', name: 'Drawing', disabled: true },
+    { path: 'solar-system', name: 'Solar System Simulation (WASM)', disabled: true }
 ] as const;
 
 type HeaderProps = {
@@ -23,25 +30,37 @@ const Header: FC<HeaderProps> = ({ auth }) => {
     // as 'auth' is absolutely static, we can use it to conditionally call the hook
     // (although the linter will still bare its teeth for it)
     if (auth) {
-        // eslint-disable-next-line react-hooks/rules-of-hooks
         session = useSession().data;
     }
 
     return (
-        <nav className='flex items-center w-full gap-4 p-4' id='header'>
-            <Link href='http://localhost:3000/' className='text-2xl font-medium'>
-                Example Projects
+        <nav className='flex items-center w-full gap-4 p-2 border-b' id='header'>
+            <Link href='/' className='text-xl font-medium'>
+                Projects
             </Link>
-            <ul className='flex gap-4 ml-auto text-lg capitalize'>
+            <ul className='flex gap-4 ml-auto capitalize'>
                 {PROJECTS.map(project => {
-                    const isCurrent = path.slice('/project/'.length) === project;
+                    const isCurrent = path.includes(project.path);
+
+                    if (project.disabled) {
+                        return (
+                            <li
+                                key={project.path}
+                                className='cursor-not-allowed text-muted-foreground'
+                                title='Currently not available.'
+                            >
+                                {project.name}
+                            </li>
+                        );
+                    }
 
                     return (
-                        <li key={project}>
+                        <li key={project.path}>
                             <Link
-                                href={`http://localhost:3000/project/${project}`}
-                                className={`hover:text-theme-red ${isCurrent ? 'text-theme-red' : ''}`}>
-                                {project}
+                                href={process.env.NODE_ENV === 'development' ? project.devPath : `/${project.path}`}
+                                className={`hover:text-primary ${isCurrent ? 'border-b-2 border-primary' : ''}`}
+                            >
+                                {project.name}
                             </Link>
                         </li>
                     );
