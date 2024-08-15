@@ -35,7 +35,7 @@ const Header: FC<HeaderProps> = ({ auth }) => {
 
     return (
         <nav className='flex items-center w-full gap-4 p-2 border-b' id='header'>
-            <Link href='/' className='text-xl font-medium'>
+            <Link href='https://projects.balazsburjan.com/' className='text-xl font-medium'>
                 Projects
             </Link>
             <ul className='flex gap-4 ml-auto capitalize'>
@@ -60,7 +60,7 @@ const Header: FC<HeaderProps> = ({ auth }) => {
                                 href={
                                     process.env.NODE_ENV === 'development'
                                         ? project.devPath // we need to escape per-project asPath, thus we use absolute path
-                                        : `https://project.balazsburjan.com/${project.path}`
+                                        : `https://projects.balazsburjan.com/${project.path}`
                                 }
                                 className={`hover:text-primary ${isCurrent ? 'border-b-2 border-primary' : ''}`}
                             >
