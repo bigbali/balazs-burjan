@@ -6,7 +6,7 @@ export default function ModeSelector() {
     const router = useRouter();
 
     return (
-        <div className='w-full'>
+        <div className='flex-1 w-full'>
             <Select
                 value={router.query.mode as Mode}
                 onValueChange={(value)  => router.push(`/${value}`)}

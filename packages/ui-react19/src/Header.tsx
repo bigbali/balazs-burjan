@@ -57,7 +57,11 @@ const Header: FC<HeaderProps> = ({ auth }) => {
                     return (
                         <li key={project.path}>
                             <Link
-                                href={process.env.NODE_ENV === 'development' ? project.devPath : `/${project.path}`}
+                                href={
+                                    process.env.NODE_ENV === 'development'
+                                        ? project.devPath // we need to escape per-project asPath, thus we use absolute path
+                                        : `project.balazsburjan.com/${project.path}`
+                                }
                                 className={`hover:text-primary ${isCurrent ? 'border-b-2 border-primary' : ''}`}
                             >
                                 {project.name}
