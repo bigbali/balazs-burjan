@@ -52,6 +52,9 @@ export default class BidirectionalSearch {
 
     static queue: Entry[] = [];
 
+    static bfs1?: BreadthFirstSearchInstanced;
+    static bfs2?: BreadthFirstSearchInstanced;
+
     static intersection(a: BreadthFirstSearchInstanced, b: BreadthFirstSearchInstanced) {
         for (const aNode of a.queue) {
             for (const bNode of b.queue) {
@@ -63,17 +66,18 @@ export default class BidirectionalSearch {
     }
 
     static begin = async (params: BidirectionalSearchParams, resume?: boolean): Promise<Entry | Paused> => {
-        const a = new BreadthFirstSearchInstanced();
-        const b = new BreadthFirstSearchInstanced();
-
+        this.bfs1 = new BreadthFirstSearchInstanced();
+        this.bfs2 = new BreadthFirstSearchInstanced();
 
         // @ts-ignore so we can deploy on vercel
-        return await generatorRunner(this.run(a, b, params, resume));
+        return await generatorRunner(this.run(this.bfs1!, this.bfs2!, params, resume));
     };
 
     static reset (callback?: () => void)  {
         usePathfinderStore.getState().setPathfinderState(State.IDLE);
         this.queue.clear();
+        this.bfs1?.reset();
+        this.bfs2?.reset();
         callback && callback();
     }
 
