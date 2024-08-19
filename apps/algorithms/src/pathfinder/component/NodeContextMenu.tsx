@@ -1,4 +1,4 @@
-import type PathfinderNode from '../renderer/node';
+import type Entry from '../renderer/node';
 import type { Coordinate } from '../../type';
 import { useEffect } from 'react';
 import { create } from 'zustand';
@@ -8,10 +8,10 @@ import { NodeColor } from '../../type';
 
 type SelectedNodeStore = {
     isOpen: boolean,
-    node: PathfinderNode | null,
-    openAt: (node: PathfinderNode) => void,
+    node: Entry | null,
+    openAt: (node: Entry) => void,
     close: () => void,
-    toggle: (node: PathfinderNode) => void
+    toggle: (node: Entry) => void
 };
 
 export const useNodeControlsStore = create<SelectedNodeStore>(set => ({

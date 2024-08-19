@@ -43,7 +43,7 @@ export const usePathfinderOptions = <T extends Pathfinder>(algorithm: T) => {
 
     useEffect(() => {
         PATHFINDER_MAP[algorithm].reset();
-        usePathfinderRendererStore.getState().renderer?.reset();
+        usePathfinderRendererStore.getState().renderer?.clear();
     }, [options, algorithm]);
 
     const Element = ALGORITHM_OPTIONS_COMPONENT_MAP[algorithm];

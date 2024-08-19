@@ -1,5 +1,5 @@
 import { State, type AsyncObstructionGenerator } from '../../../type';
-import type PathfinderNode from '../../renderer/node';
+import type Entry from '../../renderer/node';
 import shuffle from 'lodash/shuffle';
 import {
     generatorRunner,
@@ -16,7 +16,7 @@ export default class OGRandomizedDepthFirstSearch {
         [0, 2]
     ] as const;
 
-    static stack: PathfinderNode[] = [];
+    static stack: Entry[] = [];
 
     static begin: AsyncObstructionGenerator = async (_, resume: boolean) => {
         const renderer = usePathfinderRendererStore.getState().renderer;

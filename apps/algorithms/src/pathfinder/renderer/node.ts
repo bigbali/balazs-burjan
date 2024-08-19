@@ -11,9 +11,14 @@ export default class PathfinderNode {
     isOrigin: boolean;
     isObstruction = false;
     isHighlighted = false;
-    isBacktrace = false;
     isVisited = false;
     weight: number | null = null;
+    backtrace: {
+        dirX: number;
+        dirY: number;
+        prevDirX: number;
+        prevDirY: number;
+    } | null = null;
 
     constructor(renderer: PathfinderRenderer, x: number, y: number, isObstruction: boolean, isTarget: boolean, isOrigin: boolean) {
         this.renderer = renderer;
@@ -29,6 +34,17 @@ export default class PathfinderNode {
             this.renderer.borderSize + this.renderer.padding.y;
 
         this.isVisited = false;
+    }
+
+    reconstruct() {
+        this.dx =
+            (this.renderer.nodeSize + this.renderer.borderSize) * this.x +
+            this.renderer.borderSize +
+            this.renderer.padding.x;
+        this.dy =
+            (this.renderer.nodeSize + this.renderer.borderSize) * this.y +
+            this.renderer.borderSize +
+            this.renderer.padding.y;
     }
 
     setOrigin() {
@@ -69,8 +85,8 @@ export default class PathfinderNode {
         this.paint();
     }
 
-    setBacktrace(value?: boolean) {
-        this.isBacktrace = value ?? true;
+    setBacktrace(value: typeof this.backtrace) {
+        this.backtrace = value;
         this.paint();
     }
 
@@ -92,149 +108,196 @@ export default class PathfinderNode {
         );
     }
 
-    paintVector(prevNode: PathfinderNode) {
+    paintVector() {
         const ctx = this.renderer.context;
 
-        ctx.strokeStyle = 'red';
-        ctx.lineWidth = 3;
+        const {
+            dirX,
+            prevDirX,
+            dirY,
+            prevDirY
+        } = this.backtrace!;
 
-        const dirx = this.x - prevNode.x; // Direction -1, 0, 1
-        const diry = this.y - prevNode.y; // Direction -1, 0, 1
-        const dx = this.dx - prevNode.dx; // Distance between nodes
-        const dy = this.dy - prevNode.dy; // Distance between
-        const arrowLength = 20; // Length of the arrow
-        const arrowHeadSize = 10; // Size of the arrowhead
+        const arrowLength = 20;
+        const arrowHeadSize = 10;
 
-        // incorrect detection of corner
+        // we don't consider endpoints corners, so we check for that too
+        const corner = !(dirX === prevDirX && dirY === prevDirY)
+            && dirX + dirY !== 0
+            && prevDirX + prevDirY !== 0;
 
-        if (this.x === 21 && this.y === 0) {
-            console.log(dirx, diry);
-        }
-        if (this.x === 21 && this.y === 1) {
-            console.log(dirx, diry);
-        }
+        const cornerDirX = prevDirX;
+        const cornerDirY = prevDirY;
 
-        // ctx.beginPath();
+        if (corner) {
+            const angle = Math.atan2(prevDirX, prevDirY);
+            const ns = this.renderer.nodeSize / 2;
 
-        // const dirx = this.dx - prevNode.dx;
-        // const diry = this.dy - prevNode.dy;
+            const arrowTipX =
+                this.dx +
+                Math.cos(angle) * arrowLength +
+                ns -
+                (arrowLength / 2 + arrowHeadSize) * dirX;
+            const arrowTipY =
+                this.dy +
+                Math.sin(angle) * arrowLength +
+                ns -
+                (arrowLength / 2 + arrowHeadSize) * dirY;
 
-        if (dirx !== 0 && diry !== 0) {
-            console.log('corner at', this.x, this.y);
-            const firstSegmentX = this.dx + dirx * arrowLength;
-            const firstSegmentY = this.dy;
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
 
-            // Determine the second segment direction
-            const secondSegmentX = firstSegmentX + dx;
-            const secondSegmentY = firstSegmentY + dy;
-
-            // Draw the first segment
-            ctx.strokeStyle = 'green';
-            ctx.lineWidth = 2;
+            // draw the arrow shaft first segment
             ctx.beginPath();
-            ctx.moveTo(this.dx, this.dy);
-            ctx.lineTo(firstSegmentX, firstSegmentY);
+            ctx.moveTo(
+                this.dx + ns - (arrowLength / 2) * dirX,
+                this.dy + ns - (arrowLength / 2) * dirY
+            );
+            ctx.lineTo(arrowTipX, arrowTipY);
             ctx.stroke();
 
-            ctx.strokeStyle = 'blue';
+            const secondSegmentTipX =
+                arrowTipX + (arrowLength / 2) * cornerDirX;
+            const secondSegmentTipY =
+                arrowTipY + (arrowLength / 2) * cornerDirY;
 
-            // Draw the second segment
+            // draw the arrow shaft second segment
             ctx.beginPath();
-            ctx.moveTo(firstSegmentX, firstSegmentY);
-            ctx.lineTo(secondSegmentX, secondSegmentY);
+            ctx.moveTo(arrowTipX, arrowTipY);
+            ctx.lineTo(secondSegmentTipX, secondSegmentTipY);
             ctx.stroke();
 
-            // Calculate arrowhead points for the second segment
-            const angle = Math.atan2(diry, 0); // angle based on vertical direction
-            const arrowTipX = secondSegmentX;
-            const arrowTipY = secondSegmentY;
+            const leftHeadX =
+                secondSegmentTipX +
+                10 * prevDirX -
+                Math.cos(angle - Math.PI / 6) * arrowHeadSize;
+            const leftHeadY =
+                secondSegmentTipY +
+                10 * prevDirY -
+                Math.sin(angle - Math.PI / 6) * arrowHeadSize;
 
-            const leftHeadX = arrowTipX - Math.cos(angle - Math.PI / 6) * arrowHeadSize;
-            const leftHeadY = arrowTipY - Math.sin(angle - Math.PI / 6) * arrowHeadSize;
+            const rightHeadX =
+                secondSegmentTipX +
+                10 * prevDirX -
+                Math.cos(angle + Math.PI / 6) * arrowHeadSize;
+            const rightHeadY =
+                secondSegmentTipY +
+                10 * prevDirY -
+                Math.sin(angle + Math.PI / 6) * arrowHeadSize;
 
-            const rightHeadX = arrowTipX - Math.cos(angle + Math.PI / 6) * arrowHeadSize;
-            const rightHeadY = arrowTipY - Math.sin(angle + Math.PI / 6) * arrowHeadSize;
 
-            // Draw the arrowhead at the end of the second segment
+            // draw the arrow head
+            ctx.beginPath();
+            ctx.moveTo(secondSegmentTipX, secondSegmentTipY);
+            ctx.lineTo(leftHeadX, leftHeadY);
+            ctx.lineTo(
+                secondSegmentTipX + arrowHeadSize * prevDirX,
+                secondSegmentTipY + arrowHeadSize * prevDirY
+            );
+            ctx.lineTo(rightHeadX, rightHeadY);
+            ctx.fillStyle = 'white';
+            ctx.fill();
+
+            // first segment tip
+            ctx.fillStyle = 'black';
+            ctx.fillRect(arrowTipX, arrowTipY, 3, 3);
+
+            // second segment tip
+            ctx.fillStyle = 'black';
+            ctx.fillRect(secondSegmentTipX, secondSegmentTipY, 3, 3);
+
+            // --- debug ---
+
+            // left
+            ctx.fillStyle = 'green';
+            ctx.fillRect(leftHeadX, leftHeadY, 6, 6);
+
+            // right too low
+            ctx.fillStyle = 'red';
+            ctx.fillRect(rightHeadX, rightHeadY, 6, 6);
+
+            // tip ok
+            ctx.fillStyle = 'blue';
+            ctx.fillRect(
+                secondSegmentTipX + arrowHeadSize * prevDirX,
+                secondSegmentTipY + arrowHeadSize * prevDirY,
+                6,
+                6
+            );
+
+        } else {
+            const angle = Math.atan2(dirY, dirX);
+            const ns = this.renderer.nodeSize / 2;
+
+            const arrowTipX =
+                this.dx +
+                Math.cos(angle) * arrowLength +
+                ns -
+                (arrowLength / 2 + arrowHeadSize) * dirX;
+            const arrowTipY =
+                this.dy +
+                Math.sin(angle) * arrowLength +
+                ns -
+                (arrowLength / 2 + arrowHeadSize) * dirY;
+
+            const leftHeadX =
+                arrowTipX + (10 * dirX) - Math.cos(angle - Math.PI / 6) * arrowHeadSize;
+            const leftHeadY =
+                arrowTipY  + (10 * dirY)- Math.sin(angle - Math.PI / 6) * arrowHeadSize;
+
+            const rightHeadX =
+                arrowTipX +
+                (10 * dirX) -
+                Math.cos(angle + Math.PI / 6) * arrowHeadSize;
+            const rightHeadY =
+                arrowTipY +
+                (10 * dirY) -
+                Math.sin(angle + Math.PI / 6) * arrowHeadSize;
+
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = 3;
+
+            // draw the arrow shaft
+            ctx.beginPath();
+            ctx.moveTo(
+                this.dx + ns - (arrowLength / 2) * dirX,
+                this.dy + ns - (arrowLength / 2) * dirY
+            );
+            ctx.lineTo(arrowTipX, arrowTipY);
+            ctx.stroke();
+
+            // draw the arrow head
             ctx.beginPath();
             ctx.moveTo(arrowTipX, arrowTipY);
             ctx.lineTo(leftHeadX, leftHeadY);
+            ctx.lineTo(
+                arrowTipX + arrowHeadSize * dirX,
+                arrowTipY + arrowHeadSize * dirY
+            );
             ctx.lineTo(rightHeadX, rightHeadY);
-            ctx.lineTo(arrowTipX, arrowTipY);
-            ctx.fillStyle = 'black';
+            ctx.fillStyle = 'white';
             ctx.fill();
-        } else {
 
-
-            // if (dirx !== 0) {
-            //     ctx.moveTo(prevNode.dx + this.renderer.nodeSize / 2, prevNode.dy + this.renderer.nodeSize / 2);
-            //     ctx.lineTo(this.dx + this.renderer.nodeSize / 2, this.dy + this.renderer.nodeSize / 2);
-
-            // }
-            // if (diry !== 0) {
-
-            // }
-            // ctx.moveTo(prevNode.dx + this.renderer.nodeSize / 2, prevNode.dy + this.renderer.nodeSize / 2);
-            // ctx.lineTo(prevNode.dx + this.renderer.nodeSize / 2 + 20, prevNode.dy +this.renderer.nodeSize / 2 + 20);
-            // ctx.lineTo(prevNode.dx + this.renderer.nodeSize / 2 - 20, prevNode.dy + this.renderer.nodeSize / 2 - 20);
-
-            // const arrowCorner1 = [this.dx + dirx, this.dy + diry] as const;
-            // const arrowCorner2 = [this.dx + this.renderer.nodeSize / 2 + 20, this.dy +this.renderer.nodeSize / 2 + 20] as const;
-            // const arrowCorner3 = [this.dx + this.renderer.nodeSize / 2 - 20, this.dy + this.renderer.nodeSize / 2 - 20] as const;
-
-            // ctx.fillStyle = 'red';
-            // ctx.fillRect(...arrowCorner1, 5, 5);
-
+            // // left
             // ctx.fillStyle = 'green';
-            // ctx.fillRect(...arrowCorner2, 5, 5);
+            // ctx.fillRect(leftHeadX, leftHeadY, 3, 3);
 
-            // ctx.fillStyle = 'blue';
-            // ctx.fillRect(...arrowCorner3, 5, 5);
+            // // right
+            // ctx.fillStyle = 'red';
+            // ctx.fillRect(rightHeadX, rightHeadY, 3, 3);
 
-            // console.log(arrowCorner1, arrowCorner2, arrowCorner3);
-
-            // ctx.fill();
-
-
-            // Calculate the angle based on direction
-            const angle = Math.atan2(diry, dirx);
-            const ns = this.renderer.nodeSize / 2;
-
-            // Calculate the arrow tip point
-            const arrowTipX = this.dx + Math.cos(angle) * arrowLength;
-            const arrowTipY = this.dy + Math.sin(angle) * arrowLength;
-
-            // Calculate arrowhead points
-            const leftHeadX = arrowTipX - Math.cos(angle - Math.PI / 6) * arrowHeadSize;
-            const leftHeadY = arrowTipY - Math.sin(angle - Math.PI / 6) * arrowHeadSize;
-
-            const rightHeadX = arrowTipX - Math.cos(angle + Math.PI / 6) * arrowHeadSize;
-            const rightHeadY = arrowTipY - Math.sin(angle + Math.PI / 6) * arrowHeadSize;
-
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 2;
-
-            // console.log(prevNode.x, prevNode.y, prevNode.dx, prevNode.dy);
-
-
-            // Draw the arrow shaft
-            ctx.beginPath();
-            ctx.moveTo(this.dx + ns, this.dy + ns);
-            ctx.lineTo(arrowTipX + ns, arrowTipY + ns);
-            ctx.stroke();
-
-            // Draw the arrowhead
-            ctx.beginPath();
-            ctx.moveTo(arrowTipX  + ns, arrowTipY + ns);
-            ctx.lineTo(leftHeadX + ns, leftHeadY + ns);
-            ctx.lineTo(rightHeadX + ns, rightHeadY + ns);
-            ctx.lineTo(arrowTipX + ns, arrowTipY + ns);
-            ctx.fillStyle = 'black';
-            ctx.fill();
+            // // tip
+            // ctx.fillStyle = 'white';
+            // ctx.fillRect(
+            //     arrowTipX + arrowHeadSize * dirx,
+            //     arrowTipY + arrowHeadSize * diry,
+            //     3,
+            //     3
+            // );
         }
     }
 
-    paint(color?: string) {
+    paint(colorOverride?: string) {
         const ctx = this.renderer.context;
 
         // paint to background color first to prevent progressive color shift on the edges on repeated color changes
@@ -246,8 +309,8 @@ export default class PathfinderNode {
             this.renderer.nodeSize + 1
         );
 
-        if (color) {
-            ctx.fillStyle = color;
+        if (colorOverride) {
+            ctx.fillStyle = colorOverride;
         } else {
             if (this.isHighlighted) {
                 ctx.fillStyle = NodeColor.HIGHLIGHT;
@@ -257,7 +320,7 @@ export default class PathfinderNode {
                 ctx.fillStyle = NodeColor.TARGET;
             } else if (this.isObstruction) {
                 ctx.fillStyle = NodeColor.OBSTRUCTION;
-            } else if (this.isBacktrace) {
+            } else if (this.backtrace) {
                 ctx.fillStyle = NodeColor.BACKTRACE;
             } else if (this.isVisited) {
                 ctx.fillStyle = NodeColor.VISITED;
@@ -277,6 +340,10 @@ export default class PathfinderNode {
             this.renderer.nodeSize,
             this.renderer.nodeSize
         );
+
+        if (this.backtrace && this.renderer.showTraceVectors) {
+            this.paintVector();
+        }
 
         if (this.renderer.showNumbers) {
             if (this.x === 0) {

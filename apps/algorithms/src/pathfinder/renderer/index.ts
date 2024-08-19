@@ -1,4 +1,4 @@
-import type { Resolution } from '../../type';
+import type { Entry, Resolution } from '../../type';
 import { Dimensions } from '../../type';
 import PathfinderNode from './node';
 import usePathfinderStore from '../hook/usePathfinderStore';
@@ -53,7 +53,7 @@ export default class PathfinderRenderer {
 
     setResolution(resolution: Resolution) {
         this.resolution = resolution;
-        this.update();
+        this.update(true);
     }
 
     setOrigin(newOrigin: PathfinderNode) {
@@ -115,19 +115,26 @@ export default class PathfinderRenderer {
         this.paint();
     }
 
-    update() {
-        this.nodes.clear();
-
+    update(rebuild?: boolean) {
         this.#ensureContainment();
 
-        for (let x = 0; x < this.resolution.x; x++) {
-            for (let y = 0; y < this.resolution.y; y++) {
-                const isOrigin = x === this.origin.x && y === this.origin.y;
-                const isTarget = x === this.target.x && y === this.target.y;
+        if (rebuild) {
+            this.nodes.clear();
 
-                const node = new PathfinderNode(this, x, y, false, isTarget, isOrigin);
+            for (let x = 0; x < this.resolution.x; x++) {
+                for (let y = 0; y < this.resolution.y; y++) {
+                    const isOrigin = x === this.origin.x && y === this.origin.y;
+                    const isTarget = x === this.target.x && y === this.target.y;
 
-                this.nodes.set(`${x},${y}`, node);
+                    const node = new PathfinderNode(this, x, y, false, isTarget, isOrigin);
+
+                    this.nodes.set(`${x},${y}`, node);
+                }
+            }
+        } else {
+            for (const node of this.nodes.values()) {
+                node.reconstruct();
+                node.paint();
             }
         }
 
@@ -140,21 +147,21 @@ export default class PathfinderRenderer {
         this.paint();
     }
 
-    resize() {
+    resize(update?: boolean) {
         this.canvas.width =
             this.canvas.parentElement!.clientWidth * window.devicePixelRatio;
         this.canvas.height =
             this.canvas.parentElement!.clientHeight * window.devicePixelRatio;
 
-        this.update();
+        update && this.update();
     }
 
-    reset() {
-        usePathfinderStore.getState().setResult(null);
+    // reset() {
+    //     usePathfinderStore.getState().setResult(null);
 
-        // reset algorithm cache
-        this.update();
-    }
+    //     // reset algorithm cache
+    //     this.update();
+    // }
 
     resetVisited() {
         for (const node of this.nodes.values()) {
@@ -164,13 +171,48 @@ export default class PathfinderRenderer {
 
     resetBacktrace() {
         for (const node of this.nodes.values()) {
-            node.setBacktrace(false);
+            node.setBacktrace(null);
+        }
+    }
+
+    resetWeights() {
+        for (const node of this.nodes.values()) {
+            node.setWeight(null);
+        }
+    }
+
+    clear() {
+        for (const node of this.nodes.values()) {
+            node.setVisited(false);
+            node.setWeight(null);
+            node.setBacktrace(null);
         }
     }
 
     clearObstructions() {
         for (const node of this.nodes.values()) {
             node.setObstruction(false);
+        }
+
+        this.paint();
+    }
+
+    setBacktraceFromEntry(backtraceEntry: Entry, prevDirX = 0, prevDirY = 0) {
+        if (!backtraceEntry) {
+            return;
+        }
+
+        const dirX = backtraceEntry.parent
+            ? (backtraceEntry.node.x - (backtraceEntry.parent?.node?.x ?? 0))
+            : prevDirX;
+        const dirY = backtraceEntry.parent
+            ? backtraceEntry.node.y - (backtraceEntry.parent?.node?.y ?? 0)
+            : prevDirY;
+
+        backtraceEntry.node.backtrace = { dirX, dirY, prevDirX, prevDirY };
+
+        if (backtraceEntry.parent) {
+            this.setBacktraceFromEntry(backtraceEntry.parent, dirX, dirY);
         }
 
         this.paint();

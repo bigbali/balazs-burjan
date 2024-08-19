@@ -43,7 +43,7 @@ export default function SorterControls({ run }: PathfinderControlsProps) {
     }
 
     return (
-        <div className='flex gap-[1rem] justify-stretch w-full'>
+        <div className='flex gap-[1rem] justify-stretch w-full px-2'>
             {button}
         </div>
     );

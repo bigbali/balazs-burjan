@@ -69,16 +69,21 @@ const PathfinderCanvas = () => {
     };
 
     useWindowResize(() => {
-        requestAnimationFrame(() => renderer?.resize());
+        requestAnimationFrame(() => renderer?.resize(true));
 
-        // if the node menu is open while the window is resized, we hold a reference to a node that is no longer renderer,
+        // if the node menu is open while the window is resized, we hold a reference to a node that is no longer rendered,
         // thus we set it to null in order to prevent interacting with it
         nodeContext.close();
-        usePathfinderStore.getState().setPathfinderState(State.IDLE);
-        usePathfinderStore.getState().setObstructionGeneratorState(State.IDLE);
-        PATHFINDER_MAP[usePathfinderStore.getState().pathfinder].reset();
 
-        renderer?.reset();
+        const store = usePathfinderStore.getState();
+
+        store.setObstructionGeneratorState(State.IDLE);
+        // usePathfinderStore.getState().setResult(null);
+        // PATHFINDER_MAP[usePathfinderStore.getState().pathfinder].reset();
+
+        if (store.pathfinderState === State.RUNNING) {
+            PATHFINDER_MAP[store.pathfinder].reset();
+        }
     });
 
     useEffect(() => {

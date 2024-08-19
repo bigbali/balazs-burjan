@@ -40,7 +40,7 @@ export default function PathfinderContextMenu() {
 
         PATHFINDER_MAP[pathfinder].reset();
 
-        usePathfinderRendererStore.getState().renderer?.reset();
+        usePathfinderRendererStore.getState().renderer?.clear();
 
         // ??? renderer is null
         // renderer?.reset();

@@ -119,7 +119,7 @@ export default function SorterContextMenu() {
                 step={0.01}
                 onChange={(value: number) => renderer?.setScaling(value)}
             />
-            <div className='mt-auto'>
+            <div className='mt-auto text-sm'>
                 <p className='px-2 font-medium capitalize'>
                     State:&nbsp;
                     [{state}]

@@ -13,16 +13,19 @@ export default function useBacktraceHighlight(result: Entry | Paused) {
 
         if (!renderer) throw Error('no renderer');
 
-        let entry = result;
-        while (entry.parent) {
-            entry.node.setBacktrace();
+        // let entry = result;
+        // let entry2 = result;
 
-            if (renderer.showTraceVectors) {
-                entry.node.paintVector(entry.parent.node);
-            }
 
-            entry = entry.parent;
-        }
+        // while (entry.parent) {
+        //     entry.node.setBacktrace();
+        //     entry = entry.parent;
+        // }
+
+
+        // renderer.backtraceEntry = result;
+        renderer.setBacktraceFromEntry(result);
+
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
         hasRun = true;

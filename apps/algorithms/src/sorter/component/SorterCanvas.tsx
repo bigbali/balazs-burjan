@@ -17,7 +17,6 @@ export default function SorterCanvas() {
         requestAnimationFrame(() => renderer?.resize());
     });
 
-
     return (
         <div className='relative grid w-full h-full overflow-hidden place-items-center'>
             <canvas ref={canvas} />

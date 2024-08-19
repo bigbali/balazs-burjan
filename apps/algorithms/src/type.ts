@@ -82,6 +82,8 @@ export type Coordinate = {
     y: number
 };
 
+export type Vec2 = [number, number];
+
 export type Entry<T = {}> = (({
     node: PathfinderNode,
     parent: Entry
