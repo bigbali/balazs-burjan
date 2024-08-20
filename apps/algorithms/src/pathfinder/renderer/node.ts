@@ -1,3 +1,4 @@
+import { useNotificationStore } from 'ui-react19/src/store/useNotificationStore';
 import type PathfinderRenderer from '.';
 import { NodeColor } from '../../type';
 
@@ -36,7 +37,7 @@ export default class PathfinderNode {
         this.isVisited = false;
     }
 
-    reconstruct() {
+    recalculatePosition() {
         this.dx =
             (this.renderer.nodeSize + this.renderer.borderSize) * this.x +
             this.renderer.borderSize +
@@ -109,7 +110,23 @@ export default class PathfinderNode {
     }
 
     paintVector() {
+        const arrowLength = 20;
+        const arrowHeadSize = 10;
+        const arrowWidth = 4;
+
         const ctx = this.renderer.context;
+        const ns = this.renderer.nodeSize / 2;
+
+        if (ns * 2 < arrowLength) {
+            useNotificationStore.getState().pushUniqueNotification({
+                title: `Node size is too small (${(ns * 2).toFixed(1)}px) ${Date.now()}`,
+                description: 'Node size is too small to render the direction vectors, as you wouldn\'t be able to see them anyway.',
+                type: 'error',
+                timeout: 10000
+            });
+
+            return;
+        }
 
         const {
             dirX,
@@ -118,73 +135,76 @@ export default class PathfinderNode {
             prevDirY
         } = this.backtrace!;
 
-        const arrowLength = 20;
-        const arrowHeadSize = 10;
-
         // we don't consider endpoints corners, so we check for that too
         const corner = !(dirX === prevDirX && dirY === prevDirY)
             && dirX + dirY !== 0
             && prevDirX + prevDirY !== 0;
 
+        // previous directions align with the directions we are drawing our corner arrow to
         const cornerDirX = prevDirX;
         const cornerDirY = prevDirY;
 
         if (corner) {
-            const angle = Math.atan2(prevDirX, prevDirY);
-            const ns = this.renderer.nodeSize / 2;
+            const angleFirstSegment = Math.atan2(dirY, dirX);
 
-            const arrowTipX =
+            const firstSegmentTipX =
                 this.dx +
-                Math.cos(angle) * arrowLength +
+                Math.cos(angleFirstSegment) * arrowLength +
                 ns -
                 (arrowLength / 2 + arrowHeadSize) * dirX;
-            const arrowTipY =
+            const firstSegmentTipY =
                 this.dy +
-                Math.sin(angle) * arrowLength +
+                Math.sin(angleFirstSegment) * arrowLength +
                 ns -
                 (arrowLength / 2 + arrowHeadSize) * dirY;
 
             ctx.strokeStyle = 'white';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = arrowWidth;
 
             // draw the arrow shaft first segment
             ctx.beginPath();
             ctx.moveTo(
-                this.dx + ns - (arrowLength / 2) * dirX,
-                this.dy + ns - (arrowLength / 2) * dirY
+                this.dx + ns - (arrowLength / 1.5 * dirX),
+                this.dy + ns - (arrowLength / 1.5 * dirY)
             );
-            ctx.lineTo(arrowTipX, arrowTipY);
+            ctx.lineTo(firstSegmentTipX, firstSegmentTipY);
             ctx.stroke();
 
+            const angleSecondSegment = Math.atan2(prevDirY, prevDirX);
+
+            const secondSegmentStartX = firstSegmentTipX - arrowWidth / 2 * cornerDirX;
+            const secondSegmentStartY = firstSegmentTipY - arrowWidth / 2 * cornerDirY;
+
             const secondSegmentTipX =
-                arrowTipX + (arrowLength / 2) * cornerDirX;
+                secondSegmentStartX +
+                (arrowLength / 2) * cornerDirX;
             const secondSegmentTipY =
-                arrowTipY + (arrowLength / 2) * cornerDirY;
+                secondSegmentStartY +
+                (arrowLength / 2) * cornerDirY;
 
             // draw the arrow shaft second segment
             ctx.beginPath();
-            ctx.moveTo(arrowTipX, arrowTipY);
+            ctx.moveTo(secondSegmentStartX, secondSegmentStartY);
             ctx.lineTo(secondSegmentTipX, secondSegmentTipY);
             ctx.stroke();
 
             const leftHeadX =
                 secondSegmentTipX +
                 10 * prevDirX -
-                Math.cos(angle - Math.PI / 6) * arrowHeadSize;
+                Math.cos(angleSecondSegment - Math.PI / 6) * arrowHeadSize;
             const leftHeadY =
                 secondSegmentTipY +
                 10 * prevDirY -
-                Math.sin(angle - Math.PI / 6) * arrowHeadSize;
+                Math.sin(angleSecondSegment - Math.PI / 6) * arrowHeadSize;
 
             const rightHeadX =
                 secondSegmentTipX +
                 10 * prevDirX -
-                Math.cos(angle + Math.PI / 6) * arrowHeadSize;
+                Math.cos(angleSecondSegment + Math.PI / 6) * arrowHeadSize;
             const rightHeadY =
                 secondSegmentTipY +
                 10 * prevDirY -
-                Math.sin(angle + Math.PI / 6) * arrowHeadSize;
-
+                Math.sin(angleSecondSegment + Math.PI / 6) * arrowHeadSize;
 
             // draw the arrow head
             ctx.beginPath();
@@ -198,36 +218,43 @@ export default class PathfinderNode {
             ctx.fillStyle = 'white';
             ctx.fill();
 
-            // first segment tip
-            ctx.fillStyle = 'black';
-            ctx.fillRect(arrowTipX, arrowTipY, 3, 3);
-
-            // second segment tip
-            ctx.fillStyle = 'black';
-            ctx.fillRect(secondSegmentTipX, secondSegmentTipY, 3, 3);
-
             // --- debug ---
 
-            // left
-            ctx.fillStyle = 'green';
-            ctx.fillRect(leftHeadX, leftHeadY, 6, 6);
+            // const ds = 4;
+            // const doff = ds / 2;
 
-            // right too low
-            ctx.fillStyle = 'red';
-            ctx.fillRect(rightHeadX, rightHeadY, 6, 6);
+            // ctx.fillStyle = 'green';
+            // ctx.fillRect(secondSegmentStartX - doff, secondSegmentStartY - doff, ds, ds);
 
-            // tip ok
-            ctx.fillStyle = 'blue';
-            ctx.fillRect(
-                secondSegmentTipX + arrowHeadSize * prevDirX,
-                secondSegmentTipY + arrowHeadSize * prevDirY,
-                6,
-                6
-            );
+            // ctx.fillStyle = 'red';
+            // ctx.fillRect(secondSegmentTipX - doff, secondSegmentTipY - doff, ds, ds);
 
+            // // first segment tip
+            // ctx.fillStyle = 'black';
+            // ctx.fillRect(arrowTipX, arrowTipY, 3, 3);
+
+            // // second segment tip
+            // ctx.fillStyle = 'black';
+            // ctx.fillRect(secondSegmentTipX, secondSegmentTipY, 3, 3);
+
+            // // left
+            // ctx.fillStyle = 'green';
+            // ctx.fillRect(leftHeadX, leftHeadY, 6, 6);
+
+            // // right too low
+            // ctx.fillStyle = 'red';
+            // ctx.fillRect(rightHeadX, rightHeadY, 6, 6);
+
+            // // tip ok
+            // ctx.fillStyle = 'blue';
+            // ctx.fillRect(
+            //     secondSegmentTipX + arrowHeadSize * prevDirX,
+            //     secondSegmentTipY + arrowHeadSize * prevDirY,
+            //     6,
+            //     6
+            // );
         } else {
             const angle = Math.atan2(dirY, dirX);
-            const ns = this.renderer.nodeSize / 2;
 
             const arrowTipX =
                 this.dx +
@@ -255,7 +282,7 @@ export default class PathfinderNode {
                 Math.sin(angle + Math.PI / 6) * arrowHeadSize;
 
             ctx.strokeStyle = 'white';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = arrowWidth;
 
             // draw the arrow shaft
             ctx.beginPath();

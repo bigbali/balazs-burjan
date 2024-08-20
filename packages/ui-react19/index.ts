@@ -11,6 +11,4 @@ export { default as Layout } from './src/Layout';
 
 export { default as useWindowResize } from './src/hook/useWindowResize';
 
-export { useLoading } from './src/store/loading';
-
 export { default as cn } from './src/util/cn';

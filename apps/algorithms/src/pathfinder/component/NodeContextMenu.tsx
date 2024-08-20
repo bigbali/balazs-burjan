@@ -41,7 +41,7 @@ type NodeControlsProps = {
 };
 
 export default function NodeContextMenu({ position, container }: NodeControlsProps){
-    'use no memo'; // react auto-memoized the node when rendering to ui, so we got stale state to node.isObstruction
+    'use no memo'; // react19 auto-memoized the node when rendering to ui, so we got stale state to node.isObstruction
 
     const { node, isOpen, close } = useNodeControlsStore();
 

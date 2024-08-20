@@ -11,7 +11,6 @@ import NodeContextMenu, { useNodeControlsStore } from './NodeContextMenu';
 import usePathfinderRenderer from '../hook/usePathfinderRenderer';
 import { useWindowResize } from 'ui-react19';
 import usePathfinderStore from '../hook/usePathfinderStore';
-import useBacktraceHighlight from '../hook/useBacktraceHighlight';
 import { PATHFINDER_MAP } from '../algorithm';
 
 let isMouseDown = false;
@@ -22,8 +21,7 @@ const PathfinderCanvas = () => {
     const [cursorPosition, setCursorPosition] = useState<Coordinate | null>(null);
     const nodeContext = useNodeControlsStore();
 
-    const { columns, rows, result } = usePathfinderStore();
-    useBacktraceHighlight(result);
+    const { columns, rows } = usePathfinderStore();
 
     const canvas = useRef<HTMLCanvasElement>(null);
     const ref = useRef<HTMLDivElement>(null);
@@ -71,15 +69,16 @@ const PathfinderCanvas = () => {
     useWindowResize(() => {
         requestAnimationFrame(() => renderer?.resize(true));
 
+        // [OUTDATED]
         // if the node menu is open while the window is resized, we hold a reference to a node that is no longer rendered,
         // thus we set it to null in order to prevent interacting with it
+        // [UPDATE]
+        // it's just not worth it to recalculate the node menu position on every resize, so we just close it
         nodeContext.close();
 
         const store = usePathfinderStore.getState();
 
         store.setObstructionGeneratorState(State.IDLE);
-        // usePathfinderStore.getState().setResult(null);
-        // PATHFINDER_MAP[usePathfinderStore.getState().pathfinder].reset();
 
         if (store.pathfinderState === State.RUNNING) {
             PATHFINDER_MAP[store.pathfinder].reset();

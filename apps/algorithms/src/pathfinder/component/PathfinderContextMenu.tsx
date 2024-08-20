@@ -67,6 +67,7 @@ export default function PathfinderContextMenu() {
 
             setResult(result);
             setPathfinderState(State.IDLE);
+            renderer?.setBacktraceFromEntry(result);
         }
     };
 

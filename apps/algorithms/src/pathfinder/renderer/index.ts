@@ -56,6 +56,7 @@ export default class PathfinderRenderer {
         this.update(true);
     }
 
+    // first we clear the previous origin and target, then set the new ones
     setOrigin(newOrigin: PathfinderNode) {
         this.origin.isOrigin = false;
         this.origin.paint();
@@ -133,8 +134,7 @@ export default class PathfinderRenderer {
             }
         } else {
             for (const node of this.nodes.values()) {
-                node.reconstruct();
-                node.paint();
+                node.recalculatePosition();
             }
         }
 

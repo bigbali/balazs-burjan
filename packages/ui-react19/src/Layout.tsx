@@ -4,6 +4,7 @@ import type {
 } from 'react';
 import Head from 'next/head';
 import Header from './Header';
+import NotificationContainer from './NotificationContainer';
 
 type LayoutProps = {
     title?: string,
@@ -25,6 +26,7 @@ export default function Layout (
             </Head>
             <Header auth={auth} />
             <main ref={ref}>{children}</main>
+            <NotificationContainer />
         </>
     );
 }
