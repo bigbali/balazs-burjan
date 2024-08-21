@@ -48,7 +48,7 @@ function NotificationTitle({ className, children, ref, notificationId, ...props 
     return (
         <p ref={ref} className={cn('flex items-center gap-4 mb-1 font-medium leading-none tracking-tight', className)} {...props}>
             <span className='flex flex-1 p-1 text-sm'>{children}</span>
-            <button className='p-1 font-mono hover:text-destructive' onClick={() => removeNotification(notificationId)}>
+            <button className='p-1 font-mono' onClick={() => removeNotification(notificationId)}>
                 X
             </button>
         </p>

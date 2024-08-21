@@ -58,37 +58,37 @@ export default class PathfinderNode {
         this.renderer.setTarget(this);
     }
 
-    setVisited(state?: boolean) {
+    setVisited(state?: boolean, repaint = true) {
         if (state === false) {
             this.isVisited = false;
         } else {
             this.isVisited = true;
         }
 
-        this.paint();
+        repaint && this.paint();
     }
 
-    setWeight(weight: number | null) {
+    setWeight(weight: number | null, repaint = true) {
         this.weight = weight;
-        this.paint();
+        repaint && this.paint();
     }
 
-    setHighlighted(state: boolean) {
+    setHighlighted(state: boolean, repaint = true) {
         this.isHighlighted = state;
-        this.paint();
+        repaint && this.paint();
     }
 
-    setObstruction(state: boolean) {
+    setObstruction(state: boolean, repaint = true) {
         if (!this.isOrigin && !this.isTarget) {
             this.isObstruction = state;
         }
 
-        this.paint();
+        repaint && this.paint();
     }
 
-    setBacktrace(value: typeof this.backtrace) {
+    setBacktrace(value: typeof this.backtrace, repaint = true) {
         this.backtrace = value;
-        this.paint();
+        repaint && this.paint();
     }
 
     text(text: string) {
@@ -116,11 +116,14 @@ export default class PathfinderNode {
 
         const ctx = this.renderer.context;
         const ns = this.renderer.nodeSize / 2;
+        const minimumNodeSize = arrowLength + arrowWidth;
 
-        if (ns * 2 < arrowLength) {
+        if (this.renderer.nodeSize < minimumNodeSize) {
             useNotificationStore.getState().pushUniqueNotification({
-                title: `Node size is too small (${(ns * 2).toFixed(1)}px) ${Date.now()}`,
-                description: 'Node size is too small to render the direction vectors, as you wouldn\'t be able to see them anyway.',
+                title: `Node size is too small (${this.renderer.nodeSize.toFixed(1)}px)`,
+                description:
+                    'Node size is too small to render the direction vectors, as you wouldn\'t be able to see them anyway.\n' +
+                    `The minimum node size is ${minimumNodeSize}px`,
                 type: 'error',
                 timeout: 10000
             });

@@ -156,22 +156,15 @@ export default class PathfinderRenderer {
         update && this.update();
     }
 
-    // reset() {
-    //     usePathfinderStore.getState().setResult(null);
-
-    //     // reset algorithm cache
-    //     this.update();
-    // }
-
-    resetVisited() {
+    resetVisited(repaint?: boolean) {
         for (const node of this.nodes.values()) {
-            node.setVisited(false);
+            node.setVisited(false, repaint);
         }
     }
 
-    resetBacktrace() {
+    resetBacktrace(repaint?: boolean) {
         for (const node of this.nodes.values()) {
-            node.setBacktrace(null);
+            node.setBacktrace(null, repaint);
         }
     }
 
@@ -183,9 +176,9 @@ export default class PathfinderRenderer {
 
     clear() {
         for (const node of this.nodes.values()) {
-            node.setVisited(false);
-            node.setWeight(null);
-            node.setBacktrace(null);
+            node.setVisited(false, false);
+            node.setWeight(null, false);
+            node.setBacktrace(null, true);
         }
     }
 

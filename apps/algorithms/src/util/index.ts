@@ -94,8 +94,8 @@ Array.prototype.clear = function(this: []) {
 export const setupPathfinder: SetupPathfinder = (entries, initialEntry, resume) => {
     if (!resume) {
         entries.clear();
-        usePathfinderRendererStore.getState().renderer?.resetVisited();
-        usePathfinderRendererStore.getState().renderer?.resetBacktrace();
+        usePathfinderRendererStore.getState().renderer?.resetVisited(false);
+        usePathfinderRendererStore.getState().renderer?.resetBacktrace(true);
 
         Array.isArray(initialEntry)
             ? entries.push(...initialEntry)
