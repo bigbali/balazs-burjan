@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCircleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { NodeColor } from '../../type';
+import usePathfinderRenderer from '../hook/usePathfinderRenderer';
 
 type SelectedNodeStore = {
     isOpen: boolean,
@@ -44,6 +45,7 @@ export default function NodeContextMenu({ position, container }: NodeControlsPro
     'use no memo'; // react19 auto-memoized the node when rendering to ui, so we got stale state to node.isObstruction
 
     const { node, isOpen, close } = useNodeControlsStore();
+    const { renderer } = usePathfinderRenderer();
 
     type NodeMethod = () => void;
     const set = function<T extends NodeMethod>(callback: T){
@@ -121,14 +123,14 @@ export default function NodeContextMenu({ position, container }: NodeControlsPro
                     <button
                         className={buttonClass}
                         style={{ background: NodeColor.ORIGIN }}
-                        onClick={set(() => node.setOrigin())}
+                        onClick={set(() => renderer?.setOrigin(node))}
                     >
                         Set Origin
                     </button>
                     <button
                         className={buttonClass}
                         style={{ background: NodeColor.TARGET }}
-                        onClick={set(() => node.setTarget())}
+                        onClick={set(() => renderer?.setTarget(node))}
                     >
                         Set Target
                     </button>

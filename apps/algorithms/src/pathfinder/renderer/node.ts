@@ -21,7 +21,14 @@ export default class PathfinderNode {
         prevDirY: number;
     } | null = null;
 
-    constructor(renderer: PathfinderRenderer, x: number, y: number, isObstruction: boolean, isTarget: boolean, isOrigin: boolean) {
+    constructor(
+        renderer: PathfinderRenderer,
+        x: number,
+        y: number,
+        isObstruction: boolean,
+        isTarget: boolean,
+        isOrigin: boolean
+    ) {
         this.renderer = renderer;
         this.x = x;
         this.y = y;
@@ -29,10 +36,14 @@ export default class PathfinderNode {
         this.isTarget = isTarget;
         this.isOrigin = isOrigin;
 
-        this.dx = (this.renderer.nodeSize + this.renderer.borderSize) * x + this.renderer.borderSize + this.renderer.padding.x;
+        this.dx =
+            (this.renderer.nodeSize + this.renderer.borderSize) * x +
+            this.renderer.borderSize +
+            this.renderer.padding.x;
         this.dy =
             (this.renderer.nodeSize + this.renderer.borderSize) * y +
-            this.renderer.borderSize + this.renderer.padding.y;
+            this.renderer.borderSize +
+            this.renderer.padding.y;
 
         this.isVisited = false;
     }
@@ -48,14 +59,25 @@ export default class PathfinderNode {
             this.renderer.padding.y;
     }
 
-    setOrigin() {
+    // setOrigin() {
+    //     this.isObstruction = false;
+    //     this.renderer.setOrigin(this);
+    // }
+    setOrigin(value: boolean, repaint = true) {
         this.isObstruction = false;
-        this.renderer.setOrigin(this);
+        this.isOrigin = value;
+        repaint && this.paint();
     }
 
-    setTarget() {
+    // setTarget() {
+    //     this.isObstruction = false;
+    //     this.renderer.setTarget(this);
+    // }
+
+    setTarget(value: boolean, repaint = true) {
         this.isObstruction = false;
-        this.renderer.setTarget(this);
+        this.isTarget = value;
+        repaint && this.paint();
     }
 
     setVisited(state?: boolean, repaint = true) {
@@ -131,17 +153,13 @@ export default class PathfinderNode {
             return;
         }
 
-        const {
-            dirX,
-            prevDirX,
-            dirY,
-            prevDirY
-        } = this.backtrace!;
+        const { dirX, prevDirX, dirY, prevDirY } = this.backtrace!;
 
         // we don't consider endpoints corners, so we check for that too
-        const corner = !(dirX === prevDirX && dirY === prevDirY)
-            && dirX + dirY !== 0
-            && prevDirX + prevDirY !== 0;
+        const corner =
+            !(dirX === prevDirX && dirY === prevDirY) &&
+            dirX + dirY !== 0 &&
+            prevDirX + prevDirY !== 0;
 
         // previous directions align with the directions we are drawing our corner arrow to
         const cornerDirX = prevDirX;
@@ -167,23 +185,23 @@ export default class PathfinderNode {
             // draw the arrow shaft first segment
             ctx.beginPath();
             ctx.moveTo(
-                this.dx + ns - (arrowLength / 1.5 * dirX),
-                this.dy + ns - (arrowLength / 1.5 * dirY)
+                this.dx + ns - (arrowLength / 1.5) * dirX,
+                this.dy + ns - (arrowLength / 1.5) * dirY
             );
             ctx.lineTo(firstSegmentTipX, firstSegmentTipY);
             ctx.stroke();
 
             const angleSecondSegment = Math.atan2(prevDirY, prevDirX);
 
-            const secondSegmentStartX = firstSegmentTipX - arrowWidth / 2 * cornerDirX;
-            const secondSegmentStartY = firstSegmentTipY - arrowWidth / 2 * cornerDirY;
+            const secondSegmentStartX =
+                firstSegmentTipX - (arrowWidth / 2) * cornerDirX;
+            const secondSegmentStartY =
+                firstSegmentTipY - (arrowWidth / 2) * cornerDirY;
 
             const secondSegmentTipX =
-                secondSegmentStartX +
-                (arrowLength / 2) * cornerDirX;
+                secondSegmentStartX + (arrowLength / 2) * cornerDirX;
             const secondSegmentTipY =
-                secondSegmentStartY +
-                (arrowLength / 2) * cornerDirY;
+                secondSegmentStartY + (arrowLength / 2) * cornerDirY;
 
             // draw the arrow shaft second segment
             ctx.beginPath();
@@ -271,17 +289,21 @@ export default class PathfinderNode {
                 (arrowLength / 2 + arrowHeadSize) * dirY;
 
             const leftHeadX =
-                arrowTipX + (10 * dirX) - Math.cos(angle - Math.PI / 6) * arrowHeadSize;
+                arrowTipX +
+                10 * dirX -
+                Math.cos(angle - Math.PI / 6) * arrowHeadSize;
             const leftHeadY =
-                arrowTipY  + (10 * dirY)- Math.sin(angle - Math.PI / 6) * arrowHeadSize;
+                arrowTipY +
+                10 * dirY -
+                Math.sin(angle - Math.PI / 6) * arrowHeadSize;
 
             const rightHeadX =
                 arrowTipX +
-                (10 * dirX) -
+                10 * dirX -
                 Math.cos(angle + Math.PI / 6) * arrowHeadSize;
             const rightHeadY =
                 arrowTipY +
-                (10 * dirY) -
+                10 * dirY -
                 Math.sin(angle + Math.PI / 6) * arrowHeadSize;
 
             ctx.strokeStyle = 'white';

@@ -1,7 +1,15 @@
-import type { Entry, Resolution } from '../../type';
+import type { Direction, Entry, Resolution } from '../../type';
 import { Dimensions } from '../../type';
 import PathfinderNode from './node';
 import usePathfinderStore from '../hook/usePathfinderStore';
+import { useNotificationStore } from 'ui-react19/src/store/useNotificationStore';
+
+const DIRECTIONS_IF_ORIGIN_IS_TARGET = [
+    [0, 1],
+    [1, 0],
+    [0, -1],
+    [-1, 0]
+] as const satisfies Direction[];
 
 export default class PathfinderRenderer {
     canvas: HTMLCanvasElement;
@@ -57,22 +65,16 @@ export default class PathfinderRenderer {
     }
 
     // first we clear the previous origin and target, then set the new ones
-    setOrigin(newOrigin: PathfinderNode) {
-        this.origin.isOrigin = false;
-        this.origin.paint();
-
+    setOrigin(newOrigin: PathfinderNode, repaint?: boolean) {
+        this.origin.setOrigin(false, repaint);
         this.origin = newOrigin;
-        this.origin.isOrigin = true;
-        this.origin.paint();
+        this.origin.setOrigin(true, repaint);
     }
 
-    setTarget(newTarget: PathfinderNode) {
-        this.target.isTarget = false;
-        this.target.paint();
-
+    setTarget(newTarget: PathfinderNode, repaint?: boolean) {
+        this.target.setTarget(false, repaint);
         this.target = newTarget;
-        this.target.isTarget = true;
-        this.target.paint();
+        this.target.setTarget(true, repaint);
     }
 
     setShowNumbers(fn: (showNumbers: boolean) => boolean) {
@@ -246,12 +248,6 @@ export default class PathfinderRenderer {
             originY = edgeY;
         }
 
-        const origin = this.getNodeAtIndex(originX, originY);
-
-        if (origin && origin !== this.origin) {
-            this.setOrigin(origin);
-        }
-
         let targetX = this.target.x;
         let targetY = this.target.y;
 
@@ -263,11 +259,38 @@ export default class PathfinderRenderer {
             targetY = edgeY;
         }
 
+        let origin = this.getNodeAtIndex(originX, originY);
         const target = this.getNodeAtIndex(targetX, targetY);
 
-        if (target && target !== this.target) {
-            this.setTarget(target);
+        // if when resizing, origin gets pushed onto the target, we need to find a new origin
+        while(origin === target) {
+            origin?.setOrigin(false);
+
+            useNotificationStore.getState().pushUniqueNotification({
+                title: 'Origin and target are the same',
+                description: 'Origin and target are the same, finding new origin...',
+                type: 'info'
+            });
+
+            for (const direction of DIRECTIONS_IF_ORIGIN_IS_TARGET) {
+                const newOriginX = originX + direction[0];
+                const newOriginY = originY + direction[1];
+
+                origin = this.getNodeAtIndex(newOriginX, newOriginY);
+            }
         }
+
+        origin!.backtrace = null;
+
+        if (origin && origin !== this.origin) {
+            // we don't want to repaint here as we haven't yet replaced the nodes in case we are rebuilding
+            this.setOrigin(origin, true);
+        }
+
+        if (target && target !== this.target) {
+            this.setTarget(target, true);
+        }
+        origin?.paint('purple');
     }
 
     #ensureContainment(initial?: boolean) {
